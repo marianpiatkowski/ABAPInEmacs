@@ -89,7 +89,7 @@
   (let ((project (abap-get-current-project))
         (server (read-string "Server https url: ")))
     (abaplib-add-server-to-project project server)
-    (message "Severl url %s added to current project" server)))
+    (message "Server URL %s added to current project" server)))
 
 (defun abap-login ()
   "Login to server"

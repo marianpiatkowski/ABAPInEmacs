@@ -275,7 +275,7 @@
                                                          (car (last
                                                                (car (xml-get-children exception-node 'localizedMessage)))))
                                                        error-thrown))
-                                (setq error-message "Unknown error occured."))
+                                (setq error-message "Unknown error occurred."))
                               (message "%s" error-message))
                     ;; :complete (lambda (&rest -) (message "Complete" ))
                     args)))))
