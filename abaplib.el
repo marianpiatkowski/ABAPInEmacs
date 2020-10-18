@@ -24,6 +24,7 @@
 
 ;;; Code:
 
+(require 'cl)
 (require 'cl-lib)
 (require 'request)
 (require 'xml)
