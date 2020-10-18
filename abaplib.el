@@ -24,7 +24,7 @@
 
 ;;; Code:
 
-;; (eval-when-compile (require 'cl))
+(require 'cl)
 (require 'request)
 (require 'xml)
 
@@ -940,7 +940,7 @@
        (let* ((response (cl-getf rest :response))
               (ETag (request-response-header response "ETag")))
          ;;TODO Refresh properties
-         (message "Submit source to server succeed.")))
+         (message "Submit source to server succeeded.")))
      :type "PUT"
      :data source-code
      :headers headers

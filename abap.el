@@ -24,8 +24,8 @@
 
 ;;; Code:
 
+(require 'subr-x)
 (require 'abaplib)
-;; (require 'abaplib-program)
 
 
 ;; (defvar-local abap--abap-object nil
@@ -117,7 +117,7 @@
          ;;                                                                  'description)))
          ;;                              (format "%-8s %-30s %s" type name description)))
          ;;                          search-result))
-         ;; (selected-item (split-string (completing-read "Maching Items: " completing-list)
+         ;; (selected-item (split-string (completing-read "Matching Items: " completing-list)
          ;; " " t))
          ;; (item-type (car selected-item))
          ;; (item-name (nth 1 selecetd-item))
@@ -130,7 +130,7 @@
               (append  completing-list
                        `((,(format "%-3s %-30s %s" index name description)))))
         (setq index (+ index 1))))
-    (let* ((selected-item (completing-read "Maching Items: " completing-list))
+    (let* ((selected-item (completing-read "Matching Items: " completing-list))
            (selected-index (string-to-number (car (split-string selected-item " " t))))
            (selected-object (nth (- selected-index 1) search-result))
            (object-node (xml-get-children selected-object 'objectReference))
