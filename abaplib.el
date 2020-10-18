@@ -24,7 +24,7 @@
 
 ;;; Code:
 
-(require 'cl)
+(require 'cl-lib)
 (require 'request)
 (require 'xml)
 
@@ -599,7 +599,7 @@
 (defun abaplib-check-show-message (messages)
   (let ((severity-level "I")
         (output-log))
-    (dolist (message messages severity-level output-log)
+    (dolist (message messages (cl-values severity-level output-log))
       (let* ((uri (xml-get-attribute message 'uri))
              (type (xml-get-attribute message 'type))
              (text (xml-get-attribute message 'shortText))
@@ -753,7 +753,7 @@
 (defun abaplib--activate-show-message (messages)
   (let ((severity-level "I")
         (output-log))
-    (dolist (message messages severity-level output-log)
+    (dolist (message messages (cl-values severity-level output-log))
       (let* ((uri (xml-get-attribute message 'href))
              (type (xml-get-attribute message 'type))
              (text (car (last (car (xml-get-children
