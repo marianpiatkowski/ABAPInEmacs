@@ -3,7 +3,7 @@
 ;; Copyright (C) 2018  Marvin Qian
 
 ;; Author: Marvin Qian <qianmarv@gmail.com>
-;; Keywords: 
+;; Keywords:
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 ;;; Commentary:
 
-;; 
+;;
 
 ;;; Code:
 (require 'abap)

@@ -75,7 +75,7 @@
    * You can do a one time login with =abap-login=, by default the encoded
      credential will be persisted, so that you don't have to manually login everytime.
    * Search ABAP development object (currently support ABAP report and ABAP
-     class only), and choose the one you want to retrieve source to local. 
+     class only), and choose the one you want to retrieve source to local.
    * Once retrieve succeed, you're in the object directory, and you can see the
      sources have been retrieved, now you can open any of the source code.
    * Once the file with suffix ~.abap~ been opened, the major mode =ABAP-MODE=
@@ -87,6 +87,6 @@
      - abap-submit-source
      - abap-activate-source
      - abap-code-completion
-     
+
    You can also create git repository with the retrieve source code and
    cooperate with other colleagues.
