@@ -416,9 +416,9 @@
     (unless server
       (error "Project %s not bind to any server" project))
 
-    (message "Login...")
+    (message "Logging in ...")
 
-    ;; First loing with token to get cookie
+    ;; First login with token to get cookie
     (request
      url
      :sync t
@@ -433,7 +433,7 @@
             :sync t)))
 
     (unless (eq login-status 'success)
-      (error "Connect to server Failed!"))
+      (error "Connecting to server failed!"))
 
     ;; Login succeed
     (setq abaplib--login-last-time (time-to-seconds (current-time)))
@@ -497,7 +497,7 @@
   "Check syntax for program source
   TODO check whether source changed since last retrieved from server
        Not necessary to send the source code to server if no change."
-  (message "Send syntax check request...")
+  (message "Sending syntax check request ...")
   (let ((chkrun-uri (concat uri "/" source-uri))
         (chkrun-content (base64-encode-string source-code)))
     (if dont-show-error?
@@ -636,7 +636,7 @@
 ;; Module - Core Services - Lock
 ;;==============================================================================
 (defun abaplib--lock-sync(uri csrf-token)
-  (message "Try to lock object...")
+  (message "Trying to lock object ...")
   (let* ((root-node (abaplib--rest-api-call
                      uri
                      nil
@@ -678,7 +678,7 @@
 ;; Module - Core Services - Activate Server Side Source
 ;;========================================================================
 (defun abaplib-do-activate(name uri)
-  (message "Post activation request...")
+  (message "Post activation request ...")
   (abaplib--activate-post name uri))
 
 (defun abaplib--activate-parse-result (result)
@@ -688,7 +688,7 @@
                                                                    'msg)))
       ('inactiveObjects (abaplib--activate-postaudit (xml-get-children result
                                                                        'entry)))
-      (t (message "Source activated in server.")))))
+      (t (message "Source activated in server!")))))
 
 (defun abaplib--activate-post(adtcore-name adtcore-uri)
   (let* ((preaudit-result (abaplib--activate-preaudit adtcore-name adtcore-uri))
@@ -779,12 +779,12 @@
         (abaplib-util-log-buf-write output-log))
 
     (cond ((string= severity-level "I")
-           (message "Activation successful"))
+           (message "Activation successful!"))
           ((string= severity-level "W")
-           (message "Activation successful with `warnings'"))
+           (message "Activation successful with `warnings'!"))
           ((string= severity-level "E")
            (progn
-             (message "Activation failed with `errors'")
+             (message "Activation failed with `errors'!")
              (abaplib-util-log-buf-pop))))))
 
 ;;========================================================================
@@ -792,7 +792,7 @@
 ;;========================================================================
 (defun abaplib-retrieve-trans-request (full-source-uri)
   "Check and retrieve transport request"
-  (message "Check transport request...")
+  (message "Checking transport request ...")
   (let* ((transcheck-uri "/sap/bc/adt/cts/transportchecks")
          (post_data (abaplib--transport-check-template full-source-uri))
          (xml-root (abaplib--rest-api-call
@@ -941,7 +941,7 @@
        (let* ((response (cl-getf rest :response))
               (ETag (request-response-header response "ETag")))
          ;;TODO Refresh properties
-         (message "Submit source to server succeeded.")))
+         (message "Submitting source to server succeeded!")))
      :type "PUT"
      :data source-code
      :headers headers
@@ -964,7 +964,7 @@
 ;;========================================================================
 (defun abaplib-do-codecompletion-proposal (full-source-uri pos_row pos_col source-code)
   "Request code completion proposal"
-  (message "Request proposal completion from server...")
+  (message "Requesting proposal completion from server ...")
   (let* ((request-uri "/sap/bc/adt/abapsource/codecompletion/proposal")
          (params `((uri . ,(format "%s#start=%d,%d"
                                    full-source-uri pos_row pos_col))
