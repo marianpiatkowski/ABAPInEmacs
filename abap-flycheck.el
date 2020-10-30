@@ -56,7 +56,7 @@
 
 
 (defun flycheck-abap-setup()
-  "setup Flycheck abap"
+  "Set up flycheck ABAP."
   (interactive)
   (flycheck-define-generic-checker 'abap
     "A syntax checker for ABAP using abap-mode"

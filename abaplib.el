@@ -179,7 +179,7 @@
   (car (last (car (xml-get-children node key)))))
 
 (defun abaplib--get-local-properties ()
-  "Load property file on current directory for current buffer"
+  "Load property file on current directory for current buffer."
   (let ((property-file (expand-file-name abaplib--property-file)))
     ;; Ensure propert file exist
     (unless (file-exists-p property-file)
@@ -285,7 +285,7 @@
 ;; Module - Project
 ;;==============================================================================
 (defun abaplib-get-ws-describe-file()
-  "Get workspace description file"
+  "Get workspace description file."
   (let* ((config-dir (expand-file-name ".abap" abap-workspace-dir))
          (describe-file (expand-file-name "projects.json" config-dir)))
     (unless (file-directory-p config-dir) ;; Initialize for first time
@@ -295,14 +295,14 @@
     describe-file))
 
 (defun abaplib-save-workspace-descriptor (descriptor)
-  "Save descriptor to workspace in `overwrite' way"
+  "Save descriptor to workspace in `overwrite' way."
   (abaplib-util-jsonize-to-file
    descriptor
    (abaplib-get-ws-describe-file))
   (setq abaplib--workspace-descriptor-cache descriptor))
 
 (defun abaplib-get-workspace-descriptor()
-  "Get workspace descriptor"
+  "Get workspace descriptor."
   (unless abaplib--workspace-descriptor-cache
     (setq abaplib--workspace-descriptor-cache
           (json-read-file (abaplib-get-ws-describe-file))))
@@ -310,11 +310,11 @@
 
 (defun abaplib-get-project-props (project)
   "Get project properties by project key.
-   In current implemention should be symbol of project dir"
+   In current implemention should be symbol of project directory."
   (assoc-string project (abaplib-get-workspace-descriptor)))
 
 (defun abaplib-project-set-property (project property)
-  "Set property to project, property should be a key value pair"
+  "Set property to project, property should be a key value pair."
   (let* ((project-props (abaplib-get-project-props project))
          (new-props (abaplib-util-upsert-alists project-props property)))
     (abaplib-upsert-project new-props)))
@@ -327,13 +327,13 @@
                        (cdr (abaplib-get-project-props project))))))
 
 (defun abaplib-upsert-project(project-props)
-  "When create or init project, add project information into workspace descriptor"
+  "When creating or initializing a project, add project information into workspace descriptor."
   (let* ((descriptor (abaplib-get-workspace-descriptor))
          (new-descriptor (abaplib-util-upsert-alists descriptor project-props)))
     (abaplib-save-workspace-descriptor new-descriptor)))
 
 (defun abaplib-create-project (project-dir)
-  "Create project, if already exist, do nothing"
+  "Create project. If one already exists, do nothing"
   (let* ((project-dir (replace-regexp-in-string "/$" "" project-dir))
          (project-props-curr (abaplib-get-project-props project-dir))
          (project-props-new (or project-props-curr
@@ -350,7 +350,7 @@
         (abaplib-switch-project project-dir)))))
 
 (defun abaplib-project-init-propose (dir)
-  "Propose project automatically"
+  "Give a project suggestion in prompt."
   (if dir (cond
            ((locate-dominating-file dir ".git"))
            ((locate-dominating-file dir ".abap"))
@@ -358,7 +358,7 @@
     abap-workspace-dir))
 
 (defun abaplib-get-project-list ()
-  "Get project list described in workspace descriptor file <workspace_dir>/.abap_workspace"
+  "Get project list described in workspace descriptor file <workspace_dir>/.abap_workspace."
   (let ((descriptor (abaplib-get-workspace-descriptor)))
     (mapcar
      (lambda (project-props)
@@ -366,11 +366,11 @@
      descriptor)))
 
 (defun abaplib-switch-project (project)
-  "Switch variable `abaplib--current-project' and go to project directory"
+  "Set the variable `abaplib--current-project'."
   (setq abaplib--current-project project))
 
 (defun abaplib-remove-project (project)
-  "Remove project from workspace"
+  "Remove project from workspace."
   (let* ((descriptor (abaplib-get-workspace-descriptor))
          (new-descriptor (seq-filter
                           (lambda (project-props)
@@ -380,14 +380,14 @@
     (setq abaplib--current-project nil)))
 
 (defun abaplib-get-project-api-url (uri)
-  "Compose full API url"
+  "Build full API URL."
   (if (string-match "^http[s]*://" uri)
       uri
     (concat (replace-regexp-in-string "/*$" "/" (abaplib-project-get-property 'server))
             (replace-regexp-in-string "^/*" "" uri))))
 
 (defun abaplib-get-project-cache-dir ()
-  "Get project cache directory"
+  "Get project cache directory."
   (let ((cache-dir (expand-file-name
                     ".cache"
                     (abaplib-project-get-property 'path))))
@@ -400,7 +400,7 @@
   (abaplib-project-set-property project (cons 'server server)))
 
 (defun abaplib-get-project-path ()
-  "Get project path"
+  "Get path of current project."
   (abaplib-project-get-property 'path))
 
 ;;==============================================================================
@@ -408,7 +408,7 @@
 ;;==============================================================================
 
 (defun abaplib-auth-login-with-token(project login-token sap-client &optional save?)
-  "Login into ABAP Server with token"
+  "Login into ABAP Server with token."
   (let ((url ;; "http://ldcier9.wdf.sap.corp:50000/sap/bc/adt/core/discovery"
          (abaplib-get-project-api-url abaplib--uri-login))
         (server (abaplib-project-get-property 'server project))
@@ -445,7 +445,7 @@
     (message "Connected to server!")))
 
 (defun abaplib-get-login-token ()
-  "Get login token and validate `abaplib--login-token-cache'"
+  "Get login token and validate `abaplib--login-token-cache'."
   (let ((login-token (or abaplib--login-token-cache
                          (abaplib-project-get-property 'login_token))))
     (unless login-token
@@ -453,7 +453,7 @@
     (setq abaplib--login-token-cache login-token)))
 
 (defun abaplib-get-sap-client ()
-  "Get sap client and validate `abaplib--sap-client-cache'"
+  "Get SAP client and validate `abaplib--sap-client-cache'."
   (let ((sap-client (or abaplib--sap-client-cache
                         (abaplib-project-get-property 'sap_client))))
     (unless sap-client
@@ -477,7 +477,7 @@
 ;; Module - Core Services - Search
 ;;==============================================================================
 (defun abaplib-do-search (query-string)
-  "Search ABAP objects in server in synchronouse call"
+  "Search ABAP objects in server with synchronous URL call."
   (let* ((search-uri "/sap/bc/adt/repository/informationsystem/search")
          (params `((operation . "quickSearch")
                    (query . ,(concat query-string "*"))
@@ -494,8 +494,8 @@
 ;; Module - Core Services - Syntax Check
 ;;==============================================================================
 (defun abaplib-do-check(version uri source-uri source-code dont-show-error?)
-  "Check syntax for program source
-  TODO check whether source changed since last retrieved from server
+  "Check syntax for program source.
+  TODO check whether source changed since last retrieved from server.
        Not necessary to send the source code to server if no change."
   (message "Sending syntax check request ...")
   (let ((chkrun-uri (concat uri "/" source-uri))
@@ -505,7 +505,7 @@
       (abaplib--check-post-async version uri chkrun-uri chkrun-content))))
 
 (defun abaplib--check-template (adtcore-uri chkrun-uri version chkrun-content)
-  "Return xml of checkObjects"
+  "Return XML of 'checkObjects' node."
   (concat
    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
    "<chkrun:checkObjectList xmlns:adtcore=\"http://www.sap.com/adt/core\" xmlns:chkrun=\"http://www.sap.com/adt/checkrun\">"
@@ -791,7 +791,7 @@
 ;; Module - Core Services - Handle Change Request
 ;;========================================================================
 (defun abaplib-retrieve-trans-request (full-source-uri)
-  "Check and retrieve transport request"
+  "Check and retrieve transport request."
   (message "Checking transport request ...")
   (let* ((transcheck-uri "/sap/bc/adt/cts/transportchecks")
          (post_data (abaplib--transport-check-template full-source-uri))
@@ -860,7 +860,7 @@
 ;; Module - Core Services - Retrieve Metadata & Source Code
 ;;========================================================================
 (defun abaplib-do-retrieve (name type uri &optional source-name)
-  " Retrieve ABAP object"
+  " Retrieve ABAP development object."
   ;; 1. Retrieve metadata from uri -- common
   ;; 2. Parse metadata -- specific
   ;; 3. Save properties & Old properties -- common
@@ -925,9 +925,9 @@
 ;; Module - Core Services - Submit Source to Server
 ;;========================================================================
 (defun abaplib-do-submit(full-source-uri source-code &optional tr-number)
-  "Submit source to server
-   TODO Check source in server side if current source was changed based on an old version
-   The submission should be cancelled"
+  "Submit source back to server.
+   TODO Check source in server side if current source was changed based on an old version.
+   The submission should then be cancelled."
   (let* ((csrf-token (abaplib-get-csrf-token))
          (lock-handle (abaplib--lock-sync full-source-uri csrf-token))
          (params `(("lockHandle" . ,lock-handle)))
@@ -951,7 +951,7 @@
 ;; Module - Core Services - Format Source From Server
 ;;========================================================================
 (defun abaplib-do-format (source-code)
-  "Format Source Code"
+  "Format source code - `pretty print'."
   (let* ((format-uri "/sap/bc/adt/abapsource/prettyprinter"))
     (abaplib--rest-api-call format-uri
                             nil
@@ -963,7 +963,7 @@
 ;; Module - Core Services - Code Completion
 ;;========================================================================
 (defun abaplib-do-codecompletion-proposal (full-source-uri pos_row pos_col source-code)
-  "Request code completion proposal"
+  "Request for code completion."
   (message "Requesting proposal completion from server ...")
   (let* ((request-uri "/sap/bc/adt/abapsource/codecompletion/proposal")
          (params `((uri . ,(format "%s#start=%d,%d"
@@ -982,7 +982,7 @@
         (xml-get-children data-node 'SCC_COMPLETION)))))
 
 (defun abaplib-do-codecompletion-insert (full-source-uri pos_row pos_col pattern-key source-code)
-  "Insert code completion"
+  "Insert code completion to source."
   (let* ((request-uri "/sap/bc/adt/abapsource/codecompletion/insertion")
          (params `((uri . ,(format "%s#start=%d,%d"
                                    full-source-uri pos_row pos_col))

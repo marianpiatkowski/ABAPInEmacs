@@ -37,7 +37,7 @@
 
 ;;;###autoload
 (defun abap-create-project ()
-  "Create new ABAP project"
+  "Create new ABAP project."
   (interactive)
   (let* ((project-name (or (read-string "Project name (without blank): " )
                            (error "project name can't be empty")))
@@ -50,7 +50,7 @@
     (abap-open-project project)))
 
 (defun abap-add-project ()
-  "Add ABAP project into workspace"
+  "Add ABAP project into workspace."
   (interactive)
   (let* ((current-dir (abaplib-util-current-dir))
          (project(expand-file-name
@@ -61,7 +61,7 @@
 
 (defun abap-remove-project ()
   "Remove ABAP project from workspace.
-  `Note:' this operation will not physically delete the project files."
+  `Note:' This operation will not physically delete the project files."
   (interactive)
   (let ((project (completing-read "Select Project: "
                                   (abaplib-get-project-list))))
@@ -70,7 +70,7 @@
 
 ;;;###autoload
 (defun abap-open-project (&optional project)
-  "Open ABAP project"
+  "Open ABAP project."
   (interactive)
   (let ((project (or project
                      (completing-read "Select Project: " (abaplib-get-project-list)))))
@@ -78,13 +78,13 @@
     (dired project)))
 
 (defun abap-get-current-project ()
-  "Get current project, prompt user choose project if none"
+  "Get current project, prompt user action project if none has been chosen."
   (unless abaplib--current-project
     (call-interactively 'abap-open-project))
   abaplib--current-project)
 
 (defun abap-add-server ()
-  "Add server to current project"
+  "Add server to current project."
   (interactive)
   (let ((project (abap-get-current-project))
         (server (read-string "Server https url: ")))
@@ -92,7 +92,7 @@
     (message "Server URL %s added to current project" server)))
 
 (defun abap-login ()
-  "Login to server"
+  "Login to server."
   (interactive)
   (let* ((project (abap-get-current-project))
          (username (upcase (read-string "Username: ")))
@@ -105,7 +105,7 @@
 
 ;;;###autoload
 (defun abap-search-object ()
-  "Retrieve ABAP objects"
+  "Search and retrieve ABAP development objects."
   (interactive)
   (let* ((project (abap-get-current-project))
          (query-string (read-string "Enter Search String: "))
@@ -140,7 +140,7 @@
       (dired object-path))))
 
 (defun abap-retrieve-source ()
-  "Retrieve source"
+  "Retrieve source of a ABAP development object."
   (interactive)
   (let ((source-name (file-name-nondirectory (buffer-file-name)))
         (object-name (abaplib-get-property 'name))
@@ -153,7 +153,7 @@
                          source-name)))
 
 (defun abap-check-source (&optional dont-show-error?)
-  "Check source"
+  "Syntax check of source."
   (interactive)
   (let* ((source-name (file-name-nondirectory (buffer-file-name)))
          (source-version (abaplib-get-property 'version source-name))
@@ -165,7 +165,7 @@
     (abaplib-do-check source-version object-uri source-uri source-code dont-show-error?)))
 
 (defun abap-submit-source ()
-  "Submit source"
+  "Submit source back to server."
   (interactive)
   (let* ((source-name (file-name-nondirectory (buffer-file-name)))
          (object-uri (abaplib-get-property 'uri))
@@ -184,14 +184,14 @@
     (abaplib-do-submit full-source-uri source-code tr-number)))
 
 (defun abap-activate-source ()
-  "Activate source"
+  "Activate source."
   (interactive)
   (let ((object-name (abaplib-get-property 'name))
         (object-uri (abaplib-get-property 'uri)))
     (abaplib-do-activate object-name object-uri)))
 
 (defun abap-format-source ()
-  "Format source - `pretty print'"
+  "Format source - `pretty print'."
   (interactive)
   (let* ((curr-buffer (current-buffer))
          (object-name (abaplib-get-property 'name))
@@ -208,7 +208,7 @@
         (insert formated-source)))))
 
 (defun abap-code-completion ()
-  "ABAP code completion"
+  "Invoke ABAP code completion."
   (interactive)
   (let* ((curr-buffer (current-buffer))
          (source-name (file-name-nondirectory (buffer-file-name)))
