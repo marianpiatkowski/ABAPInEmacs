@@ -416,7 +416,7 @@
     (unless server
       (error "Project %s not bind to any server" project))
 
-    (message "Logging in ...")
+    (message "Logging in...")
 
     ;; First login with token to get cookie
     (request
@@ -497,7 +497,7 @@
   "Check syntax for program source.
   TODO check whether source changed since last retrieved from server.
        Not necessary to send the source code to server if no change."
-  (message "Sending syntax check request ...")
+  (message "Sending syntax check request...")
   (let ((chkrun-uri (concat uri "/" source-uri))
         (chkrun-content (base64-encode-string source-code)))
     (if dont-show-error?
@@ -636,7 +636,7 @@
 ;; Module - Core Services - Lock
 ;;==============================================================================
 (defun abaplib--lock-sync(uri csrf-token)
-  (message "Trying to lock object ...")
+  (message "Trying to lock object...")
   (let* ((root-node (abaplib--rest-api-call
                      uri
                      nil
@@ -678,7 +678,7 @@
 ;; Module - Core Services - Activate Server Side Source
 ;;========================================================================
 (defun abaplib-do-activate(name uri)
-  (message "Post activation request ...")
+  (message "Post activation request...")
   (abaplib--activate-post name uri))
 
 (defun abaplib--activate-parse-result (result)
@@ -792,7 +792,7 @@
 ;;========================================================================
 (defun abaplib-retrieve-trans-request (full-source-uri)
   "Check and retrieve transport request."
-  (message "Checking transport request ...")
+  (message "Checking transport request...")
   (let* ((transcheck-uri "/sap/bc/adt/cts/transportchecks")
          (post_data (abaplib--transport-check-template full-source-uri))
          (xml-root (abaplib--rest-api-call
@@ -964,7 +964,7 @@
 ;;========================================================================
 (defun abaplib-do-codecompletion-proposal (full-source-uri pos_row pos_col source-code)
   "Request for code completion."
-  (message "Requesting proposal completion from server ...")
+  (message "Requesting proposal completion from server...")
   (let* ((request-uri "/sap/bc/adt/abapsource/codecompletion/proposal")
          (params `((uri . ,(format "%s#start=%d,%d"
                                    full-source-uri pos_row pos_col))

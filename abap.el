@@ -100,7 +100,7 @@
          (client   (read-string "SAP Client: "  ))
          (login-token (format "Basic %s" (base64-encode-string
                                           (concat username ":" password)))))
-    (message "Connecting ...")
+    (message "Connecting...")
     (abaplib-auth-login-with-token project login-token client abap-save-login-credential)))
 
 ;;;###autoload
