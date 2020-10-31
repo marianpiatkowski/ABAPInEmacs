@@ -65,10 +65,16 @@ You should have already created a private layer. In this layer add code below to
 
 ### As a package manually
 
-**TODO: Reword**
-
-You can download the packpage from here directly and initialize it within
-your configurations.
+Clone this repository and add `ABAPInEmacs` directory to your `load-path`.
+```cl
+(add-to-list 'load-path "path/to/ABAPInEmacs")
+(require 'abap)
+(require 'abap-flycheck)
+```
+Specify your workspace directory by setting the variable `abap-workspace-dir`.
+```cl
+(setq abap-workspace-dir "path/to/ABAPWorkspace")
+```
 
 ## Usage
 

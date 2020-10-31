@@ -1,7 +1,9 @@
 ;;; abaplib.el --- sap abap server lib          -*- lexical-binding: t; -*-
 
+;; Copyright (C) 2020  Marian Piatkowski
 ;; Copyright (C) 2018  Marvin Qian
 
+;; Author: Marian Piatkowski <marianpiatkowski@web.de>
 ;; Author: Marvin Qian <qianmarv@gmail.com>
 ;; Keywords: SAP, ABAP, CDS
 
