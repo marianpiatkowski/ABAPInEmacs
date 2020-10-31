@@ -3,8 +3,10 @@
 
 ## Introduction
 
-This package intends to create a complete ABAP development environment in Emacs. It should support
-the following functions:
+This project implements a Emacs plugin which allows to access development artifacts like reports,
+classes, interfaces etc. of a ABAP system. It uses the ABAP Development Tools (ADT) HTTP protocol
+to access the ABAP workbench functionality. Currently, the following commands are provided by this
+package:
 
 - Retrieve (Pull) source from ABAP server
 - Offline edit
