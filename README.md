@@ -1,5 +1,6 @@
 # ABAP In Emacs (AiE)
 
+**TODO: Integrate `sap-abap-mode` to have `ABAP Mode` available**
 
 ## Introduction
 
@@ -93,22 +94,28 @@ Steps to set up a ABAP project:
 
 ### Start development
 
-- Logon to ABAP server with `M-x abap-login`. By default, the encoded credential will be persisted
-  so that a login on each action is not required.
-- Search ABAP development object. Currently, only ABAP reports and ABAP classes are supported.
-  **TODO: Reword remainder of this subsection**
-  and choose the one you want to retrieve source to local.
-- Once retrieve succeed, you're in the object directory, and you can see the
-  sources have been retrieved, now you can open any of the source code.
-- Once the file with suffix ~.abap~ been opened, the major mode =ABAP-MODE=
-  will be switched, and you have all the functions with abap mode as in
-  below:
+The following steps are an essential part of the workflow:
 
-    - abap-retrieve-source
-    - abap-format-source
-    - abap-check-source
-    - abap-submit-source
-    - abap-activate-source
-    - abap-code-completion
+1. `M-x abap-login` - Logon to ABAP server\
+    By default, the encoded credential will be persisted so that a login on each action is not
+    required.
+2. `M-x abap-search-object` - Search ABAP development object\
+   The source code of the selected item is pulled from the ABAP server afterwards and a `Dired`
+   buffer opens up showing the corresponding files.
 
-You can also create git repository with the retrieved source code and collaborate with other colleagues.
+Once a ABAP development object has been successfully fetched by Step 2, the following steps can be
+done when working on `.abap`-files:
+
+3. `M-x abap-retrieve-source` - Update content of ABAP development object in current buffer from server\
+    Note that after a successful fetch of the data the buffer has to be reverted manually!
+    (`M-x revert-buffer`)
+4. `M-x abap-check-source` - Perform syntax check of object in current buffer
+    If errors and/or warnings occur, they are displayed in the \***ABAP Log**\* buffer.
+5. `M-x abap-format-source` - Do source code formatting of object (pretty print)
+6. `M-x abap-submit-source` - Submit local content in current buffer to ABAP server\
+    Unless the object resides server-side in the `$TMP` package, a transport request has to be
+    chosen to for the current version of the source code.
+7. `M-x abap-activate-source` - Activate (compile) server-side object in current buffer
+8. `M-x abap-code-completion` - Request proposals for code completion from ABAP server
+
+You can also create a Git repository with the retrieved source code and collaborate with other colleagues.
