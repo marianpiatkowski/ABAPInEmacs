@@ -100,8 +100,8 @@ The following steps are an essential part of the workflow:
     By default, the encoded credential will be persisted so that a login on each action is not
     required.
 2. `M-x abap-search-object` - Search ABAP development object\
-   The source code of the selected item is pulled from the ABAP server afterwards and a `Dired`
-   buffer opens up showing the corresponding files.
+    The source code of the selected item is pulled from the ABAP server afterwards and a `Dired`
+    buffer opens up showing the corresponding files.
 
 Once a ABAP development object has been successfully fetched by Step 2, the following steps can be
 done when working on `.abap`-files:
