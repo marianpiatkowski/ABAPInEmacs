@@ -113,8 +113,8 @@ done when working on `.abap`-files:
     If errors and/or warnings occur, they are displayed in the \***ABAP Log**\* buffer.
 5. `M-x abap-format-source` - Do source code formatting of object (pretty print)
 6. `M-x abap-submit-source` - Submit local content in current buffer to ABAP server\
-    Unless the object resides server-side in the `$TMP` package, a transport request has to be
-    chosen to for the current version of the source code.
+    Unless the object is local on the server side, a transport request has to be chosen for the
+    current version of the source code.
 7. `M-x abap-activate-source` - Activate (compile) server-side object in current buffer
 8. `M-x abap-code-completion` - Request proposals for code completion from ABAP server
 
