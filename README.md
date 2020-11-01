@@ -19,55 +19,6 @@ package:
 
 ## Installation
 
-### Within Spacemacs
-
-You should have already created a private layer. In this layer add code below to `packages.el`:
-
-```cl
-(defconst <your-layer-name>-packages
-  '(
-    (abap-mode
-     :location (recipe :fetcher github :repo "qianmarv/sap-abap-mode"))
-
-    (abap
-     :location (recipe :fetcher github :repo "qianmarv/ABAPInEmacs"))
-    ))
-
-(defun qianmarv-sap/init-abap-mode ()
-  (use-package abap-mode
-    :mode ("\\.abap\\'" . abap-mode)
-    :init
-        ;;    (add-to-list 'auto-mode-alist '("\\.abap\\'" . abap-mode))
-    ))
-
-(defun qianmarv-sap/init-abap ()
-  (use-package abap
-    :defer t
-    :after (request)
-    :init
-    (progn
-       (spacemacs/declare-prefix  "aa" "ABAP Development")
-       (spacemacs/set-leader-keys "aac" 'abap-create-project)
-       (spacemacs/set-leader-keys "aaa" 'abap-add-project)
-       (spacemacs/set-leader-keys "aar" 'abap-remove-project)
-       (spacemacs/set-leader-keys "aao" 'abap-open-project)
-       (spacemacs/set-leader-keys "aas" 'abap-add-server)
-       (spacemacs/set-leader-keys "aaf" 'abap-search-object)
-       (spacemacs/set-leader-keys "aal" 'abap-login)
-       (spacemacs/set-leader-keys-for-major-mode 'abap-mode "p" 'abap-open-project)
-       (spacemacs/set-leader-keys-for-major-mode 'abap-mode "f" 'abap-search-object)
-       (spacemacs/set-leader-keys-for-major-mode 'abap-mode "r" 'abap-retrieve-source)
-       (spacemacs/set-leader-keys-for-major-mode 'abap-mode "c" 'abap-check-source)
-       (spacemacs/set-leader-keys-for-major-mode 'abap-mode "r" 'abap-retrieve-source)
-       (spacemacs/set-leader-keys-for-major-mode 'abap-mode "s" 'abap-submit-source)
-       (spacemacs/set-leader-keys-for-major-mode 'abap-mode "a" 'abap-activate-source)
-       (spacemacs/set-leader-keys-for-major-mode 'abap-mode "=" 'abap-format-source)
-       (global-set-key (kbd "<C-return>") 'abap-code-completion)
-       )))
-```
-
-### As a package manually
-
 Clone this repository and add `ABAPInEmacs` directory to your `load-path`.
 ```cl
 (add-to-list 'load-path "path/to/ABAPInEmacs")
