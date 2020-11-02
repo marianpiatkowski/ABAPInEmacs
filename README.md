@@ -36,10 +36,10 @@ Specify your workspace directory by setting the variable `abap-workspace-dir`.
 
 Steps to set up a ABAP project:
 
-- Create a project with `M-x abap-create-project`.
-  If you already have a project, with `M-x abap-add-project`.
+- Create a project with `M-x abap-create-project`.\
+  If you already have a project, it can be added with `M-x abap-add-project`.\
   Remove an existing project with `M-x abap-remove-project`. This will not physically remove the
-  project files.
+  project files.\
   At any time, you can open or switch to an existing project with `M-x abap-open-project`.
 - Add a ABAP server to project with `M-x abap-add-server`.
 
@@ -51,8 +51,8 @@ The following steps are an essential part of the workflow:
     By default, the encoded credential will be persisted so that a login on each action is not
     required.
 2. `M-x abap-search-object` - Search ABAP development object\
-    The source code of the selected item is pulled from the ABAP server afterwards and a `Dired`
-    buffer opens up showing the corresponding files.
+    The source code of the selected search result is then pulled from the ABAP server and a
+    directory buffer opens up showing the corresponding files.
 
 Once a ABAP development object has been successfully fetched by Step 2, the following steps can be
 done when working on `.abap`-files:
@@ -66,7 +66,7 @@ done when working on `.abap`-files:
 6. `M-x abap-submit-source` - Submit local content in current buffer to ABAP server\
     Unless the object is local on the server side, a transport request has to be chosen for the
     current version of the source code.
-7. `M-x abap-activate-source` - Activate (compile) server-side object in current buffer
+7. `M-x abap-activate-source` - Activate (compile) object in current buffer on the server
 8. `M-x abap-code-completion` - Request proposals for code completion from ABAP server
 
 You can also create a Git repository with the retrieved source code and collaborate with other colleagues.
