@@ -1,16 +1,15 @@
 # ABAP In Emacs (AiE)
 
-**TODO: Integrate `sap-abap-mode` to have `ABAP Mode` available**
-
 ## Introduction
 
 This project implements a Emacs plugin which allows to access development artifacts like reports,
 classes, interfaces etc. of a ABAP system. It uses the ABAP Development Tools (ADT) HTTP protocol
-to access the ABAP workbench functionality. Currently, the following commands are provided by this
-package:
+to access the ABAP workbench functionality. Currently, the package provides the following:
 
 - Retrieve (Pull) source from ABAP server
-- Offline edit
+- Offline edit\
+  To have `ABAP Mode` available, a major mode for editing/viewing development files in Emacs,
+  install [sap-abap-mode](https://github.com/marianpiatkowski/sap-abap-mode) (see description below).
 - Server side formating & auto-complete
 - Server side syntax check
 - Submit (push) source to ABAP server
@@ -19,9 +18,20 @@ package:
 
 ## Installation
 
-Clone this repository and add `ABAPInEmacs` directory to your `load-path`.
+The current version can only be installed manually. Clone this repository with the `--recursive` option, i.e.
+```bash
+$ git clone --recursive https://github.com/marianpiatkowski/ABAPInEmacs.git
+```
+to get additional packages like [sap-abap-mode](https://github.com/marianpiatkowski/sap-abap-mode) as well.
+Add `ABAPInEmacs` directory to your `load-path`
 ```cl
 (add-to-list 'load-path "path/to/ABAPInEmacs")
+;; sap-abap-mode includes
+(require 'abap-mode)
+(add-to-list 'auto-mode-alist '("\\.abap\\'" . abap-mode))
+;; ADT files as well
+(add-to-list 'auto-mode-alist '("\\.\\(asprog\\|asinc\\|aclass\\)\\'" . abap-mode))
+;; ABAPInEmacs includes
 (require 'abap)
 (require 'abap-flycheck)
 ```
@@ -29,6 +39,8 @@ Specify your workspace directory by setting the variable `abap-workspace-dir`.
 ```cl
 (setq abap-workspace-dir "path/to/ABAPWorkspace")
 ```
+
+With the configuration above `ABAP Mode` will be loaded automatically once a file with suffix `.abap` has been opened.
 
 ## Usage
 
