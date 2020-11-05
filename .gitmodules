@@ -1,0 +1,3 @@
+[submodule "sap-abap-mode"]
+	path = sap-abap-mode
+	url = https://github.com/marianpiatkowski/sap-abap-mode.git
