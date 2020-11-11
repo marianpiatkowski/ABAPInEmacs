@@ -233,7 +233,7 @@
                          completion-result))
            (selected-key (completing-read "Matches: " prompt-list))
            (completion (alist-get (intern selected-key) prompt-list))
-           (prefix-length (string-to-int (abaplib-util-get-xml-value completion
+           (prefix-length (string-to-number (abaplib-util-get-xml-value completion
                                                                      'PREFIXLENGTH)))
            (completion-source (abaplib-do-codecompletion-insert full-source-uri
                                                                 (line-number-at-pos)
