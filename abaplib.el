@@ -173,8 +173,7 @@
   alists)
 
 (defun abaplib-util-goto-position (line column)
-  (goto-char (point-min))
-  (forward-line (- line 1))
+  (goto-line line)
   (move-to-column column))
 
 (defun abaplib-util-get-xml-value (node key)
