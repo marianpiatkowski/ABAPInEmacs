@@ -1,0 +1,31 @@
+
+* [[file:zmp_decorator_demo1.abap::11][interface Widget]]
+    [[file:zmp_decorator_demo1.abap::12][methods draw]]
+
+* [[file:zmp_decorator_demo1.abap::15][class TextField definition]]
+    [[file:zmp_decorator_demo1.abap::26][method constructor]]
+    [[file:zmp_decorator_demo1.abap::21][data width type i]]
+    [[file:zmp_decorator_demo1.abap::22][data height type i]]
+    [[file:zmp_decorator_demo1.abap::31][method Widget~draw]]
+
+* [[file:zmp_decorator_demo1.abap::36][class Decorator definition]]
+    [[file:zmp_decorator_demo1.abap::50][method constructor]]
+    [[file:zmp_decorator_demo1.abap::46][data wid type ref to Widget]]
+    [[file:zmp_decorator_demo1.abap::54][method draw]]
+
+* [[file:zmp_decorator_demo1.abap::59][class BorderDecorator definition inheriting from Decorator]]
+    [[file:zmp_decorator_demo1.abap::67][method constructor]]
+    [[file:zmp_decorator_demo1.abap::71][method draw]]
+
+* [[file:zmp_decorator_demo1.abap::77][class ScrollDecorator definition inheriting from Decorator]]
+    [[file:zmp_decorator_demo1.abap::85][method constructor]]
+    [[file:zmp_decorator_demo1.abap::89][method draw]]
+
+[[file:zmp_decorator_demo1.abap::95][start-of-selection]]
+[[file:zmp_decorator_demo1.abap::97][data aWidget type ref to Widget]]
+  [[file:zmp_decorator_demo1.abap::105][begin of ty_data]]
+  [[file:zmp_decorator_demo1.abap::109][tty_data type hashed table of ty_data with unique key i]]
+[[file:zmp_decorator_demo1.abap::111][data(items) = value tty_data( ( i = 1 s = 'Test' )]]
+[[file:zmp_decorator_demo1.abap::115][data(filtered_data) = filter #( items except where i = 1 )]]
+[[file:zmp_decorator_demo1.abap::117][loop at filtered_data into data(filtered_data_row)]]
+[[file:zmp_decorator_demo1.abap::122][end-of-selection]]
