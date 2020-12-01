@@ -232,6 +232,12 @@
     (and abaplib--login-last-time
          (<= (- now abaplib--login-last-time) abap-login-timeout))))
 
+(defun abaplib-buffer-whole-string (buffer)
+  (with-current-buffer buffer
+    (save-restriction
+      (widen)
+      (buffer-substring-no-properties (point-min) (point-max)))))
+
 (defun abaplib--rest-api-call(uri success-callback &rest args)
   "Call service API."
   (let* ((url (abaplib-get-project-api-url uri))

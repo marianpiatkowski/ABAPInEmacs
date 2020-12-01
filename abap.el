@@ -157,27 +157,25 @@
 (defun abap-check-source (&optional dont-show-error?)
   "Syntax check of source."
   (interactive)
-  (let* ((source-name (file-name-nondirectory (buffer-file-name)))
+  (let* ((curr-buffer (current-buffer))
+         (source-name (file-name-nondirectory (buffer-file-name)))
          (source-version (abaplib-get-property 'version source-name))
          (object-uri (abaplib-get-property 'uri))
          (source-uri (abaplib-get-property 'source-uri source-name))
-         (source-code (buffer-substring-no-properties
-                       (point-min)
-                       (point-max))))
+         (source-code (abaplib-buffer-whole-string curr-buffer)))
     (abaplib-do-check source-version object-uri source-uri source-code dont-show-error?)))
 
 (defun abap-submit-source ()
   "Submit source back to server."
   (interactive)
-  (let* ((source-name (file-name-nondirectory (buffer-file-name)))
+  (let* ((curr-buffer (current-buffer))
+         (source-name (file-name-nondirectory (buffer-file-name)))
          (object-uri (abaplib-get-property 'uri))
          (source-uri (abaplib-get-property 'source-uri source-name))
          (package     (abaplib-get-property 'package))
          (full-source-uri (concat object-uri "/" source-uri))
          (tr-number)
-         (source-code (buffer-substring-no-properties
-                       (point-min)
-                       (point-max))))
+         (source-code (abaplib-buffer-whole-string curr-buffer)))
     (unless (string= package "$TMP")
       (let* ((requests (abaplib-retrieve-trans-request full-source-uri))
              (selected-req (completing-read "Change Request: " requests)))
@@ -197,9 +195,7 @@
   (interactive)
   (let* ((curr-buffer (current-buffer))
          (object-name (abaplib-get-property 'name))
-         (source-code (buffer-substring-no-properties
-                       (point-min)
-                       (point-max)))
+         (source-code (abaplib-buffer-whole-string curr-buffer))
          (formated-source (abaplib-do-format source-code)))
     (unless (or (not formated-source)
                 (string= formated-source ""))
@@ -217,9 +213,7 @@
          (object-uri (abaplib-get-property 'uri))
          (source-uri (abaplib-get-property 'source-uri source-name))
          (full-source-uri (concat object-uri "/" source-uri))
-         (source-code (buffer-substring-no-properties
-                       (point-min)
-                       (point-max)))
+         (source-code (abaplib-buffer-whole-string curr-buffer))
          (completion-result (abaplib-do-codecompletion-proposal full-source-uri
                                                                 (line-number-at-pos)
                                                                 (current-column)
