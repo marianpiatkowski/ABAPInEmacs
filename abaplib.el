@@ -1001,6 +1001,31 @@
                             :params params
                             :parser 'abaplib-util-sourcecode-parser)))
 
+;;========================================================================
+;; Module - Core Services - Code Navigation
+;;========================================================================
+(defun abaplib-do-navigate-target (full-source-uri pos_row pos_col source-code)
+  "Navigate to matching statement"
+  (message "Navigating...")
+  (let* ((request-uri "/sap/bc/adt/navigation/target")
+         (params `((uri . ,(format "%s#start=%d,%d"
+                                   full-source-uri pos_row pos_col))
+                   (filter . "implementation")
+                   (filter . "matchingStatement")))
+         (navigation-result (abaplib--rest-api-call request-uri
+                                                    nil
+                                                    :parser 'abaplib-util-xml-parser
+                                                    :type "POST"
+                                                    :headers `(("x-csrf-token" . ,(abaplib-get-csrf-token))
+                                                               ("x-sap-adt-sessiontype" . "stateful")
+                                                               ("Content-Type" . "text/plain")
+                                                               ("Accept" . "application/xml"))
+                                                    :data source-code
+                                                    :params params)))
+    (when navigation-result
+      (let* ((uri-node (cadr navigation-result)))
+        (cdr (assoc 'uri uri-node))))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Module - Object Type Specific - ABAP Class
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

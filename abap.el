@@ -240,5 +240,34 @@
           (set-buffer curr-buffer)
           (insert source))))))
 
+(defun abap-navigate-code ()
+  "Navigate to object under cursor."
+  (interactive)
+  (let* ((curr-buffer (current-buffer))
+         (source-name (file-name-nondirectory (buffer-file-name)))
+         (object-uri (abaplib-get-property 'uri))
+         (source-uri (abaplib-get-property 'source-uri source-name))
+         (full-source-uri (concat object-uri "/" source-uri))
+         (source-code (abaplib-buffer-whole-string curr-buffer))
+         (target-uri (abaplib-do-navigate-target full-source-uri
+                                                 (line-number-at-pos)
+                                                 (current-column)
+                                                 source-code))
+         (target-source-uri (car (split-string target-uri "#start=\\([0-9]+,[0-9]+\\)")))
+         (target-source-pos (split-string (progn
+                                            (string-match "#start=\\([0-9]+,[0-9]+\\)" target-uri)
+                                            (match-string 1 target-uri)) ","))
+         )
+    ;;(message (format "%s" target-source-uri))
+    ;;(message (format "%s" (string-match "#start=\\([0-9]+,[0-9]+\\)" target-uri)))
+    ;;(message (format "%s" target-source-pos))
+    (unless (string= full-source-uri target-source-uri)
+      (error "Code navigation to different object not yet supported!"))
+    ;; TODO implement possible fetch of target source, and switch to buffer
+    (switch-to-buffer curr-buffer)
+    (goto-line (string-to-number (car target-source-pos)))
+    (move-to-column (string-to-number (cadr target-source-pos)))
+    ))
+
 (provide 'abap)
 ;;; abap-in-emacs.el ends here
