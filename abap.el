@@ -262,7 +262,7 @@
     ;;(message (format "%s" (string-match "#start=\\([0-9]+,[0-9]+\\)" target-uri)))
     ;;(message (format "%s" target-source-pos))
     (unless (string= full-source-uri target-source-uri)
-      (error "Code navigation to different object not yet supported!"))
+      (error (format "Navigation to different target uri %s not yet supported!" target-uri)))
     ;; TODO implement possible fetch of target source, and switch to buffer
     (switch-to-buffer curr-buffer)
     (goto-line (string-to-number (car target-source-pos)))
