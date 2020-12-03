@@ -1026,6 +1026,19 @@
       (let* ((uri-node (cadr navigation-result)))
         (cdr (assoc 'uri uri-node))))))
 
+;;========================================================================
+;; Module - Core Services - Execute
+;;========================================================================
+(defun abaplib-do-execute (full-source-uri object-name)
+  "Execute ABAP development object via WTS."
+  (let ((url (abaplib-get-project-api-url "/sap/bc/gui/sap/its/")))
+    (cond ((string-match "/adt/programs/programs/" full-source-uri)
+           (setq url (concat url (format "webgui?~TRANSACTION=*se38%%20RS38M-PROGRAMM=%s;DYNP_OKCODE=STRT" object-name)))
+           (browse-url url))
+          ((string-match "/adt/classes/oo/" full-source-uri)
+           (setq url (concat url (format "webgui?~TRANSACTION=*se24%%20SEOCLASS-CLSNAME=%s;DYNP_OKCODE=WB_EXEC" object-name)))
+           (browse-url url)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Module - Object Type Specific - ABAP Class
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

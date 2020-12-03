@@ -269,5 +269,16 @@
     (move-to-column (string-to-number (cadr target-source-pos)))
     ))
 
+(defun abap-execute-object ()
+  "Execute ABAP development object."
+  (interactive)
+  (let* ((source-name (file-name-nondirectory (buffer-file-name)))
+         (object-uri (abaplib-get-property 'uri))
+         (object-name (abaplib-get-property 'name))
+         (source-uri (abaplib-get-property 'source-uri source-name))
+         (full-source-uri (concat object-uri "/" source-uri))
+         )
+    (abaplib-do-execute full-source-uri object-name)))
+
 (provide 'abap)
 ;;; abap-in-emacs.el ends here
