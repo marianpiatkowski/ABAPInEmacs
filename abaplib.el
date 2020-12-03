@@ -1035,7 +1035,7 @@
     (cond ((string-match "/adt/programs/programs/" full-source-uri)
            (setq url (concat url (format "webgui?~TRANSACTION=*se38%%20RS38M-PROGRAMM=%s;DYNP_OKCODE=STRT" object-name)))
            (browse-url url))
-          ((string-match "/adt/classes/oo/" full-source-uri)
+          ((string-match "/adt/oo/classes/" full-source-uri)
            (setq url (concat url (format "webgui?~TRANSACTION=*se24%%20SEOCLASS-CLSNAME=%s;DYNP_OKCODE=WB_EXEC" object-name)))
            (browse-url url)))))
 
