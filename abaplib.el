@@ -1026,6 +1026,28 @@
       (let* ((uri-node (cadr navigation-result)))
         (cdr (assoc 'uri uri-node))))))
 
+(defun abaplib-goto-source (full-source-uri full-source-pos)
+  "Open ABAP development object from uri and navigate to line number and column number
+given by `full-source-pos'.
+Note that the object to be visited has to be retrieved in advance!"
+  (let* ((source-uri (last (split-string full-source-uri "/") 2)) ;; source-uri as a list
+         (object-uri (car (split-string full-source-uri (format "/%s/" (car source-uri)))))
+         (object-info (abaplib--rest-api-call object-uri nil :parser 'abaplib-util-xml-parser))
+         (object-type (cdr (assoc 'type (nth 1 object-info))))
+         (object-name (cdr (assoc 'name (nth 1 object-info))))
+         (object-path (abaplib-get-path object-type object-name))
+         (object-filename-base (cadr source-uri)) ;; gives main or implementations etc.
+         (object-filename (file-name-completion object-filename-base object-path))
+         (object-filepath (concat object-path "/" object-filename))
+         )
+    ;; TODO (abaplib-do-retrieve object-name object-type object-uri)) not yet implemented
+    (unless object-filename
+      (error (format "Cannot navigate to target uri \"%s\"! Please fetch from server first." full-source-uri)))
+    (switch-to-buffer (find-file-other-window object-filepath)
+      (goto-line (string-to-number (car full-source-pos)))
+      (move-to-column (string-to-number (cadr full-source-pos))))
+    ))
+
 ;;========================================================================
 ;; Module - Core Services - Execute
 ;;========================================================================
