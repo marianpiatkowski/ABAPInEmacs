@@ -184,7 +184,7 @@
   (let ((property-file (expand-file-name abaplib--property-file)))
     ;; Ensure propert file exist
     (unless (file-exists-p property-file)
-      (error "Missing property file, please user `search' to retrieve again!"))
+      (error "Missing property file, please use `search' to retrieve again!"))
     (setq abaplib--abap-object-properties (json-read-file property-file))))
 
 (defun abaplib-get-property (name &optional source_name)
@@ -212,6 +212,8 @@
       ('PROG (progn
                (setq parent-directory --dir-source-code)
                (setq sub-directory "Programs" ))))
+    (unless (and parent-directory sub-directory)
+      (error (format "Unknown ABAP source type %s" major-type)))
 
     (let* ((parent-path (expand-file-name parent-directory
                                           (abaplib-get-project-path)))
