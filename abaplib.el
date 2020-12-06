@@ -211,7 +211,10 @@
                (setq sub-directory    "Classes" )))
       ('PROG (progn
                (setq parent-directory --dir-source-code)
-               (setq sub-directory "Programs" ))))
+               (setq sub-directory "Programs" )))
+      ('INTF (progn
+               (setq parent-directory --dir-source-code)
+               (setq sub-directory "Interfaces"))))
     (unless (and parent-directory sub-directory)
       (error (format "Unknown ABAP source type %s" major-type)))
 
@@ -1129,6 +1132,31 @@ Note that the object to be visited has to be retrieved in advance!"
       (description . ,description)
       (type . ,adtcore-type)
       ;; (subtype . ,subtype)
+      (version . ,version)
+      (package . ,package)
+      (sources . ,includes))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Module - Object Type Specific - ABAP Interfaces
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun abaplib-intf-metadata-parser (metadata)
+  (let* ((adtcore-type (xml-get-attribute metadata 'type))
+         (name (xml-get-attribute metadata 'name))
+         (description (xml-get-attribute metadata 'description))
+         (version (xml-get-attribute metadata 'version))
+         (package-node (car (xml-get-children metadata 'packageRef)))
+         (package (xml-get-attribute package-node 'name))
+         (link-node (cadr (xml-get-children metadata 'link)))
+         (file-name "main.intf.abap")
+         (includes (list (cons file-name `((version . ,version)
+                                           (source-uri . ,(xml-get-attribute metadata 'sourceUri))
+                                           (include-type . main)
+                                           (type . ,adtcore-type)
+                                           (etag . ,(xml-get-attribute link-node 'etag))
+                                           )))))
+    `((name . ,name)
+      (description . ,description)
+      (type . ,adtcore-type)
       (version . ,version)
       (package . ,package)
       (sources . ,includes))))
