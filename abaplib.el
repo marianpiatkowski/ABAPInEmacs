@@ -214,7 +214,17 @@
                (setq sub-directory "Programs" )))
       ('INTF (progn
                (setq parent-directory --dir-source-code)
-               (setq sub-directory "Interfaces"))))
+               (setq sub-directory "Interfaces")))
+      ('TABL (progn
+               (setq parent-directory --dir-source-code)
+               (setq sub-directory "Tables")))
+      ('DDLS (progn
+               (setq parent-directory --dir-source-code)
+               (setq sub-directory "DDLSources")))
+      ('BDEF (progn
+               (setq parent-directory --dir-source-code)
+               (setq sub-directory "BusinessObjects")))
+      )
     (unless (and parent-directory sub-directory)
       (error (format "Unknown ABAP source type %s" major-type)))
 
@@ -1150,6 +1160,85 @@ Note that the object to be visited has to be retrieved in advance!"
          (file-name "main.intf.abap")
          (includes (list (cons file-name `((version . ,version)
                                            (source-uri . ,(xml-get-attribute metadata 'sourceUri))
+                                           (include-type . main)
+                                           (type . ,adtcore-type)
+                                           (etag . ,(xml-get-attribute link-node 'etag))
+                                           )))))
+    `((name . ,name)
+      (description . ,description)
+      (type . ,adtcore-type)
+      (version . ,version)
+      (package . ,package)
+      (sources . ,includes))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Module - Object Type Specific - Database Tables
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun abaplib-tabl-metadata-parser (metadata)
+  (let* ((adtcore-type (xml-get-attribute metadata 'type))
+         (source-uril (last (split-string (xml-get-attribute metadata 'sourceUri) "/") 2)) ;; source-uri as a list
+         (source-uri (concat (car source-uril) "/" (cadr source-uril)))
+         (name (xml-get-attribute metadata 'name))
+         (description (xml-get-attribute metadata 'description))
+         (version (xml-get-attribute metadata 'version))
+         (package-node (car (xml-get-children metadata 'packageRef)))
+         (package (xml-get-attribute package-node 'name))
+         (link-node (car (xml-get-children metadata 'link)))
+         (file-name "main.tabl")
+         (includes (list (cons file-name `((version . ,version)
+                                           (source-uri . ,source-uri)
+                                           (include-type . main)
+                                           (type . ,adtcore-type)
+                                           (etag . ,(xml-get-attribute link-node 'etag))
+                                           )))))
+    `((name . ,name)
+      (description . ,description)
+      (type . ,adtcore-type)
+      (version . ,version)
+      (package . ,package)
+      (sources . ,includes))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Module - Object Type Specific - Data Definition Language
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun abaplib-ddls-metadata-parser (metadata)
+  (let* ((adtcore-type (xml-get-attribute metadata 'type))
+         (name (xml-get-attribute metadata 'name))
+         (description (xml-get-attribute metadata 'description))
+         (version (xml-get-attribute metadata 'version))
+         (package-node (car (xml-get-children metadata 'packageRef)))
+         (package (xml-get-attribute package-node 'name))
+         (link-node (car (xml-get-children metadata 'link)))
+         (file-name "main.ddls.cds")
+         (includes (list (cons file-name `((version . ,version)
+                                           (source-uri . ,(xml-get-attribute metadata 'sourceUri))
+                                           (include-type . main)
+                                           (type . ,adtcore-type)
+                                           (etag . ,(xml-get-attribute link-node 'etag))
+                                           )))))
+    `((name . ,name)
+      (description . ,description)
+      (type . ,adtcore-type)
+      (version . ,version)
+      (package . ,package)
+      (sources . ,includes))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Module - Object Type Specific - Business Objects
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun abaplib-bdef-metadata-parser (metadata)
+  (let* ((adtcore-type (xml-get-attribute metadata 'type))
+         (source-uril (last (split-string (xml-get-attribute metadata 'sourceUri) "/") 2)) ;; source-uri as a list
+         (source-uri (concat (car source-uril) "/" (cadr source-uril)))
+         (name (xml-get-attribute metadata 'name))
+         (description (xml-get-attribute metadata 'description))
+         (version (xml-get-attribute metadata 'version))
+         (package-node (car (xml-get-children metadata 'packageRef)))
+         (package (xml-get-attribute package-node 'name))
+         (link-node (car (xml-get-children metadata 'link)))
+         (file-name "main.bdef.cds")
+         (includes (list (cons file-name `((version . ,version)
+                                           (source-uri . ,source-uri)
                                            (include-type . main)
                                            (type . ,adtcore-type)
                                            (etag . ,(xml-get-attribute link-node 'etag))
