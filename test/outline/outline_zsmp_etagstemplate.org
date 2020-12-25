@@ -4,9 +4,7 @@
     [[file:zsmp_etagstemplate.abap::20][method setup]]
     [[file:zsmp_etagstemplate.abap::23][method m_0001]]
 
-
-*  [[file:zsmp_etagstemplate.abap::27][start-of-selection]]
-
-*  [[file:zsmp_etagstemplate.abap::29][end-of-selection]]
+* [[file:zsmp_etagstemplate.abap::27][start-of-selection]]
+* [[file:zsmp_etagstemplate.abap::29][end-of-selection]]
 
 # [ [LINK][DESCRIPTION] ]
