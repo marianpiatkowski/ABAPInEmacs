@@ -14,7 +14,7 @@ to access the ABAP workbench functionality. Currently, the package provides the 
 - Server side syntax check
 - Submit (push) source to ABAP server
 - Activate source at ABAP server
-- Run source (Not yet)
+- Run source
 
 ## Installation
 
@@ -29,8 +29,12 @@ Add `ABAPInEmacs` directory to your `load-path`
 ;; sap-abap-mode includes
 (require 'abap-mode)
 (add-to-list 'auto-mode-alist '("\\.abap\\'" . abap-mode))
+;; ABAP CDS Mode
+(require 'abap-cds-mode)
+(add-to-list 'auto-mode-alist '("\\.cds\\'" . abap-cds-mode))
 ;; ADT files as well
 (add-to-list 'auto-mode-alist '("\\.\\(asprog\\|asinc\\|aclass\\)\\'" . abap-mode))
+(add-to-list 'auto-mode-alist '("\\.asddls\\'" . abap-cds-mode))
 ;; ABAPInEmacs includes
 (require 'abap)
 (require 'abap-flycheck)
@@ -40,7 +44,10 @@ Specify your workspace directory by setting the variable `abap-workspace-dir`.
 (setq abap-workspace-dir "path/to/ABAPWorkspace")
 ```
 
-With the configuration above `ABAP Mode` will be loaded automatically once a file with suffix `.abap` has been opened.
+With the configuration above
+
+- `ABAP Mode` will be loaded automatically once a file with suffix `.abap` has been opened
+- `ABAP CDS Mode` will be loaded automatically once a file with suffix `.cds` has been opened.
 
 ## Usage
 
@@ -80,5 +87,8 @@ done when working on `.abap`-files:
     current version of the source code.
 7. `M-x abap-activate-source` - Activate (compile) object in current buffer on the server
 8. `M-x abap-code-completion` - Request proposals for code completion from ABAP server
+9. `M-x abap-navigate-code` - Navigate to object under cursor in current buffer, i.e. find
+   definition/implementation of the object
+10. `M-x abap-execute-object` - Execute source code in current buffer
 
 You can also create a Git repository with the retrieved source code and collaborate with other colleagues.
