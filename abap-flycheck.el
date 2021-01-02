@@ -1,6 +1,6 @@
 ;;; abap-flycheck.el --- flycheck setting for ABAP Mode  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2020  Marian Piatkowski
+;; Copyright (C) 2020-  Marian Piatkowski
 ;; Copyright (C) 2018  Marvin Qian
 
 ;; Author: Marian Piatkowski <marianpiatkowski@web.de>
