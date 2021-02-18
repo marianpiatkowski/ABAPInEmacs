@@ -208,7 +208,7 @@
     (case major-type
       ('CLAS (progn
                (setq parent-directory --dir-source-code)
-               (setq sub-directory    "Classes" )))
+               (setq sub-directory "Classes" )))
       ('PROG (progn
                (setq parent-directory --dir-source-code)
                (setq sub-directory "Programs" )))
@@ -1184,7 +1184,7 @@ Note that the object to be visited has to be retrieved in advance!"
          (package-node (car (xml-get-children metadata 'packageRef)))
          (package (xml-get-attribute package-node 'name))
          (link-node (car (xml-get-children metadata 'link)))
-         (file-name "main.tabl")
+         (file-name "main.ddic.tabl")
          (includes (list (cons file-name `((version . ,version)
                                            (source-uri . ,source-uri)
                                            (include-type . main)
