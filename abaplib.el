@@ -196,7 +196,7 @@
         (alist-get name source-properties))
     (alist-get name abaplib--abap-object-properties)))
 
-(defun abaplib-get-path (type &optional extra-directory)
+(defun abaplib-get-path (type &optional extra-directory extra-uri)
   (let* ((--dir-source-code "Source Code Library")
          (type-list (split-string type "/"))
          (major-type (intern (car type-list)))
@@ -205,26 +205,32 @@
          (sub-directory)
          (final-directory))
 
-    (case major-type
-      ('CLAS (progn
-               (setq parent-directory --dir-source-code)
-               (setq sub-directory "Classes" )))
-      ('PROG (progn
-               (setq parent-directory --dir-source-code)
-               (setq sub-directory "Programs" )))
-      ('INTF (progn
-               (setq parent-directory --dir-source-code)
-               (setq sub-directory "Interfaces")))
-      ('TABL (progn
-               (setq parent-directory --dir-source-code)
-               (setq sub-directory "Tables")))
-      ('DDLS (progn
-               (setq parent-directory --dir-source-code)
-               (setq sub-directory "DDLSources")))
-      ('BDEF (progn
-               (setq parent-directory --dir-source-code)
-               (setq sub-directory "BusinessObjects")))
-      )
+    (cond ((eq major-type 'CLAS)
+           (setq parent-directory --dir-source-code)
+           (setq sub-directory "Classes" ))
+          ((eq major-type 'PROG)
+           (setq parent-directory --dir-source-code)
+           (setq sub-directory "Programs" ))
+          ((eq major-type 'INTF)
+           (setq parent-directory --dir-source-code)
+           (setq sub-directory "Interfaces"))
+          ((eq major-type 'TABL)
+           (setq parent-directory --dir-source-code)
+           (setq sub-directory "Tables"))
+          ((eq major-type 'DDLS)
+           (setq parent-directory --dir-source-code)
+           (setq sub-directory "DDLSources"))
+          ((eq major-type 'BDEF)
+           (setq parent-directory --dir-source-code)
+           (setq sub-directory "BusinessObjects"))
+          ((eq major-type 'FUGR)
+           (setq parent-directory --dir-source-code)
+           (setq sub-directory "Functions")
+           (if (and extra-directory extra-uri)
+               (let ((object-uri (member "functions" (split-string extra-uri "/"))) ;; object-uri as a list
+                     )
+                 (setq extra-directory (upcase (mapconcat 'directory-file-name (cdr object-uri) "/"))))))
+          )
     (unless (and parent-directory sub-directory)
       (error (format "Unknown ABAP source type %s" major-type)))
 
@@ -238,7 +244,7 @@
       (if extra-directory
           (let ((extra-path (expand-file-name extra-directory sub-path)))
             (unless (file-exists-p extra-path)
-              (make-directory extra-path))
+              (make-directory extra-path t))
             extra-path)
         sub-path))))
 
@@ -889,7 +895,7 @@
   ;; 4. Parse source part --> source type/uri/etag -- specific
   ;; 5. Retrieve source
   ;; TODO Preserver previous Etag Etag
-  (let* ((object-path (abaplib-get-path type name))
+  (let* ((object-path (abaplib-get-path type name uri))
          (property-file (expand-file-name abaplib--property-file object-path))
          (properties (abaplib--retrieve-metadata uri type property-file))
          (sources (alist-get 'sources properties)))
@@ -910,8 +916,7 @@
 
 
 (defun abaplib--retrieve-metadata (uri type &optional file-name)
-  (let* ((property-file (abaplib-get-path type))
-         (major-type (substring type 0 4))
+  (let* ((major-type (substring type 0 4))
          (metadata-raw (abaplib--rest-api-call uri
                                                nil
                                                :parser 'abaplib-util-xml-parser))
@@ -1050,7 +1055,7 @@ Note that the object to be visited has to be retrieved in advance!"
          (object-info (abaplib--rest-api-call object-uri nil :parser 'abaplib-util-xml-parser))
          (object-type (cdr (assoc 'type (nth 1 object-info))))
          (object-name (cdr (assoc 'name (nth 1 object-info))))
-         (object-path (abaplib-get-path object-type object-name))
+         (object-path (abaplib-get-path object-type object-name object-uri))
          (object-filename-base (cadr source-uri)) ;; gives main or implementations etc.
          (object-filename (file-name-completion object-filename-base object-path))
          (object-filepath (concat object-path "/" object-filename))
@@ -1142,6 +1147,31 @@ Note that the object to be visited has to be retrieved in advance!"
       (description . ,description)
       (type . ,adtcore-type)
       ;; (subtype . ,subtype)
+      (version . ,version)
+      (package . ,package)
+      (sources . ,includes))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Module - Object Type Specific - Function Modules
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun abaplib-fugr-metadata-parser (metadata)
+  (let* ((adtcore-type (xml-get-attribute metadata 'type))
+         (name (xml-get-attribute metadata 'name))
+         (description (xml-get-attribute metadata 'description))
+         (version (xml-get-attribute metadata 'version))
+         (container-node (car (xml-get-children metadata 'containerRef)))
+         (package (xml-get-attribute container-node 'packageName))
+         (link-node (cadr (xml-get-children metadata 'link)))
+         (file-name "main.func.abap")
+         (includes (list (cons file-name `((version . ,version)
+                                           (source-uri . ,(xml-get-attribute metadata 'sourceUri))
+                                           (include-type . main)
+                                           (type . ,adtcore-type)
+                                           (etag . ,(xml-get-attribute link-node 'etag))
+                                           )))))
+    `((name  . ,name)
+      (description . ,description)
+      (type . ,adtcore-type)
       (version . ,version)
       (package . ,package)
       (sources . ,includes))))
