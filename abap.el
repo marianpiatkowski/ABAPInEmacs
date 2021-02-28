@@ -253,16 +253,32 @@
                                                  (line-number-at-pos)
                                                  (current-column)
                                                  source-code))
-         (target-source-uri (car (split-string target-uri "#start=\\([0-9]+,[0-9]+\\)")))
-         (target-source-pos (split-string (progn
-                                            (string-match "#start=\\([0-9]+,[0-9]+\\)" target-uri)
-                                            (match-string 1 target-uri)) ","))
+         (target-source-uri (car (split-string target-uri "#start=\\([0-9]+\\)")))
          )
     (if (not (string= full-source-uri target-source-uri))
-        (abaplib-goto-source target-source-uri target-source-pos)
-      (switch-to-buffer curr-buffer)
-      (goto-line (string-to-number (car target-source-pos)))
-      (move-to-column (string-to-number (cadr target-source-pos))))
+        ;; (abaplib-goto-source target-source-uri)
+        (switch-to-buffer (find-file-other-window (abaplib-get-source target-source-uri)))
+      (switch-to-buffer curr-buffer))
+    (if (progn
+          (string-match "#start=\\([0-9]+,[0-9]+\\)" target-uri)
+          (match-string 1 target-uri))
+        (let ((target-source-pos (split-string (progn
+                                                 (string-match "#start=\\([0-9]+,[0-9]+\\)" target-uri)
+                                                 (match-string 1 target-uri)) "," ))
+              )
+          (goto-line (string-to-number (car target-source-pos)))
+          (move-to-column (string-to-number (cadr target-source-pos))))
+      ; else
+      (if (progn
+            (string-match "#start=\\([0-9]+\\)" target-uri)
+            (match-string 1 target-uri))
+          (let ((target-source-pos (progn
+                                     (string-match "#start=\\([0-9]+\\)" target-uri)
+                                     (match-string 1 target-uri)))
+                )
+            (goto-line (string-to-number target-source-pos)))
+        ; else
+        (goto-char 1)))
     ))
 
 (defun abap-execute-object ()
