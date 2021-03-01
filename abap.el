@@ -276,7 +276,8 @@
                                       (match-string 1 target-navi-uri)))
                  )
              (goto-char 1)
-             (search-forward target-source-pos)))
+             (search-forward target-source-pos)
+             (skip-chars-backward "A-Za-z0-9_-")))
           (t (goto-char 1)))
     ))
 
