@@ -292,4 +292,4 @@
     (abaplib-do-execute full-source-uri object-name)))
 
 (provide 'abap)
-;;; abap-in-emacs.el ends here
+;;; abap.el ends here
