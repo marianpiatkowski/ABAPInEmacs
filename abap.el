@@ -249,36 +249,35 @@
          (source-uri (abaplib-get-property 'source-uri source-name))
          (full-source-uri (concat object-uri "/" source-uri))
          (source-code (abaplib-buffer-whole-string curr-buffer))
-         (target-uri (abaplib-do-navigate-target full-source-uri
+         (target-navi-uri (abaplib-do-navigate-target full-source-uri
                                                  (line-number-at-pos)
                                                  (current-column)
                                                  source-code))
-         (target-source-uri (car (split-string target-uri "#start=\\([0-9]+\\)")))
+         (target-source-uri (abaplib--get-target-source-uri target-navi-uri))
          )
     (if (not (string= full-source-uri target-source-uri))
         ;; (abaplib-goto-source target-source-uri)
-        (switch-to-buffer (find-file-other-window (abaplib-get-source target-source-uri)))
+        (switch-to-buffer (find-file-other-window (abaplib-get-source-file target-source-uri)))
       (switch-to-buffer curr-buffer))
-    (if (progn
-          (string-match "#start=\\([0-9]+,[0-9]+\\)" target-uri)
-          (match-string 1 target-uri))
-        (let ((target-source-pos (split-string (progn
-                                                 (string-match "#start=\\([0-9]+,[0-9]+\\)" target-uri)
-                                                 (match-string 1 target-uri)) "," ))
-              )
-          (goto-line (string-to-number (car target-source-pos)))
-          (move-to-column (string-to-number (cadr target-source-pos))))
-      ; else
-      (if (progn
-            (string-match "#start=\\([0-9]+\\)" target-uri)
-            (match-string 1 target-uri))
-          (let ((target-source-pos (progn
-                                     (string-match "#start=\\([0-9]+\\)" target-uri)
-                                     (match-string 1 target-uri)))
-                )
-            (goto-line (string-to-number target-source-pos)))
-        ; else
-        (goto-char 1)))
+    (cond ((progn
+             (string-match "#start=\\([0-9]+,[0-9]+\\)" target-navi-uri)
+             (match-string 1 target-navi-uri))
+           (let ((target-source-pos (split-string (progn
+                                                    (string-match "#start=\\([0-9]+,[0-9]+\\)" target-navi-uri)
+                                                    (match-string 1 target-navi-uri)) "," ))
+                 )
+             (goto-line (string-to-number (car target-source-pos)))
+             (move-to-column (string-to-number (cadr target-source-pos)))))
+          ((progn
+             (string-match "#name=\\([A-Za-z0-9_-]+\\)" target-navi-uri)
+             (match-string 1 target-navi-uri))
+           (let ((target-source-pos (progn
+                                      (string-match "#name=\\([A-Za-z0-9_-]+\\)" target-navi-uri)
+                                      (match-string 1 target-navi-uri)))
+                 )
+             (goto-char 1)
+             (search-forward target-source-pos)))
+          (t (goto-char 1)))
     ))
 
 (defun abap-execute-object ()

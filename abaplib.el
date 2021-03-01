@@ -1046,7 +1046,17 @@
       (let* ((uri-node (cadr navigation-result)))
         (cdr (assoc 'uri uri-node))))))
 
-(defun abaplib-get-source (full-source-uri)
+(defun abaplib--get-target-source-uri (navigation-uri)
+  "Get the target source uri from the navigation uri.
+A navigation uri usually ends with a pattern like '#start=# or '#name='. Then the target source uri is everything before this pattern.
+Otherwise take the navigation uri as target source uri."
+  (cond ((string-match "#start=\\([0-9]+,[0-9]+\\)" navigation-uri)
+         (car (split-string navigation-uri "#start=\\([0-9]+,[0-9]+\\)")))
+        ((string-match "#name=\\([A-Za-z0-9_-]+\\)" navigation-uri)
+         (car (split-string navigation-uri "#name=\\([A-Za-z0-9_-]+\\)")))
+        (t navigation-uri)))
+
+(defun abaplib-get-source-file (full-source-uri)
   "Get path of ABAP development object from uri.
 Note that the object to be visited has to be retrieved in advance!"
   (let* ((split-on-source (-split-when (lambda (elem) (string= elem "source"))
