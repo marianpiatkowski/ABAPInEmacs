@@ -79,16 +79,17 @@ done when working on `.abap`-files:
 3. `M-x abap-retrieve-source` - Get content of ABAP development object in current buffer from server\
     Note that after a successful fetch of the data the buffer has to be reverted manually!
     (`M-x revert-buffer`)
-4. `M-x abap-syntax-check` - Perform syntax check of object in current buffer\
+4. `M-x abap-check-source-uptodate` - Check whether source in current buffer is up to date with server
+5. `M-x abap-syntax-check` - Perform syntax check of object in current buffer\
     If errors and/or warnings occur, they are displayed in the \***ABAP Log**\* buffer.
-5. `M-x abap-format-source` - Do source code formatting of object (pretty print)
-6. `M-x abap-submit-source` - Submit local content in current buffer to ABAP server\
+6. `M-x abap-format-source` - Do source code formatting of object (pretty print)
+7. `M-x abap-submit-source` - Submit local content in current buffer to ABAP server\
     Unless the object is local on the server side, a transport request has to be chosen for the
     current version of the source code.
-7. `M-x abap-activate-source` - Activate (compile) object in current buffer on the server
-8. `M-x abap-code-completion` - Request proposals for code completion from ABAP server
-9. `M-x abap-navigate-code` - Navigate to object under cursor in current buffer, i.e. find
+8. `M-x abap-activate-source` - Activate (compile) object in current buffer on the server
+9. `M-x abap-code-completion` - Request proposals for code completion from ABAP server
+10. `M-x abap-navigate-code` - Navigate to object under cursor in current buffer, i.e. find
    definition/implementation of the object
-10. `M-x abap-execute-object` - Execute source code in current buffer
+11. `M-x abap-execute-object` - Execute source code in current buffer
 
 You can also create a Git repository with the retrieved source code and collaborate with other colleagues.
