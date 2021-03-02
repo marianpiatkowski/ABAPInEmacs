@@ -154,7 +154,7 @@
                          object-uri
                          source-name)))
 
-(defun abap-check-source (&optional dont-show-error?)
+(defun abap-syntax-check (&optional dont-show-error?)
   "Syntax check of source."
   (interactive)
   (let* ((curr-buffer (current-buffer))

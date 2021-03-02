@@ -42,7 +42,7 @@
                              (message "%s" alist)
                              (flycheck-abap--parse-error alist
                                                          checker))
-                           (abap-check-source t)))))
+                           (abap-syntax-check t)))))
         (funcall callback 'finished errors))
     (error (funcall callback 'errored (error-message-string err)))))
 
