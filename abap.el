@@ -154,6 +154,18 @@
                          object-uri
                          source-name)))
 
+(defun abap-check-source-uptodate ()
+  "Check whether local source is up to date with server."
+  (interactive)
+  (let ((source-name (file-name-nondirectory (buffer-file-name)))
+        (object-name (abaplib-get-property 'name))
+        (object-type (abaplib-get-property 'type))
+        (object-uri (abaplib-get-property 'uri)))
+    (abaplib-do-retrieve-and-compare object-name
+                                     object-type
+                                     object-uri
+                                     source-name)))
+
 (defun abap-syntax-check (&optional dont-show-error?)
   "Syntax check of source."
   (interactive)
