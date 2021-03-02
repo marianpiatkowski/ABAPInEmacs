@@ -888,7 +888,7 @@
 ;; Module - Core Services - Retrieve Metadata & Source Code
 ;;========================================================================
 (defun abaplib-do-retrieve (name type uri &optional source-name)
-  " Retrieve ABAP development object."
+  "Retrieve ABAP development object."
   ;; 1. Retrieve metadata from uri -- common
   ;; 2. Parse metadata -- specific
   ;; 3. Save properties & Old properties -- common
@@ -1252,7 +1252,7 @@ Note that the object to be visited has to be retrieved in advance!"
          (package-node (car (xml-get-children metadata 'packageRef)))
          (package (xml-get-attribute package-node 'name))
          (links (xml-get-children metadata 'link))
-         (link (car (-filter (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links)))
+         (link (car (-filter (lambda (link) (string= (xml-get-attribute link 'type) "text/html")) links)))
          (file-name "main.ddls.cds")
          (includes (list (cons file-name `((version . ,version)
                                            (source-uri . ,(xml-get-attribute metadata 'sourceUri))
