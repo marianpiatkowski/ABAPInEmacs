@@ -70,42 +70,11 @@
 (defvar abaplib--login-last-time nil
   "Last login timestamp")
 
-;; (defconst abaplib--not-a-type "ZZZZ")
-
-;; (defconst abaplib-property-file ".property.json")
-
-;; (defconst abaplib--supported-type  '(PROG CLAS DCLS DDLS ZZZZ)
-;;   "Supported ABAP Development Object Type")
-
-;; (defvar abaplib--auth-data nil
-;;   "System Login State")
-
-;; (defvar abaplib--auth-client nil
-;;   "ABAP system client used for login.")
-
-;; (defvar abaplib-system-ID nil
-;;   "ABAP system client used for login.")
 (defvar abaplib--workspace-descriptor-cache nil
   "Cache for workspace descriptor")
 
-;; (defvar abaplib--current-server nil
-;;   "The address of the abap server host with port
-;;    For instance: https://yourabapserver:44300/")
-
 (defvar abaplib--current-project nil
   "Current working project")
-
-;; (defvar abaplib--project-data nil
-;;   "ABAP project data")
-
-;; (defvar abaplib--project-name nil
-;;   "Current ABAP Project")
-
-;; (defvar abaplib--project-dir nil
-;;   "ABAP Project Directory")
-
-;; (defvar abaplib--project-config-dir nil
-;;   "ABAP Project Configuration Directory")
 
 (defvar-local abaplib--abap-object-properties nil
   "ABAP Object Properties")
@@ -119,6 +88,11 @@
 (defconst abaplib--uri-login "/sap/bc/adt/core/discovery")
 
 (defconst abaplib--property-file ".properties.json")
+
+(defvar etag-parse-months '(("01" . "January") ("02" . "February") ("03" . "March")
+                            ("04" . "April") ("05" . "May") ("06" . "June")
+                            ("07" . "July") ("08" . "August") ("09" . "September")
+                            ("10" . "October") ("11" . "November") ("12" . "December")))
 
 
 ;;==============================================================================
@@ -914,6 +888,18 @@
           sources)
     object-path))
 
+(defun abaplib--format-etag-timestamp (etag-string)
+  (let ((year (substring etag-string 0 4))
+        (month (substring etag-string 4 6))
+        (day (substring etag-string 6 8))
+        (hour (substring etag-string 8 10))
+        (minute (substring etag-string 10 12))
+        (second (substring etag-string 12 14))
+        )
+    (format "%s %s %s %s:%s:%s"
+            (cdr (assoc-string month etag-parse-months))
+            day year hour minute second)))
+
 (defun abaplib-do-retrieve-and-compare (name type uri source-name)
   "Check whether local version of ABAP development object is up to date with server."
   (let* ((object-path (abaplib-get-path type name uri))
@@ -931,8 +917,11 @@
          )
     ;; (message (format "Timestamp server %s" timestamp-server))
     ;; (message (format "Timestamp local  %s" timestamp-local))
-    (if (> (string-to-number timestamp-server) (string-to-number timestamp-local))
-        (message "Local source version not up to date."))
+    (if (= (string-to-number timestamp-server) (string-to-number timestamp-local))
+        (message "Local source up to date.")
+      (message (format "Timestamps differ - Server: %s Local: %s."
+                       (abaplib--format-etag-timestamp timestamp-server)
+                       (abaplib--format-etag-timestamp timestamp-local))))
     ))
 
 (defun abaplib--retrieve-metadata (uri type &optional file-name)
