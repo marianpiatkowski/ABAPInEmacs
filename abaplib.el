@@ -1052,8 +1052,9 @@
                                                     :data source-code
                                                     :params params)))
     (when navigation-result
-      (let* ((uri-node (cadr navigation-result)))
-        (cdr (assoc 'uri uri-node))))))
+      (let ((uri (xml-get-attribute navigation-result 'uri)))
+        uri))
+    ))
 
 (defun abaplib--get-target-source-uri (navigation-uri)
   "Get the target source uri from the navigation uri.
@@ -1073,8 +1074,8 @@ Note that the object to be visited has to be retrieved in advance!"
          (object-uri (mapconcat 'directory-file-name (car split-on-source) "/")) ;; everything before /source in uri
          (object-filename-base (if (cadr split-on-source) (caadr split-on-source) "main")) ;; gives main or implementations etc.
          (object-info (abaplib--rest-api-call object-uri nil :parser 'abaplib-util-xml-parser))
-         (object-type (cdr (assoc 'type (nth 1 object-info))))
-         (object-name (cdr (assoc 'name (nth 1 object-info))))
+         (object-type (xml-get-attribute object-info 'type))
+         (object-name (xml-get-attribute object-info 'name))
          (object-path (abaplib-get-path object-type object-name object-uri))
          (object-filename (file-name-completion object-filename-base object-path))
          (object-filepath (concat object-path "/" object-filename))
