@@ -76,9 +76,7 @@ The following steps are an essential part of the workflow:
 Once a ABAP development object has been successfully fetched by Step 2, the following steps can be
 done when working on `.abap`-files:
 
-3. `M-x abap-retrieve-source` - Get content of ABAP development object in current buffer from server\
-    Note that after a successful fetch of the data the buffer has to be reverted manually!
-    (`M-x revert-buffer`)
+3. `M-x abap-retrieve-source` - Get content of ABAP development object in current buffer from server
 4. `M-x abap-check-source-uptodate` - Check whether source in current buffer is up to date with server
 5. `M-x abap-syntax-check` - Perform syntax check of object in current buffer\
     If errors and/or warnings occur, they are displayed in the \***ABAP Log**\* buffer.
