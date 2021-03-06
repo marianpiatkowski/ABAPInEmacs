@@ -161,10 +161,10 @@
         (object-name (abaplib-get-property 'name))
         (object-type (abaplib-get-property 'type))
         (object-uri (abaplib-get-property 'uri)))
-    (abaplib-do-retrieve-and-compare object-name
-                                     object-type
-                                     object-uri
-                                     source-name)))
+    (abaplib-do-compare-wserver object-name
+                                object-type
+                                object-uri
+                                source-name)))
 
 (defun abap-syntax-check (&optional dont-show-error?)
   "Syntax check of source."

@@ -900,7 +900,7 @@
             (cdr (assoc-string month etag-parse-months))
             day year hour minute second)))
 
-(defun abaplib-do-retrieve-and-compare (name type uri source-name)
+(defun abaplib-do-compare-wserver (name type uri source-name)
   "Check whether local version of ABAP development object is up to date with server."
   (let* ((object-path (abaplib-get-path type name uri))
          (property-file (expand-file-name abaplib--property-file object-path))
