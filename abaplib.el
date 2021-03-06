@@ -939,20 +939,19 @@
       (abaplib-util-jsonize-to-file properties file-name))
     properties))
 
-(defun abaplib--retrieve-source (name uri etag &optional file-path)
+(defun abaplib--retrieve-source (name uri etag file-path)
   (abaplib--rest-api-call
    uri
    (lambda (&rest rest)
      (let ((response-data (cl-getf rest :data))
            (status-code (request-response-status-code (cl-getf rest :response))))
        (if (eq status-code 304)
-           (message "Source remain unchanged in server.")
-         (if file-path
-             (write-region response-data nil file-path)
-           (let ((source-buffer (get-buffer-create name)))
-             (set-buffer source-buffer)
-             (insert response-data)))
-         (message "Source retrieved from server and overwrite local."))))
+           (message "Source remains unchanged in server.")
+         (write-region response-data nil file-path)
+         (when (get-file-buffer file-path)
+           (with-current-buffer (get-file-buffer file-path)
+             (revert-buffer :ignore-auto :noconfirm))
+           (message "Source retrieved from server and overwrite local.")))))
    :parser 'abaplib-util-sourcecode-parser
    :headers (list `("If-None-Match" . ,etag)
                   '("Content-Type" . "plain/text"))))
