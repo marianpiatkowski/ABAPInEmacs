@@ -156,7 +156,6 @@
 (defun abaplib--get-local-properties ()
   "Load property file on current directory for current buffer."
   (let ((property-file (expand-file-name abaplib--property-file)))
-    ;; Ensure propert file exist
     (unless (file-exists-p property-file)
       (error "Missing property file, please use `search' to retrieve again!"))
     (setq abaplib--abap-object-properties (json-read-file property-file))))
@@ -924,6 +923,12 @@
                        (abaplib--format-etag-timestamp timestamp-local))))
     ))
 
+(defun abaplib-do-retrieve-metadata (name type uri)
+  "Retrieve metadata of ABAP development object."
+  (let* ((object-path (abaplib-get-path type name uri))
+         (property-file (expand-file-name abaplib--property-file object-path)))
+    (abaplib--retrieve-metadata uri type property-file)))
+
 (defun abaplib--retrieve-metadata (uri type &optional file-name)
   (let* ((major-type (substring type 0 4))
          (metadata-raw (abaplib--rest-api-call uri
@@ -1103,9 +1108,6 @@ Note that the object to be visited has to be retrieved in advance!"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun abaplib-clas-metadata-parser (metadata)
   (let* ((adtcore-type (xml-get-attribute metadata 'type))
-         ;; (type-list (split-string adtcore-type "/"))
-         ;; (type (car type-list))
-         ;; (subtype (nth 1 type-list))
          (name (xml-get-attribute metadata 'name))
          (description (xml-get-attribute metadata 'description))
          (version (xml-get-attribute metadata 'version))
@@ -1134,7 +1136,6 @@ Note that the object to be visited has to be retrieved in advance!"
     `((name . ,name)
       (description . ,description)
       (type . ,adtcore-type)
-      ;; (subtype . ,subtype)
       (version . ,version)
       (package . ,package)
       (sources . ,includes))))
@@ -1157,9 +1158,6 @@ Note that the object to be visited has to be retrieved in advance!"
 
 (defun abaplib-prog-metadata-parser (metadata)
   (let* ((adtcore-type (xml-get-attribute metadata 'type))
-         ;; (type-list (split-string adtcore-type "/"))
-         ;; (type (car type-list))
-         ;; (subtype (nth 1 type-list))
          (name (xml-get-attribute metadata 'name))
          (description (xml-get-attribute metadata 'description))
          (version (xml-get-attribute metadata 'version))
@@ -1177,7 +1175,6 @@ Note that the object to be visited has to be retrieved in advance!"
     `((name . ,name)
       (description . ,description)
       (type . ,adtcore-type)
-      ;; (subtype . ,subtype)
       (version . ,version)
       (package . ,package)
       (sources . ,includes))))

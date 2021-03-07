@@ -268,7 +268,6 @@
          (target-source-uri (abaplib--get-target-source-uri target-navi-uri))
          )
     (if (not (string= full-source-uri target-source-uri))
-        ;; (abaplib-goto-source target-source-uri)
         (switch-to-buffer (find-file-other-window (abaplib-get-source-file target-source-uri)))
       (switch-to-buffer curr-buffer))
     (cond ((progn
