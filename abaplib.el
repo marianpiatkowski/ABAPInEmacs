@@ -908,18 +908,18 @@
          (source-property (assoc-string source-name sources-local))
          (etag-local (cdr (assoc 'etag source-property)))
          (major-type (substring type 0 4))
-         (impl-func (intern (concat "abaplib--get-" (downcase major-type) "-etag")))
-         (etag-server (funcall impl-func uri source-name))
+         (impl-func (intern (concat "abaplib-" (downcase major-type) "-get-changedby")))
+         (last-change (funcall impl-func uri source-name))
          ;; as timestamps we use here a substring of etag
          (timestamp-local (substring etag-local 0 14))
-         (timestamp-server (substring etag-server 0 14))
+         (timestamp-server (substring (car last-change) 0 14))
+         (last-author (cadr last-change))
          )
-    ;; (message (format "Timestamp server %s" timestamp-server))
-    ;; (message (format "Timestamp local  %s" timestamp-local))
     (if (= (string-to-number timestamp-server) (string-to-number timestamp-local))
         (message "Local source up to date.")
-      (message (format "Timestamps differ - Server: %s Local: %s."
+      (message (format "Timestamps differ - Server: %s, last change by %s Local: %s."
                        (abaplib--format-etag-timestamp timestamp-server)
+                       last-author
                        (abaplib--format-etag-timestamp timestamp-local))))
     ))
 
@@ -1140,16 +1140,17 @@ Note that the object to be visited has to be retrieved in advance!"
       (package . ,package)
       (sources . ,includes))))
 
-(defun abaplib--get-clas-etag (uri source-name)
+(defun abaplib-clas-get-changedby (uri source-name)
   (let* ((metadata-server (abaplib--rest-api-call uri
                                                   nil
                                                   :parser 'abaplib-util-xml-parser))
          (includes (xml-get-children metadata-server 'include))
          (include (car (-filter (lambda (include) (cl-search (xml-get-attribute include 'includeType) source-name)) includes)))
+         (last-author (xml-get-attribute include 'changedBy))
          (links (xml-get-children include 'link))
          (link (car (-filter (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links)))
          )
-    (xml-get-attribute link 'etag)
+    (list (xml-get-attribute link 'etag) last-author)
     ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1179,14 +1180,14 @@ Note that the object to be visited has to be retrieved in advance!"
       (package . ,package)
       (sources . ,includes))))
 
-(defun abaplib--get-prog-etag (uri source-name)
+(defun abaplib-prog-get-changedby (uri source-name)
   (let* ((metadata-server (abaplib--rest-api-call uri
                                                   nil
                                                   :parser 'abaplib-util-xml-parser))
          (links (xml-get-children metadata-server 'link))
          (link (car (-filter (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links)))
          )
-    (xml-get-attribute link 'etag)))
+    (list (xml-get-attribute link 'etag) (xml-get-attribute metadata-server 'changedBy))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Module - Object Type Specific - Function Modules
@@ -1214,14 +1215,14 @@ Note that the object to be visited has to be retrieved in advance!"
       (package . ,package)
       (sources . ,includes))))
 
-(defun abaplib--get-fugr-etag (uri source-name)
+(defun abaplib-fugr-get-changedby (uri source-name)
   (let* ((metadata-server (abaplib--rest-api-call uri
                                                   nil
                                                   :parser 'abaplib-util-xml-parser))
          (links (xml-get-children metadata-server 'link))
          (link (car (-filter (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links)))
          )
-    (xml-get-attribute link 'etag)))
+    (list (xml-get-attribute link 'etag) (xml-get-attribute metadata-server 'changedBy))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Module - Object Type Specific - ABAP Interfaces
@@ -1249,14 +1250,14 @@ Note that the object to be visited has to be retrieved in advance!"
       (package . ,package)
       (sources . ,includes))))
 
-(defun abaplib--get-intf-etag (uri source-name)
+(defun abaplib-intf-get-changedby (uri source-name)
   (let* ((metadata-server (abaplib--rest-api-call uri
                                                   nil
                                                   :parser 'abaplib-util-xml-parser))
          (links (xml-get-children metadata-server 'link))
          (link (car (-filter (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links)))
          )
-    (xml-get-attribute link 'etag)))
+    (list (xml-get-attribute link 'etag) (xml-get-attribute metadata-server 'changedBy))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Module - Object Type Specific - Database Tables
@@ -1286,14 +1287,14 @@ Note that the object to be visited has to be retrieved in advance!"
       (package . ,package)
       (sources . ,includes))))
 
-(defun abaplib--get-tabl-etag (uri source-name)
+(defun abaplib-tabl-get-changedby (uri source-name)
   (let* ((metadata-server (abaplib--rest-api-call uri
                                                   nil
                                                   :parser 'abaplib-util-xml-parser))
          (links (xml-get-children metadata-server 'link))
          (link (car (-filter (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links)))
          )
-    (xml-get-attribute link 'etag)))
+    (list (xml-get-attribute link 'etag) (xml-get-attribute metadata-server 'changedBy))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Module - Object Type Specific - Data Definition Language
@@ -1321,14 +1322,14 @@ Note that the object to be visited has to be retrieved in advance!"
       (package . ,package)
       (sources . ,includes))))
 
-(defun abaplib--get-ddls-etag (uri source-name)
+(defun abaplib-ddls-get-changedby (uri source-name)
   (let* ((metadata-server (abaplib--rest-api-call uri
                                                   nil
                                                   :parser 'abaplib-util-xml-parser))
          (links (xml-get-children metadata-server 'link))
          (link (car (-filter (lambda (link) (string= (xml-get-attribute link 'type) "text/html")) links)))
          )
-    (xml-get-attribute link 'etag)))
+    (list (xml-get-attribute link 'etag) (xml-get-attribute metadata-server 'changedBy))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Module - Object Type Specific - Business Objects
@@ -1358,14 +1359,14 @@ Note that the object to be visited has to be retrieved in advance!"
       (package . ,package)
       (sources . ,includes))))
 
-(defun abaplib--get-bdef-etag (uri source-name)
+(defun abaplib-bdef-get-changedby (uri source-name)
   (let* ((metadata-server (abaplib--rest-api-call uri
                                                   nil
                                                   :parser 'abaplib-util-xml-parser))
          (links (xml-get-children metadata-server 'link))
          (link (car (-filter (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links)))
          )
-    (xml-get-attribute link 'etag)))
+    (list (xml-get-attribute link 'etag) (xml-get-attribute metadata-server 'changedBy))))
 
 (provide 'abaplib)
 ;;; abaplib.el ends here
