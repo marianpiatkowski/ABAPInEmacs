@@ -1,0 +1,17 @@
+{
+  "uri": "/sap/bc/adt/programs/programs/zsmp_test1",
+  "name": "ZSMP_TEST1",
+  "description": "Test",
+  "type": "PROG/P",
+  "version": "active",
+  "package": "$TMP",
+  "sources": {
+    "main.prog.abap": {
+      "version": "active",
+      "source-uri": "source/main",
+      "include-type": "main",
+      "type": "PROG/P",
+      "etag": "202103071839450001"
+    }
+  }
+}
