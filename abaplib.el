@@ -979,7 +979,10 @@
      full-source-uri
      (lambda (&rest rest)
        (let* ((response (cl-getf rest :response))
-              (ETag (request-response-header response "ETag")))
+              (response-string (format "%s" response))
+              (etag (progn
+                      (string-match "etag: \\([1-9][0-9]+\\)" response-string)
+                      (match-string 1 response-string))))
          ;;TODO Refresh properties
          (message "Submitting source to server succeeded!")))
      :type "PUT"
