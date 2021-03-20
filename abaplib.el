@@ -899,9 +899,11 @@
             (cdr (assoc-string month etag-parse-months))
             day year hour minute second)))
 
-(defun abaplib-do-compare-wserver (name type uri source-name)
+(defun abaplib-do-compare-wserver (object-info)
   "Check whether local version of ABAP development object is up to date with server."
-  (let* ((object-path (abaplib-get-path type name uri))
+  (let* ((object-path (cdr (assoc 'path object-info)))
+         (source-name (cdr (assoc 'file object-info)))
+         (type        (cdr (assoc 'type object-info)))
          (property-file (expand-file-name abaplib--property-file object-path))
          (metadata-local (json-read-file property-file))
          (sources-local (assoc 'sources metadata-local))
@@ -913,8 +915,7 @@
          ;; as timestamps we use here a substring of etag
          (timestamp-local (substring etag-local 0 14))
          (timestamp-server (substring (car last-change) 0 14))
-         (last-author (cadr last-change))
-         )
+         (last-author (cadr last-change)))
     (if (= (string-to-number timestamp-server) (string-to-number timestamp-local))
         (message "Local source up to date.")
       (message (format "Timestamps differ - Server: %s, last change by %s Local: %s."

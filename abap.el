@@ -157,14 +157,14 @@
 (defun abap-check-source-uptodate ()
   "Check whether local source is up to date with server."
   (interactive)
-  (let ((source-name (file-name-nondirectory (buffer-file-name)))
-        (object-name (abaplib-get-property 'name))
-        (object-type (abaplib-get-property 'type))
-        (object-uri (abaplib-get-property 'uri)))
-    (abaplib-do-compare-wserver object-name
-                                object-type
-                                object-uri
-                                source-name)))
+  (let* ((object-path (file-name-directory (buffer-file-name)))
+         (source-name (file-name-nondirectory (buffer-file-name)))
+         (object-info (list (path . ,object-path)
+                            (file . ,source-name)
+                            (name . ,(abaplib-get-property 'name))
+                            (type . ,(abaplib-get-property 'type))
+                            (uri  . ,(abaplib-get-property 'uri)))))
+    (abaplib-do-compare-wserver object-info)))
 
 (defun abap-syntax-check (&optional dont-show-error?)
   "Syntax check of source."
