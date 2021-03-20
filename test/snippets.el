@@ -1,3 +1,44 @@
+;;========================================================================
+;; Snippet - function abap-where-used
+;;========================================================================
+
+
+(defun abap-where-used ()
+  "Get Where-Used List of object under cursor."
+  (interactive)
+  (let* ((source-name (file-name-nondirectory (buffer-file-name)))
+         (object-uri (abaplib-get-property 'uri))
+         (source-uri (abaplib-get-property 'source-uri source-name))
+         (full-source-uri (concat object-uri "/" source-uri)))
+    (abaplib-where-used full-source-uri (line-number-at-pos) (current-column))
+    ))
+
+(defun abaplib-where-used (full-source-uri row-pos col-pos)
+  (message "Getting Where-Used list...")
+  (let* ((request-uri "")      ;; TODO Marian: request-uri
+         (headers `(("x-csrf-token" . ,(abaplib-get-csrf-token))
+                    ))         ;; TODO Marian: headers
+         (post-data (concat )) ;; TODO Marian: concat post-data
+         (params `((uri . ,(format "%s#start=%d,%d"
+                                   full-source-uri row-pos col-pos))
+                               ;; TODO Marian: possibly more params
+                   ))
+         (where-used (abaplib--rest-api-call request-uri
+                                             nil
+                                             :parser 'abaplib-util-xml-parser
+                                             :type "POST"
+                                             :headers headers
+                                             :data post-data
+                                             :params params)))
+    ))
+
+
+;;========================================================================
+;; Refactoring of abap-submit-source and underlying methods
+;; to refresh properties after submit
+;;========================================================================
+
+
 (defun abap-submit-source ()
   "Submit source back to server."
   (interactive)
