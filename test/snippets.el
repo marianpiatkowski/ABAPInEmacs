@@ -14,6 +14,7 @@
     ))
 
 (defun abaplib-where-used (full-source-uri row-pos col-pos)
+  "Get Where-Used List of object in `full-source-uri' at linenumber `row-pos', column number `col-pos'."
   (message "Getting Where-Used list...")
   (let* ((request-uri "")      ;; TODO Marian: request-uri
          (headers `(("x-csrf-token" . ,(abaplib-get-csrf-token))
