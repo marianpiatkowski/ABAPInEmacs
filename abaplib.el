@@ -1045,6 +1045,10 @@
   "Navigate to matching statement"
   (message "Navigating...")
   (let* ((request-uri "/sap/bc/adt/navigation/target")
+         (headers `(("x-csrf-token" . ,(abaplib-get-csrf-token))
+                    ("x-sap-adt-sessiontype" . "stateful")
+                    ("Content-Type" . "text/plain")
+                    ("Accept" . "application/xml")))
          (params `((uri . ,(format "%s#start=%d,%d"
                                    full-source-uri pos_row pos_col))
                    (filter . "implementation")
@@ -1053,10 +1057,7 @@
                                                     nil
                                                     :parser 'abaplib-util-xml-parser
                                                     :type "POST"
-                                                    :headers `(("x-csrf-token" . ,(abaplib-get-csrf-token))
-                                                               ("x-sap-adt-sessiontype" . "stateful")
-                                                               ("Content-Type" . "text/plain")
-                                                               ("Accept" . "application/xml"))
+                                                    :headers headers
                                                     :data source-code
                                                     :params params)))
     (when navigation-result
