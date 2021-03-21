@@ -17,14 +17,14 @@
                                          (line-number-at-pos)
                                          (current-column)
                                          source-code))
+         ;; TODO Marian: rename abaplib--get-target-source-uri -> abaplib-get-target-source-uri
          (other-window (not (string= (abaplib--get-target-source-uri target-navi-uri)
                                      full-source-uri))))
     (abaplib-do-navigate target-navi-uri other-window)))
 
 
 (defun abaplib-get-object-info (full-source-uri)
-  "Get object info of ABAP development object from uri.
-Note: No check is however performed whether source already exists locally."
+  "Get object info of ABAP development object from `full-source-uri'."
   (let* ((split-on-source (-split-when (lambda (elem) (string= elem "source"))
                                        (split-string full-source-uri "/")))
          (object-uri (mapconcat 'directory-file-name (car split-on-source) "/")) ;; everything before /source in uri
@@ -41,7 +41,7 @@ Note: No check is however performed whether source already exists locally."
 
 
 (defun abaplib-do-navigate (target-navi-uri other-window)
-  "Navigate to target uri."
+  "Navigate to source and position encoded in `target-navi-uri'."
   (let* ((target-source-uri (abaplib--get-target-source-uri target-navi-uri))
          (target-object-info (abaplib-get-object-info target-source-uri))
          (object-path     (cdr (assoc 'path target-object-info)))
