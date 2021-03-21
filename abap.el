@@ -261,10 +261,11 @@
          (source-uri (abaplib-get-property 'source-uri source-name))
          (full-source-uri (concat object-uri "/" source-uri))
          (source-code (abaplib-buffer-whole-string curr-buffer))
-         (target-navi-uri (abaplib-do-navigate-target full-source-uri
-                                                 (line-number-at-pos)
-                                                 (current-column)
-                                                 source-code))
+         (target-navi-uri
+          (abaplib-get-navigation-target full-source-uri
+                                         (line-number-at-pos)
+                                         (current-column)
+                                         source-code))
          (target-source-uri (abaplib--get-target-source-uri target-navi-uri))
          )
     (if (not (string= full-source-uri target-source-uri))

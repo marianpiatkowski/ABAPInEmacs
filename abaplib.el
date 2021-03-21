@@ -1041,8 +1041,8 @@
 ;;========================================================================
 ;; Module - Core Services - Code Navigation
 ;;========================================================================
-(defun abaplib-do-navigate-target (full-source-uri pos_row pos_col source-code)
-  "Navigate to matching statement"
+(defun abaplib-get-navigation-target (full-source-uri pos_row pos_col source-code)
+  "Navigate to matching statement."
   (message "Navigating...")
   (let* ((request-uri "/sap/bc/adt/navigation/target")
          (headers `(("x-csrf-token" . ,(abaplib-get-csrf-token))
