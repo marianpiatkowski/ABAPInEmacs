@@ -1,4 +1,84 @@
 ;;========================================================================
+;; Refactoring of abap-navigate-code and underlying methods
+;;========================================================================
+
+
+(defun abap-navigate-code ()
+  "Navigate to object under cursor."
+  (interactive)
+  (let* ((curr-buffer (current-buffer))
+         (source-name (file-name-nondirectory (buffer-file-name)))
+         (object-uri (abaplib-get-property 'uri))
+         (source-uri (abaplib-get-property 'source-uri source-name))
+         (full-source-uri (concat object-uri "/" source-uri))
+         (source-code (abaplib-buffer-whole-string curr-buffer))
+         (target-navi-uri
+          (abaplib-get-navigation-target full-source-uri
+                                         (line-number-at-pos)
+                                         (current-column)
+                                         source-code))
+         (other-window (not (string= (abaplib--get-target-source-uri target-navi-uri)
+                                     full-source-uri))))
+    (abaplib-do-navigate target-navi-uri other-window)))
+
+
+(defun abaplib-get-object-info (full-source-uri)
+  "Get object info of ABAP development object from uri.
+Note: No check is however performed whether source already exists locally."
+  (let* ((split-on-source (-split-when (lambda (elem) (string= elem "source"))
+                                       (split-string full-source-uri "/")))
+         (object-uri (mapconcat 'directory-file-name (car split-on-source) "/")) ;; everything before /source in uri
+         (object-filename-base (if (cadr split-on-source) (caadr split-on-source) "main")) ;; gives main or implementations etc.
+         (object-info (abaplib--rest-api-call object-uri nil :parser 'abaplib-util-xml-parser))
+         (object-type (xml-get-attribute object-info 'type))
+         (object-name (xml-get-attribute object-info 'name))
+         (object-path (abaplib-get-path object-type object-name object-uri))
+         (object-filename (file-name-completion object-filename-base object-path)))
+    (list (path . ,object-path)
+          (file . ,object-filename)
+          (name . ,object-name)
+          (type . ,object-type)
+          (uri  . ,object-uri))))
+
+
+(defun abaplib-do-navigate (target-navi-uri other-window)
+  "Navigate to target uri."
+  (let* ((target-source-uri (abaplib--get-target-source-uri target-navi-uri))
+         (target-object-info (abaplib-get-object-info target-source-uri))
+         (object-path     (cdr (assoc 'path target-object-info)))
+         (object-filename (cdr (assoc 'file target-object-info)))
+         (object-filepath))
+    ;; TODO add source retrieve
+    (unless object-filename
+      (error (format "Cannot navigate to target uri \"%s\"! Please fetch from server first." target-source-uri)))
+    (setq object-filepath (concat object-path "/" object-filename))
+    (if other-window
+        (switch-to-buffer (find-file-other-window object-filepath))
+      (switch-to-buffer (current-buffer)))
+    (cond ((progn
+             (string-match "#start=\\([0-9]+,[0-9]+\\)" target-navi-uri)
+             (match-string 1 target-navi-uri))
+           (let ((target-source-pos (split-string (progn
+                                                    (string-match "#start=\\([0-9]+,[0-9]+\\)" target-navi-uri)
+                                                    (match-string 1 target-navi-uri)) "," ))
+                 )
+             (goto-line (string-to-number (car target-source-pos)))
+             (move-to-column (string-to-number (cadr target-source-pos)))))
+          ((progn
+             (string-match "#name=\\([A-Za-z0-9_-]+\\)" target-navi-uri)
+             (match-string 1 target-navi-uri))
+           (let ((target-source-pos (progn
+                                      (string-match "#name=\\([A-Za-z0-9_-]+\\)" target-navi-uri)
+                                      (match-string 1 target-navi-uri)))
+                 )
+             (goto-char 1)
+             (search-forward target-source-pos)
+             (skip-chars-backward "A-Za-z0-9_-")))
+          (t (goto-char 1)))
+    ))
+
+
+;;========================================================================
 ;; Snippet - function abap-where-used
 ;;========================================================================
 
