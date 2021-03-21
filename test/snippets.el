@@ -32,10 +32,9 @@ Note: No check is however performed whether source already exists locally."
          (object-info (abaplib--rest-api-call object-uri nil :parser 'abaplib-util-xml-parser))
          (object-type (xml-get-attribute object-info 'type))
          (object-name (xml-get-attribute object-info 'name))
-         (object-path (abaplib-get-path object-type object-name object-uri))
-         (object-filename (file-name-completion object-filename-base object-path)))
+         (object-path (abaplib-get-path object-type object-name object-uri)))
     `((path . ,object-path)
-      (file . ,object-filename)
+      (filename-base . ,object-filename-base)
       (name . ,object-name)
       (type . ,object-type)
       (uri  . ,object-uri))))
@@ -46,7 +45,8 @@ Note: No check is however performed whether source already exists locally."
   (let* ((target-source-uri (abaplib--get-target-source-uri target-navi-uri))
          (target-object-info (abaplib-get-object-info target-source-uri))
          (object-path     (cdr (assoc 'path target-object-info)))
-         (object-filename (cdr (assoc 'file target-object-info)))
+         (obj-fname-base  (cdr (assoc 'filename-base target-object-info)))
+         (object-filename (file-name-completion obj-fname-base object-path))
          (object-filepath))
     ;; TODO add source retrieve
     (unless object-filename
