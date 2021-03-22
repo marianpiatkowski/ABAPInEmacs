@@ -48,9 +48,16 @@
          (obj-fname-base  (cdr (assoc 'filename-base target-object-info)))
          (object-filename (file-name-completion obj-fname-base object-path))
          (object-filepath))
-    ;; TODO add source retrieve
     (unless object-filename
-      (error (format "Cannot navigate to target uri \"%s\"! Please fetch from server first." target-source-uri)))
+      ;; fetch from server first
+      (let* ((object-name (cdr (assoc 'name target-object-info)))
+             (object-type (cdr (assoc 'type target-object-info)))
+             (object-uri  (cdr (assoc 'uri  target-object-info)))
+             (retr-path (abaplib-do-retrieve object-name object-type object-uri)))
+        ;; cross-check with object-path above
+        (cl-assert (string= retr-path object-path))
+        (setq object-filename (file-name-completion obj-fname-base object-path))))
+    (cl-assert object-filename)
     (setq object-filepath (concat object-path "/" object-filename))
     (if other-window
         (switch-to-buffer (find-file-other-window object-filepath))
