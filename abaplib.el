@@ -904,6 +904,7 @@
   (let* ((object-path (cdr (assoc 'path object-info)))
          (source-name (cdr (assoc 'file object-info)))
          (type        (cdr (assoc 'type object-info)))
+         (uri         (cdr (assoc 'uri  object-info)))
          (property-file (expand-file-name abaplib--property-file object-path))
          (metadata-local (json-read-file property-file))
          (sources-local (assoc 'sources metadata-local))
