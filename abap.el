@@ -266,32 +266,9 @@
                                          (line-number-at-pos)
                                          (current-column)
                                          source-code))
-         (target-source-uri (abaplib--get-target-source-uri target-navi-uri))
-         )
-    (if (not (string= full-source-uri target-source-uri))
-        (switch-to-buffer (find-file-other-window (abaplib-get-source-file target-source-uri)))
-      (switch-to-buffer curr-buffer))
-    (cond ((progn
-             (string-match "#start=\\([0-9]+,[0-9]+\\)" target-navi-uri)
-             (match-string 1 target-navi-uri))
-           (let ((target-source-pos (split-string (progn
-                                                    (string-match "#start=\\([0-9]+,[0-9]+\\)" target-navi-uri)
-                                                    (match-string 1 target-navi-uri)) "," ))
-                 )
-             (goto-line (string-to-number (car target-source-pos)))
-             (move-to-column (string-to-number (cadr target-source-pos)))))
-          ((progn
-             (string-match "#name=\\([A-Za-z0-9_-]+\\)" target-navi-uri)
-             (match-string 1 target-navi-uri))
-           (let ((target-source-pos (progn
-                                      (string-match "#name=\\([A-Za-z0-9_-]+\\)" target-navi-uri)
-                                      (match-string 1 target-navi-uri)))
-                 )
-             (goto-char 1)
-             (search-forward target-source-pos)
-             (skip-chars-backward "A-Za-z0-9_-")))
-          (t (goto-char 1)))
-    ))
+         (other-window (not (string= (abaplib-get-target-source-uri target-navi-uri)
+                                     full-source-uri))))
+    (abaplib-do-navigate target-navi-uri other-window)))
 
 (defun abap-execute-object ()
   "Execute ABAP development object."

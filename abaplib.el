@@ -1066,7 +1066,7 @@
         uri))
     ))
 
-(defun abaplib--get-target-source-uri (navigation-uri)
+(defun abaplib-get-target-source-uri (navigation-uri)
   "Get the target source uri from the navigation uri.
 A navigation uri usually ends with a pattern like '#start=# or '#name='. Then the target source uri is everything before this pattern.
 Otherwise take the navigation uri as target source uri."
@@ -1076,9 +1076,8 @@ Otherwise take the navigation uri as target source uri."
          (car (split-string navigation-uri "#name=\\([A-Za-z0-9_-]+\\)")))
         (t navigation-uri)))
 
-(defun abaplib-get-source-file (full-source-uri)
-  "Get path of ABAP development object from uri.
-Note that the object to be visited has to be retrieved in advance!"
+(defun abaplib-get-object-info (full-source-uri)
+  "Get object info of ABAP development object from `full-source-uri'."
   (let* ((split-on-source (-split-when (lambda (elem) (string= elem "source"))
                                        (split-string full-source-uri "/")))
          (object-uri (mapconcat 'directory-file-name (car split-on-source) "/")) ;; everything before /source in uri
@@ -1086,14 +1085,48 @@ Note that the object to be visited has to be retrieved in advance!"
          (object-info (abaplib--rest-api-call object-uri nil :parser 'abaplib-util-xml-parser))
          (object-type (xml-get-attribute object-info 'type))
          (object-name (xml-get-attribute object-info 'name))
-         (object-path (abaplib-get-path object-type object-name object-uri))
-         (object-filename (file-name-completion object-filename-base object-path))
-         (object-filepath (concat object-path "/" object-filename))
-         )
-    ;; TODO (abaplib-do-retrieve object-name object-type object-uri)) not yet implemented
+         (object-path (abaplib-get-path object-type object-name object-uri)))
+    `((path . ,object-path)
+      (filename-base . ,object-filename-base)
+      (name . ,object-name)
+      (type . ,object-type)
+      (uri  . ,object-uri))))
+
+(defun abaplib-do-navigate (target-navi-uri other-window)
+  "Navigate to source and position encoded in `target-navi-uri'."
+  (let* ((target-source-uri (abaplib-get-target-source-uri target-navi-uri))
+         (target-object-info (abaplib-get-object-info target-source-uri))
+         (object-path     (cdr (assoc 'path target-object-info)))
+         (obj-fname-base  (cdr (assoc 'filename-base target-object-info)))
+         (object-filename (file-name-completion obj-fname-base object-path))
+         (object-filepath))
+    ;; TODO add source retrieve
     (unless object-filename
-      (error (format "Cannot navigate to target uri \"%s\"! Please fetch from server first." full-source-uri)))
-    object-filepath
+      (error (format "Cannot navigate to target uri \"%s\"! Please fetch from server first." target-source-uri)))
+    (setq object-filepath (concat object-path "/" object-filename))
+    (if other-window
+        (switch-to-buffer (find-file-other-window object-filepath))
+      (switch-to-buffer (current-buffer)))
+    (cond ((progn
+             (string-match "#start=\\([0-9]+,[0-9]+\\)" target-navi-uri)
+             (match-string 1 target-navi-uri))
+           (let ((target-source-pos (split-string (progn
+                                                    (string-match "#start=\\([0-9]+,[0-9]+\\)" target-navi-uri)
+                                                    (match-string 1 target-navi-uri)) "," ))
+                 )
+             (goto-line (string-to-number (car target-source-pos)))
+             (move-to-column (string-to-number (cadr target-source-pos)))))
+          ((progn
+             (string-match "#name=\\([A-Za-z0-9_-]+\\)" target-navi-uri)
+             (match-string 1 target-navi-uri))
+           (let ((target-source-pos (progn
+                                      (string-match "#name=\\([A-Za-z0-9_-]+\\)" target-navi-uri)
+                                      (match-string 1 target-navi-uri)))
+                 )
+             (goto-char 1)
+             (search-forward target-source-pos)
+             (skip-chars-backward "A-Za-z0-9_-")))
+          (t (goto-char 1)))
     ))
 
 ;;========================================================================
