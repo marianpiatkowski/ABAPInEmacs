@@ -966,11 +966,10 @@
 ;;========================================================================
 ;; Module - Core Services - Submit Source to Server
 ;;========================================================================
-(defun abaplib-do-submit(full-source-uri source-code &optional tr-number)
-  "Submit source back to server.
-   TODO Check source in server side if current source was changed based on an old version.
-   The submission should then be cancelled."
-  (let* ((csrf-token (abaplib-get-csrf-token))
+(defun abaplib-do-submit (source-code object-info &optional tr-number)
+  "Submit source back to server."
+  (let* ((full-source-uri (cdr (assoc 'full-source-uri object-info)))
+         (csrf-token (abaplib-get-csrf-token))
          (lock-handle (abaplib--lock-sync full-source-uri csrf-token))
          (params `(("lockHandle" . ,lock-handle)))
          (headers `(("Content-Type" . "text/plain")
@@ -986,11 +985,27 @@
                       (string-match "etag: \\([1-9][0-9]+\\)" response-string)
                       (match-string 1 response-string))))
          ;;TODO Refresh properties
+         (if etag
+             (abaplib--metadata-post-submit etag object-info))
          (message "Submitting source to server succeeded!")))
      :type "PUT"
      :data source-code
      :headers headers
      :params params)))
+
+(defun abaplib--metadata-post-submit (etag object-info)
+  (let* ((object-path (cdr (assoc 'path object-info)))
+         (source-name (cdr (assoc 'file object-info)))
+         (property-file (expand-file-name abaplib--property-file object-path))
+         (metadata (json-read-file property-file)))
+    (setf (alist-get 'version metadata) "inactive")
+    (setf (alist-get 'version (assoc-string source-name (assoc 'sources metadata))) "inactive")
+    (setf (alist-get 'etag    (assoc-string source-name (assoc 'sources metadata))) etag)
+    (write-region (with-temp-buffer
+                    (insert (json-encode metadata))
+                    (json-pretty-print (point-min) (point-max))
+                    (buffer-string))
+                  nil property-file)))
 
 ;;========================================================================
 ;; Module - Core Services - Format Source From Server
