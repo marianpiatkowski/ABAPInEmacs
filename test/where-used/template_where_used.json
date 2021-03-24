@@ -1,0 +1,636 @@
+{
+  "usageReferences:usageReferenceResult": [
+    {
+      "xmlns:usageReferences": "http://www.sap.com/adt/ris/usageReferences",
+      "referencedObjectIdentifier": "ABAPFullName;\\TY:CL_SVER_DBI_GEN_NATIVE_VERI",
+      "resultDescription": "References for: CL_SVER_DBI_GEN_NATIVE_VERI (Class) [ALX]",
+      "numberOfResults": "3"
+    },
+    "\n",
+    [
+      "usageReferences:referencedObjects",
+      null,
+      "\n",
+      [
+        "usageReferences:referencedObject",
+        {
+          "canHaveChildren": "false",
+          "isResult": "false",
+          "parentUri": "/sap/bc/adt/packages/sver_dbi_test_native",
+          "uri": "/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri"
+        },
+        "\n",
+        [
+          "usageReferences:adtObject",
+          {
+            "xmlns:adtcore": "http://www.sap.com/adt/core",
+            "adtcore:description": "Class",
+            "adtcore:type": "CLAS/OC",
+            "adtcore:name": "CL_SVER_DBI_GEN_NATIVE_VERI",
+            "adtcore:responsible": "PIATKOWSKIS"
+          },
+          "\n",
+          [
+            "adtcore:packageRef",
+            {
+              "adtcore:uri": "/sap/bc/adt/packages/sver_dbi_test_native",
+              "adtcore:type": "DEVC/K",
+              "adtcore:name": "SVER_DBI_TEST_NATIVE"
+            }
+          ],
+          "\n"
+        ],
+        "\n"
+      ],
+      "\n",
+      [
+        "usageReferences:referencedObject",
+        {
+          "canHaveChildren": "true",
+          "isResult": "false",
+          "parentUri": "/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri",
+          "uri": "/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri/source/main#type=CLAS%2FOM;name=CHECK_TARGET_REPORT_NAMES",
+          "usageInformation": "gradeComponent,includeProductive"
+        },
+        "\n",
+        [
+          "usageReferences:adtObject",
+          {
+            "xmlns:adtcore": "http://www.sap.com/adt/core",
+            "adtcore:name": "CHECK_TARGET_REPORT_NAMES",
+            "adtcore:responsible": "PIATKOWSKIS"
+          },
+          "\n",
+          [
+            "adtcore:packageRef",
+            {
+              "adtcore:uri": "/sap/bc/adt/packages/sver_dbi_test_native",
+              "adtcore:type": "DEVC/K",
+              "adtcore:name": "SVER_DBI_TEST_NATIVE"
+            }
+          ],
+          "\n"
+        ],
+        "\n",
+        [
+          "objectIdentifier",
+          null,
+          "ABAPFullName;CL_SVER_DBI_GEN_NATIVE_VERI===CP;CL_SVER_DBI_GEN_NATIVE_VERI===CM002;\\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2"
+        ],
+        "\n"
+      ],
+      "\n",
+      [
+        "usageReferences:referencedObject",
+        {
+          "canHaveChildren": "true",
+          "isResult": "false",
+          "parentUri": "/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri",
+          "uri": "/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri/source/main#type=CLAS%2FOM;name=CONSTRUCTOR",
+          "usageInformation": "gradeComponent,includeProductive"
+        },
+        "\n",
+        [
+          "usageReferences:adtObject",
+          {
+            "xmlns:adtcore": "http://www.sap.com/adt/core",
+            "adtcore:name": "CONSTRUCTOR"
+          },
+          "\n",
+          [
+            "adtcore:packageRef",
+            {
+              "adtcore:uri": "/sap/bc/adt/packages/sver_dbi_test_native",
+              "adtcore:type": "DEVC/K",
+              "adtcore:name": "SVER_DBI_TEST_NATIVE"
+            }
+          ],
+          "\n"
+        ],
+        "\n",
+        [
+          "objectIdentifier",
+          null,
+          "ABAPFullName;CL_SVER_DBI_GEN_NATIVE_VERI===CP;CL_SVER_DBI_GEN_NATIVE_VERI===CM003;\\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2"
+        ],
+        "\n"
+      ],
+      "\n",
+      [
+        "usageReferences:referencedObject",
+        {
+          "canHaveChildren": "true",
+          "isResult": "false",
+          "parentUri": "/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri",
+          "uri": "/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri/source/main#type=CLAS%2FOM;name=DEQUEUE",
+          "usageInformation": "gradeComponent,includeProductive"
+        },
+        "\n",
+        [
+          "usageReferences:adtObject",
+          {
+            "xmlns:adtcore": "http://www.sap.com/adt/core",
+            "adtcore:name": "DEQUEUE"
+          },
+          "\n",
+          [
+            "adtcore:packageRef",
+            {
+              "adtcore:uri": "/sap/bc/adt/packages/sver_dbi_test_native",
+              "adtcore:type": "DEVC/K",
+              "adtcore:name": "SVER_DBI_TEST_NATIVE"
+            }
+          ],
+          "\n"
+        ],
+        "\n",
+        [
+          "objectIdentifier",
+          null,
+          "ABAPFullName;CL_SVER_DBI_GEN_NATIVE_VERI===CP;CL_SVER_DBI_GEN_NATIVE_VERI===CM004;\\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2"
+        ],
+        "\n"
+      ],
+      "\n",
+      [
+        "usageReferences:referencedObject",
+        {
+          "canHaveChildren": "true",
+          "isResult": "false",
+          "parentUri": "/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri",
+          "uri": "/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri/source/main#type=CLAS%2FOM;name=ENQUEUE",
+          "usageInformation": "gradeComponent,includeProductive"
+        },
+        "\n",
+        [
+          "usageReferences:adtObject",
+          {
+            "xmlns:adtcore": "http://www.sap.com/adt/core",
+            "adtcore:name": "ENQUEUE"
+          },
+          "\n",
+          [
+            "adtcore:packageRef",
+            {
+              "adtcore:uri": "/sap/bc/adt/packages/sver_dbi_test_native",
+              "adtcore:type": "DEVC/K",
+              "adtcore:name": "SVER_DBI_TEST_NATIVE"
+            }
+          ],
+          "\n"
+        ],
+        "\n",
+        [
+          "objectIdentifier",
+          null,
+          "ABAPFullName;CL_SVER_DBI_GEN_NATIVE_VERI===CP;CL_SVER_DBI_GEN_NATIVE_VERI===CM005;\\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2"
+        ],
+        "\n"
+      ],
+      "\n",
+      [
+        "usageReferences:referencedObject",
+        {
+          "canHaveChildren": "true",
+          "isResult": "false",
+          "parentUri": "/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri",
+          "uri": "/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri/source/main#type=CLAS%2FOM;name=GENERATE",
+          "usageInformation": "gradeComponent,includeProductive"
+        },
+        "\n",
+        [
+          "usageReferences:adtObject",
+          {
+            "xmlns:adtcore": "http://www.sap.com/adt/core",
+            "adtcore:name": "GENERATE"
+          },
+          "\n",
+          [
+            "adtcore:packageRef",
+            {
+              "adtcore:uri": "/sap/bc/adt/packages/sver_dbi_test_native",
+              "adtcore:type": "DEVC/K",
+              "adtcore:name": "SVER_DBI_TEST_NATIVE"
+            }
+          ],
+          "\n"
+        ],
+        "\n",
+        [
+          "objectIdentifier",
+          null,
+          "ABAPFullName;CL_SVER_DBI_GEN_NATIVE_VERI===CP;CL_SVER_DBI_GEN_NATIVE_VERI===CM006;\\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2"
+        ],
+        "\n"
+      ],
+      "\n",
+      [
+        "usageReferences:referencedObject",
+        {
+          "canHaveChildren": "true",
+          "isResult": "false",
+          "parentUri": "/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri",
+          "uri": "/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri/source/main#type=CLAS%2FOM;name=GET_GENERATED_REPORTS",
+          "usageInformation": "gradeComponent,includeProductive"
+        },
+        "\n",
+        [
+          "usageReferences:adtObject",
+          {
+            "xmlns:adtcore": "http://www.sap.com/adt/core",
+            "adtcore:name": "GET_GENERATED_REPORTS"
+          },
+          "\n",
+          [
+            "adtcore:packageRef",
+            {
+              "adtcore:uri": "/sap/bc/adt/packages/sver_dbi_test_native",
+              "adtcore:type": "DEVC/K",
+              "adtcore:name": "SVER_DBI_TEST_NATIVE"
+            }
+          ],
+          "\n"
+        ],
+        "\n",
+        [
+          "objectIdentifier",
+          null,
+          "ABAPFullName;CL_SVER_DBI_GEN_NATIVE_VERI===CP;CL_SVER_DBI_GEN_NATIVE_VERI===CM008;\\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2"
+        ],
+        "\n"
+      ],
+      "\n",
+      [
+        "usageReferences:referencedObject",
+        {
+          "canHaveChildren": "true",
+          "isResult": "false",
+          "parentUri": "/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri",
+          "uri": "/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri/source/main#type=CLAS%2FOM;name=GET_TARGET_REPORT_NAME",
+          "usageInformation": "gradeComponent,includeProductive"
+        },
+        "\n",
+        [
+          "usageReferences:adtObject",
+          {
+            "xmlns:adtcore": "http://www.sap.com/adt/core",
+            "adtcore:name": "GET_TARGET_REPORT_NAME"
+          },
+          "\n",
+          [
+            "adtcore:packageRef",
+            {
+              "adtcore:uri": "/sap/bc/adt/packages/sver_dbi_test_native",
+              "adtcore:type": "DEVC/K",
+              "adtcore:name": "SVER_DBI_TEST_NATIVE"
+            }
+          ],
+          "\n"
+        ],
+        "\n",
+        [
+          "objectIdentifier",
+          null,
+          "ABAPFullName;CL_SVER_DBI_GEN_NATIVE_VERI===CP;CL_SVER_DBI_GEN_NATIVE_VERI===CM009;\\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2"
+        ],
+        "\n"
+      ],
+      "\n",
+      [
+        "usageReferences:referencedObject",
+        {
+          "canHaveChildren": "true",
+          "isResult": "false",
+          "parentUri": "/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri",
+          "uri": "/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri/source/main#type=CLAS%2FOM;name=INSERT_REPORTS_AND_GENERATE",
+          "usageInformation": "gradeComponent,includeProductive"
+        },
+        "\n",
+        [
+          "usageReferences:adtObject",
+          {
+            "xmlns:adtcore": "http://www.sap.com/adt/core",
+            "adtcore:name": "INSERT_REPORTS_AND_GENERATE"
+          },
+          "\n",
+          [
+            "adtcore:packageRef",
+            {
+              "adtcore:uri": "/sap/bc/adt/packages/sver_dbi_test_native",
+              "adtcore:type": "DEVC/K",
+              "adtcore:name": "SVER_DBI_TEST_NATIVE"
+            }
+          ],
+          "\n"
+        ],
+        "\n",
+        [
+          "objectIdentifier",
+          null,
+          "ABAPFullName;CL_SVER_DBI_GEN_NATIVE_VERI===CP;CL_SVER_DBI_GEN_NATIVE_VERI===CM00A;\\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2"
+        ],
+        "\n"
+      ],
+      "\n",
+      [
+        "usageReferences:referencedObject",
+        {
+          "canHaveChildren": "true",
+          "isResult": "false",
+          "parentUri": "/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri",
+          "uri": "/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri/source/main#type=CLAS%2FOM;name=INSERT_REPORT_AND_GENERATE",
+          "usageInformation": "gradeComponent,includeProductive"
+        },
+        "\n",
+        [
+          "usageReferences:adtObject",
+          {
+            "xmlns:adtcore": "http://www.sap.com/adt/core",
+            "adtcore:name": "INSERT_REPORT_AND_GENERATE"
+          },
+          "\n",
+          [
+            "adtcore:packageRef",
+            {
+              "adtcore:uri": "/sap/bc/adt/packages/sver_dbi_test_native",
+              "adtcore:type": "DEVC/K",
+              "adtcore:name": "SVER_DBI_TEST_NATIVE"
+            }
+          ],
+          "\n"
+        ],
+        "\n",
+        [
+          "objectIdentifier",
+          null,
+          "ABAPFullName;CL_SVER_DBI_GEN_NATIVE_VERI===CP;CL_SVER_DBI_GEN_NATIVE_VERI===CM00B;\\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2"
+        ],
+        "\n"
+      ],
+      "\n",
+      [
+        "usageReferences:referencedObject",
+        {
+          "canHaveChildren": "true",
+          "isResult": "false",
+          "parentUri": "/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri",
+          "uri": "/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri/source/main#type=CLAS%2FOM;name=INSERT_SOURCE",
+          "usageInformation": "gradeComponent,includeProductive"
+        },
+        "\n",
+        [
+          "usageReferences:adtObject",
+          {
+            "xmlns:adtcore": "http://www.sap.com/adt/core",
+            "adtcore:name": "INSERT_SOURCE"
+          },
+          "\n",
+          [
+            "adtcore:packageRef",
+            {
+              "adtcore:uri": "/sap/bc/adt/packages/sver_dbi_test_native",
+              "adtcore:type": "DEVC/K",
+              "adtcore:name": "SVER_DBI_TEST_NATIVE"
+            }
+          ],
+          "\n"
+        ],
+        "\n",
+        [
+          "objectIdentifier",
+          null,
+          "ABAPFullName;CL_SVER_DBI_GEN_NATIVE_VERI===CP;CL_SVER_DBI_GEN_NATIVE_VERI===CM00C;\\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2"
+        ],
+        "\n"
+      ],
+      "\n",
+      [
+        "usageReferences:referencedObject",
+        {
+          "canHaveChildren": "false",
+          "isResult": "false",
+          "uri": "/sap/bc/adt/packages/%24tmp"
+        },
+        "\n",
+        [
+          "usageReferences:adtObject",
+          {
+            "xmlns:adtcore": "http://www.sap.com/adt/core",
+            "adtcore:type": "DEVC/K",
+            "adtcore:name": "$TMP"
+          },
+          "\n",
+          [
+            "adtcore:packageRef",
+            {
+              "adtcore:uri": "/sap/bc/adt/packages/%24tmp",
+              "adtcore:type": "DEVC/K",
+              "adtcore:name": "$TMP"
+            }
+          ],
+          "\n"
+        ],
+        "\n"
+      ],
+      "\n",
+      [
+        "usageReferences:referencedObject",
+        {
+          "canHaveChildren": "false",
+          "isResult": "false",
+          "uri": "/sap/bc/adt/packages/struc_home"
+        },
+        "\n",
+        [
+          "usageReferences:adtObject",
+          {
+            "xmlns:adtcore": "http://www.sap.com/adt/core",
+            "adtcore:type": "DEVC/K",
+            "adtcore:name": "STRUC_HOME"
+          },
+          "\n",
+          [
+            "adtcore:packageRef",
+            {
+              "adtcore:uri": "/sap/bc/adt/packages/struc_home",
+              "adtcore:type": "DEVC/K",
+              "adtcore:name": "STRUC_HOME"
+            }
+          ],
+          "\n"
+        ],
+        "\n"
+      ],
+      "\n",
+      [
+        "usageReferences:referencedObject",
+        {
+          "canHaveChildren": "false",
+          "isResult": "false",
+          "parentUri": "/sap/bc/adt/packages/struc_home",
+          "uri": "/sap/bc/adt/packages/sver_base"
+        },
+        "\n",
+        [
+          "usageReferences:adtObject",
+          {
+            "xmlns:adtcore": "http://www.sap.com/adt/core",
+            "adtcore:type": "DEVC/K",
+            "adtcore:name": "SVER_BASE"
+          },
+          "\n",
+          [
+            "adtcore:packageRef",
+            {
+              "adtcore:uri": "/sap/bc/adt/packages/sver_base",
+              "adtcore:type": "DEVC/K",
+              "adtcore:name": "SVER_BASE"
+            }
+          ],
+          "\n"
+        ],
+        "\n"
+      ],
+      "\n",
+      [
+        "usageReferences:referencedObject",
+        {
+          "canHaveChildren": "false",
+          "isResult": "false",
+          "parentUri": "/sap/bc/adt/packages/sver_base",
+          "uri": "/sap/bc/adt/packages/sver_dbi_test_base"
+        },
+        "\n",
+        [
+          "usageReferences:adtObject",
+          {
+            "xmlns:adtcore": "http://www.sap.com/adt/core",
+            "adtcore:type": "DEVC/K",
+            "adtcore:name": "SVER_DBI_TEST_BASE"
+          },
+          "\n",
+          [
+            "adtcore:packageRef",
+            {
+              "adtcore:uri": "/sap/bc/adt/packages/sver_dbi_test_base",
+              "adtcore:type": "DEVC/K",
+              "adtcore:name": "SVER_DBI_TEST_BASE"
+            }
+          ],
+          "\n"
+        ],
+        "\n"
+      ],
+      "\n",
+      [
+        "usageReferences:referencedObject",
+        {
+          "canHaveChildren": "false",
+          "isResult": "false",
+          "parentUri": "/sap/bc/adt/packages/sver_dbi_test_base",
+          "uri": "/sap/bc/adt/packages/sver_dbi_test_native"
+        },
+        "\n",
+        [
+          "usageReferences:adtObject",
+          {
+            "xmlns:adtcore": "http://www.sap.com/adt/core",
+            "adtcore:type": "DEVC/K",
+            "adtcore:name": "SVER_DBI_TEST_NATIVE"
+          },
+          "\n",
+          [
+            "adtcore:packageRef",
+            {
+              "adtcore:uri": "/sap/bc/adt/packages/sver_dbi_test_native",
+              "adtcore:type": "DEVC/K",
+              "adtcore:name": "SVER_DBI_TEST_NATIVE"
+            }
+          ],
+          "\n"
+        ],
+        "\n"
+      ],
+      "\n",
+      [
+        "usageReferences:referencedObject",
+        {
+          "canHaveChildren": "true",
+          "isResult": "false",
+          "parentUri": "/sap/bc/adt/packages/sver_dbi_test_native",
+          "uri": "/sap/bc/adt/programs/programs/sver_native_generate_veri",
+          "usageInformation": "gradeDirect,includeProductive"
+        },
+        "\n",
+        [
+          "usageReferences:adtObject",
+          {
+            "xmlns:adtcore": "http://www.sap.com/adt/core",
+            "adtcore:description": "Program",
+            "adtcore:type": "PROG/P",
+            "adtcore:name": "SVER_NATIVE_GENERATE_VERI",
+            "adtcore:responsible": "PIATKOWSKIS"
+          },
+          "\n",
+          [
+            "adtcore:packageRef",
+            {
+              "adtcore:uri": "/sap/bc/adt/packages/sver_dbi_test_native",
+              "adtcore:type": "DEVC/K",
+              "adtcore:name": "SVER_DBI_TEST_NATIVE"
+            }
+          ],
+          "\n"
+        ],
+        "\n",
+        [
+          "objectIdentifier",
+          null,
+          "ABAPFullName;SVER_NATIVE_GENERATE_VERI;SVER_NATIVE_GENERATE_VERI;\\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2"
+        ],
+        "\n"
+      ],
+      "\n",
+      [
+        "usageReferences:referencedObject",
+        {
+          "canHaveChildren": "true",
+          "isResult": "false",
+          "parentUri": "/sap/bc/adt/packages/%24tmp",
+          "uri": "/sap/bc/adt/programs/programs/zsmp_gen_native_sql_2",
+          "usageInformation": "gradeDirect,includeProductive"
+        },
+        "\n",
+        [
+          "usageReferences:adtObject",
+          {
+            "xmlns:adtcore": "http://www.sap.com/adt/core",
+            "adtcore:description": "Program",
+            "adtcore:type": "PROG/P",
+            "adtcore:name": "ZSMP_GEN_NATIVE_SQL_2",
+            "adtcore:responsible": "PIATKOWSKIS"
+          },
+          "\n",
+          [
+            "adtcore:packageRef",
+            {
+              "adtcore:uri": "/sap/bc/adt/packages/%24tmp",
+              "adtcore:type": "DEVC/K",
+              "adtcore:name": "$TMP"
+            }
+          ],
+          "\n"
+        ],
+        "\n",
+        [
+          "objectIdentifier",
+          null,
+          "ABAPFullName;ZSMP_GEN_NATIVE_SQL_2;ZSMP_GEN_NATIVE_SQL_2;\\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2"
+        ],
+        "\n"
+      ],
+      "\n"
+    ],
+    "\n"
+  ]
+}

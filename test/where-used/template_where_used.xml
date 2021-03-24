@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<usageReferences:usageReferenceResult xmlns:usageReferences="http://www.sap.com/adt/ris/usageReferences" referencedObjectIdentifier="ABAPFullName;\TY:CL_SVER_DBI_GEN_NATIVE_VERI" resultDescription="References for: CL_SVER_DBI_GEN_NATIVE_VERI (Class) [ALX]" numberOfResults="3">
+<usageReferences:referencedObjects>
+<usageReferences:referencedObject canHaveChildren="false" isResult="false" parentUri="/sap/bc/adt/packages/sver_dbi_test_native" uri="/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri">
+<usageReferences:adtObject xmlns:adtcore="http://www.sap.com/adt/core" adtcore:description="Class" adtcore:type="CLAS/OC" adtcore:name="CL_SVER_DBI_GEN_NATIVE_VERI" adtcore:responsible="PIATKOWSKIS">
+<adtcore:packageRef adtcore:uri="/sap/bc/adt/packages/sver_dbi_test_native" adtcore:type="DEVC/K" adtcore:name="SVER_DBI_TEST_NATIVE"/>
+</usageReferences:adtObject>
+</usageReferences:referencedObject>
+<usageReferences:referencedObject canHaveChildren="true" isResult="false" parentUri="/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri" uri="/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri/source/main#type=CLAS%2FOM;name=CHECK_TARGET_REPORT_NAMES" usageInformation="gradeComponent,includeProductive">
+<usageReferences:adtObject xmlns:adtcore="http://www.sap.com/adt/core" adtcore:name="CHECK_TARGET_REPORT_NAMES" adtcore:responsible="PIATKOWSKIS">
+<adtcore:packageRef adtcore:uri="/sap/bc/adt/packages/sver_dbi_test_native" adtcore:type="DEVC/K" adtcore:name="SVER_DBI_TEST_NATIVE"/>
+</usageReferences:adtObject>
+<objectIdentifier>ABAPFullName;CL_SVER_DBI_GEN_NATIVE_VERI===CP;CL_SVER_DBI_GEN_NATIVE_VERI===CM002;\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2</objectIdentifier>
+</usageReferences:referencedObject>
+<usageReferences:referencedObject canHaveChildren="true" isResult="false" parentUri="/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri" uri="/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri/source/main#type=CLAS%2FOM;name=CONSTRUCTOR" usageInformation="gradeComponent,includeProductive">
+<usageReferences:adtObject xmlns:adtcore="http://www.sap.com/adt/core" adtcore:name="CONSTRUCTOR">
+<adtcore:packageRef adtcore:uri="/sap/bc/adt/packages/sver_dbi_test_native" adtcore:type="DEVC/K" adtcore:name="SVER_DBI_TEST_NATIVE"/>
+</usageReferences:adtObject>
+<objectIdentifier>ABAPFullName;CL_SVER_DBI_GEN_NATIVE_VERI===CP;CL_SVER_DBI_GEN_NATIVE_VERI===CM003;\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2</objectIdentifier>
+</usageReferences:referencedObject>
+<usageReferences:referencedObject canHaveChildren="true" isResult="false" parentUri="/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri" uri="/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri/source/main#type=CLAS%2FOM;name=DEQUEUE" usageInformation="gradeComponent,includeProductive">
+<usageReferences:adtObject xmlns:adtcore="http://www.sap.com/adt/core" adtcore:name="DEQUEUE">
+<adtcore:packageRef adtcore:uri="/sap/bc/adt/packages/sver_dbi_test_native" adtcore:type="DEVC/K" adtcore:name="SVER_DBI_TEST_NATIVE"/>
+</usageReferences:adtObject>
+<objectIdentifier>ABAPFullName;CL_SVER_DBI_GEN_NATIVE_VERI===CP;CL_SVER_DBI_GEN_NATIVE_VERI===CM004;\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2</objectIdentifier>
+</usageReferences:referencedObject>
+<usageReferences:referencedObject canHaveChildren="true" isResult="false" parentUri="/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri" uri="/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri/source/main#type=CLAS%2FOM;name=ENQUEUE" usageInformation="gradeComponent,includeProductive">
+<usageReferences:adtObject xmlns:adtcore="http://www.sap.com/adt/core" adtcore:name="ENQUEUE">
+<adtcore:packageRef adtcore:uri="/sap/bc/adt/packages/sver_dbi_test_native" adtcore:type="DEVC/K" adtcore:name="SVER_DBI_TEST_NATIVE"/>
+</usageReferences:adtObject>
+<objectIdentifier>ABAPFullName;CL_SVER_DBI_GEN_NATIVE_VERI===CP;CL_SVER_DBI_GEN_NATIVE_VERI===CM005;\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2</objectIdentifier>
+</usageReferences:referencedObject>
+<usageReferences:referencedObject canHaveChildren="true" isResult="false" parentUri="/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri" uri="/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri/source/main#type=CLAS%2FOM;name=GENERATE" usageInformation="gradeComponent,includeProductive">
+<usageReferences:adtObject xmlns:adtcore="http://www.sap.com/adt/core" adtcore:name="GENERATE">
+<adtcore:packageRef adtcore:uri="/sap/bc/adt/packages/sver_dbi_test_native" adtcore:type="DEVC/K" adtcore:name="SVER_DBI_TEST_NATIVE"/>
+</usageReferences:adtObject>
+<objectIdentifier>ABAPFullName;CL_SVER_DBI_GEN_NATIVE_VERI===CP;CL_SVER_DBI_GEN_NATIVE_VERI===CM006;\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2</objectIdentifier>
+</usageReferences:referencedObject>
+<usageReferences:referencedObject canHaveChildren="true" isResult="false" parentUri="/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri" uri="/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri/source/main#type=CLAS%2FOM;name=GET_GENERATED_REPORTS" usageInformation="gradeComponent,includeProductive">
+<usageReferences:adtObject xmlns:adtcore="http://www.sap.com/adt/core" adtcore:name="GET_GENERATED_REPORTS">
+<adtcore:packageRef adtcore:uri="/sap/bc/adt/packages/sver_dbi_test_native" adtcore:type="DEVC/K" adtcore:name="SVER_DBI_TEST_NATIVE"/>
+</usageReferences:adtObject>
+<objectIdentifier>ABAPFullName;CL_SVER_DBI_GEN_NATIVE_VERI===CP;CL_SVER_DBI_GEN_NATIVE_VERI===CM008;\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2</objectIdentifier>
+</usageReferences:referencedObject>
+<usageReferences:referencedObject canHaveChildren="true" isResult="false" parentUri="/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri" uri="/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri/source/main#type=CLAS%2FOM;name=GET_TARGET_REPORT_NAME" usageInformation="gradeComponent,includeProductive">
+<usageReferences:adtObject xmlns:adtcore="http://www.sap.com/adt/core" adtcore:name="GET_TARGET_REPORT_NAME">
+<adtcore:packageRef adtcore:uri="/sap/bc/adt/packages/sver_dbi_test_native" adtcore:type="DEVC/K" adtcore:name="SVER_DBI_TEST_NATIVE"/>
+</usageReferences:adtObject>
+<objectIdentifier>ABAPFullName;CL_SVER_DBI_GEN_NATIVE_VERI===CP;CL_SVER_DBI_GEN_NATIVE_VERI===CM009;\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2</objectIdentifier>
+</usageReferences:referencedObject>
+<usageReferences:referencedObject canHaveChildren="true" isResult="false" parentUri="/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri" uri="/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri/source/main#type=CLAS%2FOM;name=INSERT_REPORTS_AND_GENERATE" usageInformation="gradeComponent,includeProductive">
+<usageReferences:adtObject xmlns:adtcore="http://www.sap.com/adt/core" adtcore:name="INSERT_REPORTS_AND_GENERATE">
+<adtcore:packageRef adtcore:uri="/sap/bc/adt/packages/sver_dbi_test_native" adtcore:type="DEVC/K" adtcore:name="SVER_DBI_TEST_NATIVE"/>
+</usageReferences:adtObject>
+<objectIdentifier>ABAPFullName;CL_SVER_DBI_GEN_NATIVE_VERI===CP;CL_SVER_DBI_GEN_NATIVE_VERI===CM00A;\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2</objectIdentifier>
+</usageReferences:referencedObject>
+<usageReferences:referencedObject canHaveChildren="true" isResult="false" parentUri="/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri" uri="/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri/source/main#type=CLAS%2FOM;name=INSERT_REPORT_AND_GENERATE" usageInformation="gradeComponent,includeProductive">
+<usageReferences:adtObject xmlns:adtcore="http://www.sap.com/adt/core" adtcore:name="INSERT_REPORT_AND_GENERATE">
+<adtcore:packageRef adtcore:uri="/sap/bc/adt/packages/sver_dbi_test_native" adtcore:type="DEVC/K" adtcore:name="SVER_DBI_TEST_NATIVE"/>
+</usageReferences:adtObject>
+<objectIdentifier>ABAPFullName;CL_SVER_DBI_GEN_NATIVE_VERI===CP;CL_SVER_DBI_GEN_NATIVE_VERI===CM00B;\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2</objectIdentifier>
+</usageReferences:referencedObject>
+<usageReferences:referencedObject canHaveChildren="true" isResult="false" parentUri="/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri" uri="/sap/bc/adt/oo/classes/cl_sver_dbi_gen_native_veri/source/main#type=CLAS%2FOM;name=INSERT_SOURCE" usageInformation="gradeComponent,includeProductive">
+<usageReferences:adtObject xmlns:adtcore="http://www.sap.com/adt/core" adtcore:name="INSERT_SOURCE">
+<adtcore:packageRef adtcore:uri="/sap/bc/adt/packages/sver_dbi_test_native" adtcore:type="DEVC/K" adtcore:name="SVER_DBI_TEST_NATIVE"/>
+</usageReferences:adtObject>
+<objectIdentifier>ABAPFullName;CL_SVER_DBI_GEN_NATIVE_VERI===CP;CL_SVER_DBI_GEN_NATIVE_VERI===CM00C;\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2</objectIdentifier>
+</usageReferences:referencedObject>
+<usageReferences:referencedObject canHaveChildren="false" isResult="false" uri="/sap/bc/adt/packages/%24tmp">
+<usageReferences:adtObject xmlns:adtcore="http://www.sap.com/adt/core" adtcore:type="DEVC/K" adtcore:name="$TMP">
+<adtcore:packageRef adtcore:uri="/sap/bc/adt/packages/%24tmp" adtcore:type="DEVC/K" adtcore:name="$TMP"/>
+</usageReferences:adtObject>
+</usageReferences:referencedObject>
+<usageReferences:referencedObject canHaveChildren="false" isResult="false" uri="/sap/bc/adt/packages/struc_home">
+<usageReferences:adtObject xmlns:adtcore="http://www.sap.com/adt/core" adtcore:type="DEVC/K" adtcore:name="STRUC_HOME">
+<adtcore:packageRef adtcore:uri="/sap/bc/adt/packages/struc_home" adtcore:type="DEVC/K" adtcore:name="STRUC_HOME"/>
+</usageReferences:adtObject>
+</usageReferences:referencedObject>
+<usageReferences:referencedObject canHaveChildren="false" isResult="false" parentUri="/sap/bc/adt/packages/struc_home" uri="/sap/bc/adt/packages/sver_base">
+<usageReferences:adtObject xmlns:adtcore="http://www.sap.com/adt/core" adtcore:type="DEVC/K" adtcore:name="SVER_BASE">
+<adtcore:packageRef adtcore:uri="/sap/bc/adt/packages/sver_base" adtcore:type="DEVC/K" adtcore:name="SVER_BASE"/>
+</usageReferences:adtObject>
+</usageReferences:referencedObject>
+<usageReferences:referencedObject canHaveChildren="false" isResult="false" parentUri="/sap/bc/adt/packages/sver_base" uri="/sap/bc/adt/packages/sver_dbi_test_base">
+<usageReferences:adtObject xmlns:adtcore="http://www.sap.com/adt/core" adtcore:type="DEVC/K" adtcore:name="SVER_DBI_TEST_BASE">
+<adtcore:packageRef adtcore:uri="/sap/bc/adt/packages/sver_dbi_test_base" adtcore:type="DEVC/K" adtcore:name="SVER_DBI_TEST_BASE"/>
+</usageReferences:adtObject>
+</usageReferences:referencedObject>
+<usageReferences:referencedObject canHaveChildren="false" isResult="false" parentUri="/sap/bc/adt/packages/sver_dbi_test_base" uri="/sap/bc/adt/packages/sver_dbi_test_native">
+<usageReferences:adtObject xmlns:adtcore="http://www.sap.com/adt/core" adtcore:type="DEVC/K" adtcore:name="SVER_DBI_TEST_NATIVE">
+<adtcore:packageRef adtcore:uri="/sap/bc/adt/packages/sver_dbi_test_native" adtcore:type="DEVC/K" adtcore:name="SVER_DBI_TEST_NATIVE"/>
+</usageReferences:adtObject>
+</usageReferences:referencedObject>
+<usageReferences:referencedObject canHaveChildren="true" isResult="false" parentUri="/sap/bc/adt/packages/sver_dbi_test_native" uri="/sap/bc/adt/programs/programs/sver_native_generate_veri" usageInformation="gradeDirect,includeProductive">
+<usageReferences:adtObject xmlns:adtcore="http://www.sap.com/adt/core" adtcore:description="Program" adtcore:type="PROG/P" adtcore:name="SVER_NATIVE_GENERATE_VERI" adtcore:responsible="PIATKOWSKIS">
+<adtcore:packageRef adtcore:uri="/sap/bc/adt/packages/sver_dbi_test_native" adtcore:type="DEVC/K" adtcore:name="SVER_DBI_TEST_NATIVE"/>
+</usageReferences:adtObject>
+<objectIdentifier>ABAPFullName;SVER_NATIVE_GENERATE_VERI;SVER_NATIVE_GENERATE_VERI;\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2</objectIdentifier>
+</usageReferences:referencedObject>
+<usageReferences:referencedObject canHaveChildren="true" isResult="false" parentUri="/sap/bc/adt/packages/%24tmp" uri="/sap/bc/adt/programs/programs/zsmp_gen_native_sql_2" usageInformation="gradeDirect,includeProductive">
+<usageReferences:adtObject xmlns:adtcore="http://www.sap.com/adt/core" adtcore:description="Program" adtcore:type="PROG/P" adtcore:name="ZSMP_GEN_NATIVE_SQL_2" adtcore:responsible="PIATKOWSKIS">
+<adtcore:packageRef adtcore:uri="/sap/bc/adt/packages/%24tmp" adtcore:type="DEVC/K" adtcore:name="$TMP"/>
+</usageReferences:adtObject>
+<objectIdentifier>ABAPFullName;ZSMP_GEN_NATIVE_SQL_2;ZSMP_GEN_NATIVE_SQL_2;\TY:CL_SVER_DBI_GEN_NATIVE_VERI;2</objectIdentifier>
+</usageReferences:referencedObject>
+</usageReferences:referencedObjects>
+</usageReferences:usageReferenceResult>
