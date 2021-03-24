@@ -285,5 +285,15 @@
          )
     (abaplib-do-execute full-source-uri object-name)))
 
+(defun abap-where-used ()
+  "Get Where-Used List of object under cursor."
+  (interactive)
+  (let* ((source-name (file-name-nondirectory (buffer-file-name)))
+         (object-uri (abaplib-get-property 'uri))
+         (source-uri (abaplib-get-property 'source-uri source-name))
+         (full-source-uri (concat object-uri "/" source-uri)))
+    (abaplib-where-used full-source-uri (line-number-at-pos) (current-column))
+    ))
+
 (provide 'abap)
 ;;; abap.el ends here
