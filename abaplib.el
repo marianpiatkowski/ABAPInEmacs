@@ -1115,9 +1115,14 @@ Otherwise take the navigation uri as target source uri."
          (obj-fname-base  (cdr (assoc 'filename-base target-object-info)))
          (object-filename (file-name-completion obj-fname-base object-path))
          (object-filepath))
-    ;; TODO add source retrieve
     (unless object-filename
-      (error (format "Cannot navigate to target uri \"%s\"! Please fetch from server first." target-source-uri)))
+      (message "Fetching source from server...")
+      (abaplib-do-retrieve (cdr (assoc 'name target-object-info))
+                           (cdr (assoc 'type target-object-info))
+                           (cdr (assoc 'uri  target-object-info)))
+      (while (not object-filename)
+        (sit-for 1)
+        (setq object-filename (file-name-completion obj-fname-base object-path))))
     (setq object-filepath (concat object-path "/" object-filename))
     (if other-window
         (switch-to-buffer (find-file-other-window object-filepath))
