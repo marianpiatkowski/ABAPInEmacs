@@ -981,9 +981,7 @@
      (lambda (&rest rest)
        (let* ((response (cl-getf rest :response))
               (response-string (format "%s" response))
-              (etag (progn
-                      (string-match "etag: \\([1-9][0-9]+\\)" response-string)
-                      (match-string 1 response-string))))
+              (etag (request-response-header response "ETag")))
          (if etag
              (abaplib--metadata-post-submit etag object-info))
          (message "Submitting source to server succeeded!")))
