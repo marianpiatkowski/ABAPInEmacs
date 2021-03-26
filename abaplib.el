@@ -134,7 +134,6 @@
   (write-region (with-temp-buffer
                   (insert (json-encode list))
                   (json-pretty-print (point-min) (point-max))
-                  (message (buffer-string))
                   (buffer-string)) nil file))
 
 (defun abaplib-util-upsert-alists (alists pair)
