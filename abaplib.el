@@ -677,9 +677,12 @@
 ;;========================================================================
 ;; Module - Core Services - Activate Server Side Source
 ;;========================================================================
-(defun abaplib-do-activate(name uri)
+(defun abaplib-do-activate (object-info)
   (message "Post activation request...")
-  (abaplib--activate-post name uri))
+  (let ((object-name (cdr (assoc 'name object-info)))
+        (object-type (cdr (assoc 'type object-info)))
+        (object-uri  (cdr (assoc 'uri  object-info))))
+    (abaplib--activate-post object-name object-uri)))
 
 (defun abaplib--activate-parse-result (result)
   (let ((result-type (car result)))

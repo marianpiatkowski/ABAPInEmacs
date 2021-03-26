@@ -202,9 +202,10 @@
 (defun abap-activate-source ()
   "Activate source."
   (interactive)
-  (let ((object-name (abaplib-get-property 'name))
-        (object-uri (abaplib-get-property 'uri)))
-    (abaplib-do-activate object-name object-uri)))
+  (let ((object-info `((name . ,(abaplib-get-property 'name))
+                       (type . ,(abaplib-get-property 'type))
+                       (uri  . ,(abaplib-get-property 'uri)))))
+    (abaplib-do-activate object-info)))
 
 (defun abap-format-source ()
   "Format source - `pretty print'."
