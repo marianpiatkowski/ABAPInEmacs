@@ -682,7 +682,13 @@
   (let ((object-name (cdr (assoc 'name object-info)))
         (object-type (cdr (assoc 'type object-info)))
         (object-uri  (cdr (assoc 'uri  object-info))))
-    (abaplib--activate-post object-name object-uri)))
+    (let ((activation-result (abaplib--activate-post object-name object-uri)))
+      (when (or (cl-search "Activation successful" activation-result)
+                (cl-search "Source activated"      activation-result))
+        (abaplib-do-retrieve-metadata object-name object-type object-uri)
+        ;; redisplay message
+        (sit-for 0.1)
+        (message activation-result)))))
 
 (defun abaplib--activate-parse-result (result)
   (let ((result-type (car result)))
