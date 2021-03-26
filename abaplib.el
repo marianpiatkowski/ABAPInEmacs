@@ -775,18 +775,16 @@
                               (format "at position (%s): "
                                       (abaplib--check-render-pos position))
                               text)))))
-
     (if output-log
         (abaplib-util-log-buf-write output-log))
-
     (cond ((string= severity-level "I")
            (message "Activation successful!"))
           ((string= severity-level "W")
            (message "Activation successful with `warnings'!"))
           ((string= severity-level "E")
            (progn
-             (message "Activation failed with `errors'!")
-             (abaplib-util-log-buf-pop))))))
+             (abaplib-util-log-buf-pop)
+             (message "Activation failed with `errors'!"))))))
 
 ;;========================================================================
 ;; Module - Core Services - Handle Change Request
