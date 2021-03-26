@@ -979,7 +979,6 @@
      full-source-uri
      (lambda (&rest rest)
        (let* ((response (cl-getf rest :response))
-              (response-string (format "%s" response))
               (etag (request-response-header response "ETag")))
          (if etag
              (abaplib--metadata-post-submit etag object-info))
