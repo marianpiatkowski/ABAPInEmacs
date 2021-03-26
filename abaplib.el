@@ -159,12 +159,12 @@
       (error "Missing property file, please use `search' to retrieve again!"))
     (setq abaplib--abap-object-properties (json-read-file property-file))))
 
-(defun abaplib-get-property (name &optional source_name)
+(defun abaplib-get-property (name &optional source-name)
   (unless abaplib--abap-object-properties
     (abaplib--get-local-properties))
-  (if source_name
+  (if source-name
       (let* ((sources (alist-get 'sources abaplib--abap-object-properties))
-             (source-properties (alist-get (intern source_name) sources)))
+             (source-properties (assoc-string source-name sources)))
         (alist-get name source-properties))
     (alist-get name abaplib--abap-object-properties)))
 
