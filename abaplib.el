@@ -30,6 +30,7 @@
 (require 'cl-lib)
 (require 'request)
 (require 'xml)
+(require 'dash)
 
 
 ;; (defgroup abap nil
@@ -102,17 +103,17 @@
   (when buffer-file-name
     (file-name-directory buffer-file-name)))
 
-(defun abaplib-util-xml-parser()
+(defun abaplib-util-xml-parser ()
   (libxml-parse-xml-region (point-min) (point-max)))
 
-(defun abaplib-util-sourcecode-parser()
+(defun abaplib-util-sourcecode-parser ()
   (progn
     (goto-char (point-min))
     (while (re-search-forward "\r" nil t)
       (replace-match ""))
     (buffer-string)))
 
-(defun abaplib-util-log-buf-write(log)
+(defun abaplib-util-log-buf-write (log)
   (save-current-buffer
     (set-buffer (get-buffer-create abaplib--log-buffer))
     (setq buffer-read-only nil)
@@ -127,14 +128,15 @@
     (setq buffer-read-only t)
     ))
 
-(defun abaplib-util-log-buf-pop()
+(defun abaplib-util-log-buf-pop ()
   (pop-to-buffer (get-buffer-create abaplib--log-buffer)))
 
-(defun abaplib-util-jsonize-to-file(list file)
+(defun abaplib-util-jsonize-to-file (list file)
   (write-region (with-temp-buffer
                   (insert (json-encode list))
                   (json-pretty-print (point-min) (point-max))
-                  (buffer-string)) nil file))
+                  (buffer-string))
+                nil file))
 
 (defun abaplib-util-upsert-alists (alists pair)
   "Append/Update alist with pair"
@@ -220,7 +222,7 @@
             extra-path)
         sub-path))))
 
-(defun abaplib-is-logged()
+(defun abaplib-is-logged ()
   (let ((now (time-to-seconds (current-time))))
     (and abaplib--login-last-time
          (<= (- now abaplib--login-last-time) abap-login-timeout))))
@@ -231,14 +233,13 @@
       (widen)
       (buffer-substring-no-properties (point-min) (point-max)))))
 
-(defun abaplib--rest-api-call(uri success-callback &rest args)
+(defun abaplib--rest-api-call (uri success-callback &rest args)
   "Call service API."
   (let* ((url (abaplib-get-project-api-url uri))
          (login-token (cons "Authorization" (abaplib-get-login-token)))
          (headers (cl-getf args :headers))
          (type    (or (cl-getf args :type) "GET"))
          (params (cl-getf args :params)))
-
     ;; Verify whether need to login with token
     (unless (abaplib-is-logged)
       (abaplib-auth-login-with-token abaplib--current-project
@@ -253,7 +254,6 @@
           (setq headers
                 (append headers
                         (list (cons "x-csrf-token" csrf-token)))))))
-
     ;; TODO Delete :headers from args as we have explicitly put headers here
     ;; (setq params (append params
     ;;                      (list (cons "sap-client" sap-client))))
@@ -263,9 +263,11 @@
                     :sync (not success-callback)
                     :headers headers
                     :status-code '(
-                                   ;; (304 . (lambda (&rest _) (message "304 Source Not Modified")))
+                                   (304 . (lambda (&rest _) (message "Got 304: Source Not Modified")))
+                                   (400 . (lambda (&rest _) (message "Got 400: Bad request")))
                                    (401 . (lambda (&rest _) (message "Got 401: Not Authorized")))
-                                   (403 . (lambda (&rest _) (message "Got 403: Forbidden"))))
+                                   (403 . (lambda (&rest _) (message "Got 403: Forbidden")))
+                                   (415 . (lambda (&rest _) (message "Got 415: Unsupported Media Type"))))
                     :params params
                     :success success-callback
                     :error  (lambda (&key error-thrown &allow-other-keys &rest _)
@@ -284,7 +286,7 @@
 ;;==============================================================================
 ;; Module - Project
 ;;==============================================================================
-(defun abaplib-get-ws-describe-file()
+(defun abaplib-get-ws-describe-file ()
   "Get workspace description file."
   (let* ((config-dir (expand-file-name ".abap" abap-workspace-dir))
          (describe-file (expand-file-name "projects.json" config-dir)))
@@ -301,7 +303,7 @@
    (abaplib-get-ws-describe-file))
   (setq abaplib--workspace-descriptor-cache descriptor))
 
-(defun abaplib-get-workspace-descriptor()
+(defun abaplib-get-workspace-descriptor ()
   "Get workspace descriptor."
   (unless abaplib--workspace-descriptor-cache
     (setq abaplib--workspace-descriptor-cache
@@ -326,7 +328,7 @@
     (cdr (assoc-string key
                        (cdr (abaplib-get-project-props project))))))
 
-(defun abaplib-upsert-project(project-props)
+(defun abaplib-upsert-project (project-props)
   "When creating or initializing a project, add project information into workspace descriptor."
   (let* ((descriptor (abaplib-get-workspace-descriptor))
          (new-descriptor (abaplib-util-upsert-alists descriptor project-props)))
@@ -407,7 +409,7 @@
 ;; Module - Authentication
 ;;==============================================================================
 
-(defun abaplib-auth-login-with-token(project login-token sap-client &optional save?)
+(defun abaplib-auth-login-with-token (project login-token sap-client &optional save?)
   "Login into ABAP Server with token."
   (let ((url ;; "http://ldcier9.wdf.sap.corp:50000/sap/bc/adt/core/discovery"
          (abaplib-get-project-api-url abaplib--uri-login))
@@ -415,26 +417,21 @@
         (login-status))
     (unless server
       (error "Project %s not bind to any server" project))
-
     (message "Logging in...")
-
     ;; First login with token to get cookie
     (request
      url
      :sync t
      :headers (list (cons "Authorization" login-token))
      :params (list (cons "sap-client" sap-client)))
-
     ;; Login with cookie
     (setq login-status
           (request-response-symbol-status
            (request
             url
             :sync t)))
-
     (unless (eq login-status 'success)
       (error "Connecting to server failed!"))
-
     ;; Login succeed
     (setq abaplib--login-last-time (time-to-seconds (current-time)))
     (when save?
@@ -493,7 +490,7 @@
 ;;==============================================================================
 ;; Module - Core Services - Syntax Check
 ;;==============================================================================
-(defun abaplib-do-check(version uri source-uri source-code dont-show-error?)
+(defun abaplib-do-check (version uri source-uri source-code dont-show-error?)
   "Check syntax for program source.
   TODO check whether source changed since last retrieved from server.
        Not necessary to send the source code to server if no change."
@@ -573,13 +570,13 @@
                   (message . ,text))
                 )) messages)))
 
-(defun abaplib--check-render-type-text(type)
+(defun abaplib--check-render-type-text (type)
   (cond ((string= type "E") (propertize "Error"       'face '(bold (:foreground "red"))))
         ((string= type "W") (propertize "Warning"     'face '(bold (:foreground "orange"))))
         ((string= type "I") (propertize "Information" 'face '(bold (:foreground "green"))))
         (t "Other")))
 
-(defun abaplib--check-render-pos(position &optional target-buffer)
+(defun abaplib--check-render-pos (position &optional target-buffer)
   (let* ((target-buffer (or target-buffer (current-buffer)))
          (pos-list (split-string position ","))
          (line (string-to-number (car pos-list)))
@@ -607,22 +604,18 @@
              (position (progn
                          (string-match "#start=\\([0-9]+,[0-9]+\\)" uri)
                          (match-string 1 uri))))
-
         (if (or (and (string= type "W") (string= severity-level "I"))
                 (and (string= type "E") (or (string= severity-level "W")
                                             (string= severity-level "I"))))
             (setq severity-level type))
-
         (setq output-log
               (concat output-log "\n"
                       (concat (format "[%s] " (abaplib--check-render-type-text type))
                               (format "at position (%s): "
                                       (abaplib--check-render-pos position))
                               text)))))
-
     (if output-log
         (abaplib-util-log-buf-write output-log))
-
     (cond ((string= severity-level "I")
            (message "Syntax check completed with `success' result."))
           ((string= severity-level "W")
@@ -635,7 +628,7 @@
 ;;==============================================================================
 ;; Module - Core Services - Lock
 ;;==============================================================================
-(defun abaplib--lock-sync(uri csrf-token)
+(defun abaplib--lock-sync (uri csrf-token)
   (message "Trying to lock object...")
   (let* ((root-node (abaplib--rest-api-call
                      uri
@@ -699,7 +692,7 @@
                                                                        'entry)))
       (t (message "Source activated in server!")))))
 
-(defun abaplib--activate-post(adtcore-name adtcore-uri)
+(defun abaplib--activate-post (adtcore-name adtcore-uri)
   (let* ((preaudit-result (abaplib--activate-preaudit adtcore-name adtcore-uri))
          (result-type (car preaudit-result)))
     (abaplib--activate-parse-result preaudit-result)))
