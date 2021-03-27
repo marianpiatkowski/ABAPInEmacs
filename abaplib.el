@@ -996,6 +996,7 @@
     (setf (alist-get 'version metadata) "inactive")
     (setf (alist-get 'version (assoc-string source-name (assoc 'sources metadata))) "inactive")
     (setf (alist-get 'etag    (assoc-string source-name (assoc 'sources metadata))) etag)
+    (setq abaplib--abap-object-properties metadata)
     (write-region (with-temp-buffer
                     (insert (json-encode metadata))
                     (json-pretty-print (point-min) (point-max))
