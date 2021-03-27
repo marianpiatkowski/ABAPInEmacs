@@ -239,7 +239,8 @@
          (login-token (cons "Authorization" (abaplib-get-login-token)))
          (headers (cl-getf args :headers))
          (type    (or (cl-getf args :type) "GET"))
-         (params (cl-getf args :params)))
+         (sync    (or (cl-getf args :sync) (not success-callback)))
+         (params  (cl-getf args :params)))
     ;; Verify whether need to login with token
     (unless (abaplib-is-logged)
       (abaplib-auth-login-with-token abaplib--current-project
@@ -260,7 +261,7 @@
     (append (request-response-data
              (apply #'request
                     url
-                    :sync (not success-callback)
+                    :sync sync
                     :headers headers
                     :status-code '(
                                    (304 . (lambda (&rest _) (message "Got 304: Source Not Modified")))
