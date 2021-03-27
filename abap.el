@@ -171,11 +171,14 @@
   (interactive)
   (let* ((curr-buffer (current-buffer))
          (source-name (file-name-nondirectory (buffer-file-name)))
-         (source-version (abaplib-get-property 'version source-name))
-         (object-uri (abaplib-get-property 'uri))
-         (source-uri (abaplib-get-property 'source-uri source-name))
+         (object-info `((file        . ,source-name)
+                        (name        . ,(abaplib-get-property 'name))
+                        (type        . ,(abaplib-get-property 'type))
+                        (uri         . ,(abaplib-get-property 'uri))
+                        (src-uri     . ,(abaplib-get-property 'source-uri source-name))
+                        (src-version . ,(abaplib-get-property 'version source-name))))
          (source-code (abaplib-buffer-whole-string curr-buffer)))
-    (abaplib-do-check source-version object-uri source-uri source-code dont-show-error?)))
+    (abaplib-do-check object-info source-code dont-show-error?)))
 
 (defun abap-submit-source ()
   "Submit source back to server."

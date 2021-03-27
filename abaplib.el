@@ -491,16 +491,18 @@
 ;;==============================================================================
 ;; Module - Core Services - Syntax Check
 ;;==============================================================================
-(defun abaplib-do-check (version uri source-uri source-code dont-show-error?)
-  "Check syntax for program source.
-  TODO check whether source changed since last retrieved from server.
-       Not necessary to send the source code to server if no change."
+(defun abaplib-do-check (object-info source-code dont-show-error?)
+  "Check syntax of `source-code'.
+TODO Check whether source has changed since last retrieve from server."
   (message "Sending syntax check request...")
-  (let ((chkrun-uri (concat uri "/" source-uri))
-        (chkrun-content (base64-encode-string source-code)))
+  (let* ((object-uri (cdr (assoc 'uri         object-info)))
+         (source-uri (cdr (assoc 'src-uri     object-info)))
+         (version    (cdr (assoc 'src-version object-info)))
+         (chkrun-uri (concat object-uri "/" source-uri))
+         (chkrun-content (base64-encode-string source-code)))
     (if dont-show-error?
-        (abaplib--check-post-sync version uri chkrun-uri chkrun-content)
-      (abaplib--check-post-async version uri chkrun-uri chkrun-content))))
+        (abaplib--check-post-sync version object-uri chkrun-uri chkrun-content)
+      (abaplib--check-post-async version object-uri chkrun-uri chkrun-content))))
 
 (defun abaplib--check-template (adtcore-uri chkrun-uri version chkrun-content)
   "Return XML of 'checkObjects' node."
