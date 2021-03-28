@@ -284,6 +284,29 @@
                     args)))))
 
 
+(defun abaplib-get-etag (uri)
+  "Get ETag from uri.
+If `uri' is of the type object-uri it returns the ETag of the ABAP development object.
+If `uri' is of the type full-source-uri it returns the ETag of the source
+being part of this development object."
+  (let ((etag))
+    (abaplib--rest-api-call
+      uri
+      (lambda (&rest rest)
+        (let ((response (cl-getf rest :response)))
+          (setq etag (request-response-header response "ETag"))))
+      :sync t)
+    etag))
+
+(defun abaplib-check-version (etag source-properties &optional source-name)
+  "Compare local and server-side source/object using the quantity ETag.
+If `source-name' is specified `etag' acts like a source-etag and only the ETag of the source is compared.
+Otherwise `etag' acts like a object-etag and every ETag as part of this development object is compared."
+  (let* ((properties (if source-name (list (assoc-string source-name source-properties)) source-properties))
+         (etag-match (-filter (lambda (source) (cl-search (cdr (assoc 'etag source)) etag)) properties)))
+    (unless etag-match
+      (error "Not up to date."))))
+
 ;;==============================================================================
 ;; Module - Project
 ;;==============================================================================
