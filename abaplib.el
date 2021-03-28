@@ -154,6 +154,10 @@
 (defun abaplib-util-get-xml-value (node key)
   (car (last (car (xml-get-children node key)))))
 
+(defun abaplib-util-etag-equal (etag1 etag2)
+  "Compare two ETags based on the substring from 0 to 14."
+  (string= (substring etag1 0 14) (substring etag2 0 14)))
+
 (defun abaplib--get-local-properties ()
   "Load property file on current directory for current buffer."
   (let ((property-file (expand-file-name abaplib--property-file)))
@@ -303,9 +307,11 @@ being part of this development object."
 If `source-name' is specified `etag' acts like a source-etag and only the ETag of the source is compared.
 Otherwise `etag' acts like a object-etag and every ETag as part of this development object is compared."
   (let* ((properties (if source-name (list (assoc-string source-name source-properties)) source-properties))
-         (etag-match (-filter (lambda (source) (cl-search (cdr (assoc 'etag source)) etag)) properties)))
+         (etag-match (-filter (lambda (source)
+                                (abaplib-util-etag-equal (cdr (assoc 'etag source)) etag))
+                              properties)))
     (unless etag-match
-      (error "Not up to date."))))
+      (error "Local source/object seems not up to date. Cancelling request."))))
 
 ;;==============================================================================
 ;; Module - Project
@@ -515,14 +521,17 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
 ;; Module - Core Services - Syntax Check
 ;;==============================================================================
 (defun abaplib-do-check (object-info source-code dont-show-error?)
-  "Check syntax of `source-code'.
-TODO Check whether source has changed since last retrieve from server."
+  "Check syntax of `source-code'."
   (message "Sending syntax check request...")
   (let* ((object-uri (cdr (assoc 'uri         object-info)))
          (source-uri (cdr (assoc 'src-uri     object-info)))
          (version    (cdr (assoc 'src-version object-info)))
          (chkrun-uri (concat object-uri "/" source-uri))
+         (chkrun-etag    (abaplib-get-etag chkrun-uri))
          (chkrun-content (base64-encode-string source-code)))
+    (abaplib-check-version chkrun-etag
+                           (abaplib-get-property 'sources)
+                           (cdr (assoc 'file object-info)))
     (if dont-show-error?
         (abaplib--check-post-sync version object-uri chkrun-uri chkrun-content)
       (abaplib--check-post-async version object-uri chkrun-uri chkrun-content))))
@@ -701,6 +710,8 @@ TODO Check whether source has changed since last retrieve from server."
   (let ((object-name (cdr (assoc 'name object-info)))
         (object-type (cdr (assoc 'type object-info)))
         (object-uri  (cdr (assoc 'uri  object-info))))
+    (let ((object-etag (abaplib-get-etag object-uri)))
+      (abaplib-check-version object-etag (abaplib-get-property 'sources)))
     (let ((activation-result (abaplib--activate-post object-name object-uri)))
       (when (or (cl-search "Activation successful" activation-result)
                 (cl-search "Source activated"      activation-result))
@@ -937,11 +948,12 @@ TODO Check whether source has changed since last retrieve from server."
          (major-type (substring type 0 4))
          (impl-func (intern (concat "abaplib-" (downcase major-type) "-get-changedby")))
          (last-change (funcall impl-func uri source-name))
+         (etag-server (car last-change))
          ;; as timestamps we use here a substring of etag
          (timestamp-local (substring etag-local 0 14))
-         (timestamp-server (substring (car last-change) 0 14))
+         (timestamp-server (substring etag-server 0 14))
          (last-author (cadr last-change)))
-    (if (= (string-to-number timestamp-server) (string-to-number timestamp-local))
+    (if (abaplib-util-etag-equal etag-server etag-local)
         (message "Local source up to date.")
       (message (format "Timestamps differ - Server: %s, last change by %s Local: %s."
                        (abaplib--format-etag-timestamp timestamp-server)
