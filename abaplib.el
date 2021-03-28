@@ -696,8 +696,7 @@ TODO Check whether source has changed since last retrieve from server."
       (t (message "Source activated in server!")))))
 
 (defun abaplib--activate-post (adtcore-name adtcore-uri)
-  (let* ((preaudit-result (abaplib--activate-preaudit adtcore-name adtcore-uri))
-         (result-type (car preaudit-result)))
+  (let ((preaudit-result (abaplib--activate-preaudit adtcore-name adtcore-uri)))
     (abaplib--activate-parse-result preaudit-result)))
 
 (defun abaplib--activate-preaudit (adtcore-name adtcore-uri)
