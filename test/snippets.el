@@ -28,6 +28,7 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
          (etag-match (-filter (lambda (source) (cl-search (cdr (assoc 'etag source)) etag)) properties)))
     (unless etag-match
       (error "Not up to date."))))
+
 ;;========================================================================
 ;; Snippet - function abap-where-used
 ;;========================================================================
@@ -66,6 +67,86 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
                                              :data post-data
                                              :params params)))
     ))
+
+(defconst abaplib--where-used-buffer "*ABAP Where-Used*"
+  "ABAP Where-Used buffer");
+
+(defun abaplib-util-where-used-buf-write (log)
+  (save-current-buffer
+    (set-buffer (get-buffer-create abaplib--where-used-buffer))
+    (setq buffer-read-only nil)
+    (erase-buffer)
+    (goto-char (point-min))
+    (insert (format "%s" log))
+    (setq buffer-read-only t)));
+
+(let* ((where-used (car (xml-parse-file "~/packages/ABAPInEmacs/test/where-used/template_where_used.xml"))))
+  (abaplib--where-used-post where-used));
+
+(defun abaplib--where-used-post (where-used)
+  (let* ((objects-node (car (xml-get-children where-used 'usageReferences:referencedObjects)))
+         (ref-objects (xml-get-children objects-node 'usageReferences:referencedObject))
+         (main-items  (-filter (lambda (elem)
+                                 (dolist (adt-object (xml-get-children elem 'usageReferences:adtObject))
+                                   (when (xml-get-attribute-or-nil adt-object 'adtcore:description)
+                                     (return t))))
+                               ref-objects))
+         (objects-wId (-filter (lambda (elem) (xml-get-children elem 'objectIdentifier)) ref-objects))
+         (snippets (abaplib--get-usage-snippets objects-wId))
+         (output-log (format "%s\n\n" (xml-get-attribute where-used 'resultDescription))))
+    ;; (message "%s" ref-objects)
+    ;; (message "%s" (xml-get-children (car ref-objects) 'usageReferences:adtObject))
+    ;; (message "%s" main-items)
+    ;; (message "%s" (length main-items))
+    ;; (message "%s" (length objects-wId))
+    (dolist (elem main-items)
+      (cl-assert (= (length (xml-get-children elem 'usageReferences:adtObject)) 1))
+      (let* ((adt-object (car (xml-get-children elem 'usageReferences:adtObject)))
+             (object-uri (xml-get-attribute elem 'uri))
+             (sub-elems (-filter (lambda (elem)
+                                   (string= (xml-get-attribute elem 'parentUri) object-uri))
+                                 objects-wId)))
+        (setq output-log (concat output-log "\n"
+                                 (format "%s %s"
+                                         (xml-get-attribute adt-object 'adtcore:description)
+                                         (xml-get-attribute adt-object 'adtcore:name))))
+        (when sub-elems
+          (dolist (sub-elem sub-elems)
+            (let ((sub-adt-object (car (xml-get-children sub-elem 'usageReferences:adtObject))))
+              (setq output-log (concat output-log "\n"
+                                       (format "  %s" (xml-get-attribute sub-adt-object 'adtcore:name)))))))
+        ))
+    (abaplib-util-where-used-buf-write output-log)
+    (pop-to-buffer (get-buffer-create abaplib--where-used-buffer))
+    )
+  );
+
+(defun abaplib--get-usage-snippets (objects-wId)
+  (let* ((request-uri "/sap/bc/adt/repository/informationsystem/usageSnippets")
+         ;; TODO Marian: uncomment
+         ;; (headers `(("x-csrf-token" . ,(abaplib-get-csrf-token))
+         ;;            ("x-sap-adt-sessiontype" . "stateful")
+         ;;            ("Content-Type" . "application/vnd.sap.adt.repository.usagesnippets.request.v1+xml")
+         ;;            ("Accept"       . "application/vnd.sap.adt.repository.usagesnippets.result.v1+xml")))
+         (post-data (abaplib--get-usage-snippets-template objects-wId))
+         ;; TODO Marian: uncomment
+         ;; (snippets (abaplib--rest-api-call request-uri
+         ;;                                   nil
+         ;;                                   :parser 'abaplib-util-xml-parser
+         ;;                                   :type "POST"
+         ;;                                   :headers headers
+         ;;                                   :data post-data))
+         )
+    ;; TODO Marian: uncomment
+    ;; snippets
+    ));
+
+(defun abaplib--get-usage-snippets-template (objects-wId)
+  (dolist (ref-object objects-wId)
+    (cl-assert (= (length (xml-get-children ref-object 'objectIdentifier)) 1))
+    (let ((object-id (car (xml-get-children ref-object 'objectIdentifier))))
+      (message "-- object-id %s" (nth 2 object-id))))
+  );
 
 
 ;;========================================================================
