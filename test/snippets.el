@@ -125,10 +125,11 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
               (setq output-log (concat output-log "\n"
                                        (format "  %s" (xml-get-attribute sub-adt-object 'adtcore:name))))
               ;; TODO Marian: rework processing and printing of results
-              (dolist (code-snippet code-snippets)
-                ;; print code of where-used result
-                (setq output-log (concat output-log "\n"
-                                         (format "    %s" (abaplib--print-where-used-result code-snippet))))))))
+              ;; (dolist (code-snippet code-snippets)
+              ;;   ;; print code of where-used result
+              ;;   (setq output-log (concat output-log "\n"
+              ;;                            (format "    %s" (abaplib--print-where-used-result code-snippet)))))
+              )))
         (unless sub-elems
           (cl-assert (= (length (xml-get-children elem 'objectIdentifier)) 1))
           (let* ((object-Id (car (xml-get-children elem 'objectIdentifier)))
@@ -150,8 +151,36 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
 
 (defun abaplib--print-where-used-result (code-snippet)
   (cl-assert (= (length (xml-get-children code-snippet 'content)) 1))
-  (let ((content (car (xml-get-children code-snippet 'content))))
-    (nth 2 content)));
+  (let* ((target-uri         (xml-get-attribute code-snippet 'uri))
+         (target-source-uri  (abaplib-get-target-source-uri target-uri))
+         (target-object-info (abaplib-get-object-info target-source-uri))
+         (target-source-pos  (split-string (progn
+                                             (string-match "#start=\\([0-9]+,[0-9]+\\)" target-uri)
+                                             (match-string 1 target-uri)) "," ))
+         (object-path        (cdr (assoc 'path target-object-info)))
+         (obj-fname-base     (cdr (assoc 'filename-base target-object-info)))
+         (content            (car (xml-get-children code-snippet 'content)))
+         (map (make-sparse-keymap))
+         (fn-follow-pos `(lambda ()
+                          (interactive)
+                          (let* ((path        ,object-path)
+                                 (fname-base  ,obj-fname-base)
+                                 (filename    (file-name-completion fname-base path))
+                                 (line   ,(string-to-number (car target-source-pos)))
+                                 (column ,(string-to-number (cadr target-source-pos)))
+                                 (filepath))
+                            (unless filename
+                              (error "File does not exist locally!"))
+                            (setq filepath (concat path "/" filename))
+                            (switch-to-buffer (find-file-other-window filepath))
+                            (abaplib-util-goto-position line column))))
+         )
+    (define-key map (kbd "<down-mouse-1>") fn-follow-pos)
+    (define-key map (kbd "<RET>") fn-follow-pos)
+    (propertize (nth 2 content)
+                'face 'underline
+                'mouse-face 'highlight
+                'keymap map)));
 
 (defun abaplib--parse-usage-snippets (snippets)
   ;; (message "-- length: %s" (length (xml-get-children snippets 'codeSnippetObjects)))
@@ -187,7 +216,7 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
                                            :type "POST"
                                            :headers headers
                                            :data post-data)))
-    (cl-assert (= (length (xml-get-children snippets 'codeSnippetObjects)) 1))
+    (cl-assert (= (length  (xml-get-children snippets 'codeSnippetObjects)) 1))
     (xml-get-children (car (xml-get-children snippets 'codeSnippetObjects)) 'codeSnippetObject)));
 
 (defun abaplib--get-usage-snippets-template (objects-wId)
