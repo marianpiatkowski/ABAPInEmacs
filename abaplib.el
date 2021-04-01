@@ -1402,10 +1402,10 @@ Otherwise take the navigation uri as target source uri."
                                                   nil
                                                   :parser 'abaplib-util-xml-parser))
          (includes (xml-get-children metadata-server 'include))
-         (include (car (-filter (lambda (include) (cl-search (xml-get-attribute include 'includeType) source-name)) includes)))
+         (include (-first (lambda (include) (cl-search (xml-get-attribute include 'includeType) source-name)) includes))
          (last-author (xml-get-attribute include 'changedBy))
          (links (xml-get-children include 'link))
-         (link (car (-filter (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links)))
+         (link (-first (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links))
          )
     (list (xml-get-attribute link 'etag) last-author)
     ))
@@ -1422,7 +1422,7 @@ Otherwise take the navigation uri as target source uri."
          (package-node (car (xml-get-children metadata 'packageRef)))
          (package (xml-get-attribute package-node 'name))
          (links (xml-get-children metadata 'link))
-         (link (car (-filter (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links)))
+         (link (-first (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links))
          (file-name "main.prog.abap")
          (includes (list (cons file-name `((version . ,version)
                                            (source-uri . ,(xml-get-attribute metadata 'sourceUri))
@@ -1442,7 +1442,7 @@ Otherwise take the navigation uri as target source uri."
                                                   nil
                                                   :parser 'abaplib-util-xml-parser))
          (links (xml-get-children metadata-server 'link))
-         (link (car (-filter (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links)))
+         (link (-first (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links))
          )
     (list (xml-get-attribute link 'etag) (xml-get-attribute metadata-server 'changedBy))))
 
@@ -1457,7 +1457,7 @@ Otherwise take the navigation uri as target source uri."
          (container-node (car (xml-get-children metadata 'containerRef)))
          (package (xml-get-attribute container-node 'packageName))
          (links (xml-get-children metadata 'link))
-         (link (car (-filter (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links)))
+         (link (-first (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links))
          (file-name "main.func.abap")
          (includes (list (cons file-name `((version . ,version)
                                            (source-uri . ,(xml-get-attribute metadata 'sourceUri))
@@ -1477,7 +1477,7 @@ Otherwise take the navigation uri as target source uri."
                                                   nil
                                                   :parser 'abaplib-util-xml-parser))
          (links (xml-get-children metadata-server 'link))
-         (link (car (-filter (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links)))
+         (link (-first (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links))
          )
     (list (xml-get-attribute link 'etag) (xml-get-attribute metadata-server 'changedBy))))
 
@@ -1492,7 +1492,7 @@ Otherwise take the navigation uri as target source uri."
          (package-node (car (xml-get-children metadata 'packageRef)))
          (package (xml-get-attribute package-node 'name))
          (links (xml-get-children metadata 'link))
-         (link (car (-filter (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links)))
+         (link (-first (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links))
          (file-name "main.intf.abap")
          (includes (list (cons file-name `((version . ,version)
                                            (source-uri . ,(xml-get-attribute metadata 'sourceUri))
@@ -1512,7 +1512,7 @@ Otherwise take the navigation uri as target source uri."
                                                   nil
                                                   :parser 'abaplib-util-xml-parser))
          (links (xml-get-children metadata-server 'link))
-         (link (car (-filter (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links)))
+         (link (-first (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links))
          )
     (list (xml-get-attribute link 'etag) (xml-get-attribute metadata-server 'changedBy))))
 
@@ -1529,7 +1529,7 @@ Otherwise take the navigation uri as target source uri."
          (package-node (car (xml-get-children metadata 'packageRef)))
          (package (xml-get-attribute package-node 'name))
          (links (xml-get-children metadata 'link))
-         (link (car (-filter (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links)))
+         (link (-first (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links))
          (file-name "main.ddic.tabl")
          (includes (list (cons file-name `((version . ,version)
                                            (source-uri . ,source-uri)
@@ -1549,7 +1549,7 @@ Otherwise take the navigation uri as target source uri."
                                                   nil
                                                   :parser 'abaplib-util-xml-parser))
          (links (xml-get-children metadata-server 'link))
-         (link (car (-filter (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links)))
+         (link (-first (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links))
          )
     (list (xml-get-attribute link 'etag) (xml-get-attribute metadata-server 'changedBy))))
 
@@ -1564,7 +1564,7 @@ Otherwise take the navigation uri as target source uri."
          (package-node (car (xml-get-children metadata 'packageRef)))
          (package (xml-get-attribute package-node 'name))
          (links (xml-get-children metadata 'link))
-         (link (car (-filter (lambda (link) (string= (xml-get-attribute link 'type) "text/html")) links)))
+         (link (-first (lambda (link) (string= (xml-get-attribute link 'type) "text/html")) links))
          (file-name "main.ddls.cds")
          (includes (list (cons file-name `((version . ,version)
                                            (source-uri . ,(xml-get-attribute metadata 'sourceUri))
@@ -1584,7 +1584,7 @@ Otherwise take the navigation uri as target source uri."
                                                   nil
                                                   :parser 'abaplib-util-xml-parser))
          (links (xml-get-children metadata-server 'link))
-         (link (car (-filter (lambda (link) (string= (xml-get-attribute link 'type) "text/html")) links)))
+         (link (-first (lambda (link) (string= (xml-get-attribute link 'type) "text/html")) links))
          )
     (list (xml-get-attribute link 'etag) (xml-get-attribute metadata-server 'changedBy))))
 
@@ -1601,7 +1601,7 @@ Otherwise take the navigation uri as target source uri."
          (package-node (car (xml-get-children metadata 'packageRef)))
          (package (xml-get-attribute package-node 'name))
          (links (xml-get-children metadata 'link))
-         (link (car (-filter (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links)))
+         (link (-first (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links))
          (file-name "main.bdef.cds")
          (includes (list (cons file-name `((version . ,version)
                                            (source-uri . ,source-uri)
@@ -1621,7 +1621,7 @@ Otherwise take the navigation uri as target source uri."
                                                   nil
                                                   :parser 'abaplib-util-xml-parser))
          (links (xml-get-children metadata-server 'link))
-         (link (car (-filter (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links)))
+         (link (-first (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links))
          )
     (list (xml-get-attribute link 'etag) (xml-get-attribute metadata-server 'changedBy))))
 
