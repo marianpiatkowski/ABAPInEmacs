@@ -106,47 +106,107 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
              (sub-elems (-filter (lambda (elem)
                                    (string= (xml-get-attribute elem 'parentUri) object-uri))
                                  objects-wId)))
+        ;; print main item
         (setq output-log (concat output-log "\n"
                                  (format "%s %s"
                                          (xml-get-attribute adt-object 'adtcore:description)
                                          (xml-get-attribute adt-object 'adtcore:name))))
         (when sub-elems
           (dolist (sub-elem sub-elems)
-            (let ((sub-adt-object (car (xml-get-children sub-elem 'usageReferences:adtObject))))
+            (let* ((sub-adt-object (car (xml-get-children sub-elem 'usageReferences:adtObject)))
+                   (object-Id (car (xml-get-children sub-elem 'objectIdentifier)))
+                   (snippet (-first (lambda (elem)
+                                      (string= (nth 2 object-Id)
+                                               (nth 2 (car (xml-get-children elem 'objectIdentifier)))))
+                                    snippets))
+                   (code-snippets-node (car (xml-get-children snippet 'codeSnippets)))
+                   (code-snippets (xml-get-children code-snippets-node 'codeSnippet)))
+              ;; print subitems
               (setq output-log (concat output-log "\n"
-                                       (format "  %s" (xml-get-attribute sub-adt-object 'adtcore:name)))))))
+                                       (format "  %s" (xml-get-attribute sub-adt-object 'adtcore:name))))
+              ;; TODO Marian: rework processing and printing of results
+              (dolist (code-snippet code-snippets)
+                ;; print code of where-used result
+                (setq output-log (concat output-log "\n"
+                                         (format "    %s" (abaplib--print-where-used-result code-snippet))))))))
+        (unless sub-elems
+          (cl-assert (= (length (xml-get-children elem 'objectIdentifier)) 1))
+          (let* ((object-Id (car (xml-get-children elem 'objectIdentifier)))
+                 (snippet (-first (lambda (elem)
+                                    (string= (nth 2 object-Id)
+                                             (nth 2 (car (xml-get-children elem 'objectIdentifier)))))
+                                  snippets))
+                 (code-snippets-node (car (xml-get-children snippet 'codeSnippets)))
+                 (code-snippets (xml-get-children code-snippets-node 'codeSnippet)))
+            (dolist (code-snippet code-snippets)
+              ;; print code of where-used result
+              (setq output-log (concat output-log "\n"
+                                       (format "  %s" (abaplib--print-where-used-result code-snippet)))))))
         ))
     (abaplib-util-where-used-buf-write output-log)
     (pop-to-buffer (get-buffer-create abaplib--where-used-buffer))
     )
   );
 
+(defun abaplib--print-where-used-result (code-snippet)
+  (cl-assert (= (length (xml-get-children code-snippet 'content)) 1))
+  (let ((content (car (xml-get-children code-snippet 'content))))
+    (nth 2 content)));
+
+(defun abaplib--parse-usage-snippets (snippets)
+  ;; (message "-- length: %s" (length (xml-get-children snippets 'codeSnippetObjects)))
+  ;; (message "-- Children: %s" (length (xml-node-children snippets)))
+  (let* ((snippets-node (car (xml-get-children snippets 'codeSnippetObjects)))
+         (snippet-objects (xml-get-children snippets-node 'codeSnippetObject))
+         (test-snippet  (car snippet-objects)))
+    (message "-- Number of snippets: %s" (length snippet-objects)) ;; => 12
+    ;; objectIdentifier of a snippet-object
+    (message "-- objectIdentifier: %s" (nth 2 (car (xml-get-children test-snippet 'objectIdentifier))))
+    ;; code-snippets node of a snippet-object
+    (message "-- codeSnippets: %s" (length (xml-get-children test-snippet 'codeSnippets))) ;; => 1
+    ;; code-snippets of a snippet-object
+    (message "-- codeSnippet: %s" (length (xml-get-children (car (xml-get-children test-snippet 'codeSnippets)) 'codeSnippet)))
+    (message "-- codeSnippet attrs: %s"
+             (xml-node-attributes (car    (xml-get-children (car (xml-get-children test-snippet 'codeSnippets)) 'codeSnippet)))) ;; => attributes 'uri' and 'matches'
+    (message "-- codeSnippet chlds: %s"
+             (xml-node-children   (car    (xml-get-children (car (xml-get-children test-snippet 'codeSnippets)) 'codeSnippet)))) ;; => node children 'content' and 'description'
+    )
+  );
+
 (defun abaplib--get-usage-snippets (objects-wId)
   (let* ((request-uri "/sap/bc/adt/repository/informationsystem/usageSnippets")
-         ;; TODO Marian: uncomment
-         ;; (headers `(("x-csrf-token" . ,(abaplib-get-csrf-token))
-         ;;            ("x-sap-adt-sessiontype" . "stateful")
-         ;;            ("Content-Type" . "application/vnd.sap.adt.repository.usagesnippets.request.v1+xml")
-         ;;            ("Accept"       . "application/vnd.sap.adt.repository.usagesnippets.result.v1+xml")))
+         (headers `(("x-csrf-token" . ,(abaplib-get-csrf-token))
+                    ("x-sap-adt-sessiontype" . "stateful")
+                    ("Content-Type" . "application/vnd.sap.adt.repository.usagesnippets.request.v1+xml")
+                    ("Accept"       . "application/vnd.sap.adt.repository.usagesnippets.result.v1+xml")))
          (post-data (abaplib--get-usage-snippets-template objects-wId))
-         ;; TODO Marian: uncomment
-         ;; (snippets (abaplib--rest-api-call request-uri
-         ;;                                   nil
-         ;;                                   :parser 'abaplib-util-xml-parser
-         ;;                                   :type "POST"
-         ;;                                   :headers headers
-         ;;                                   :data post-data))
-         )
-    ;; TODO Marian: uncomment
-    ;; snippets
-    ));
+         (snippets (abaplib--rest-api-call request-uri
+                                           nil
+                                           :sync t
+                                           :parser 'abaplib-util-xml-parser
+                                           :type "POST"
+                                           :headers headers
+                                           :data post-data)))
+    (cl-assert (= (length (xml-get-children snippets 'codeSnippetObjects)) 1))
+    (xml-get-children (car (xml-get-children snippets 'codeSnippetObjects)) 'codeSnippetObject)));
 
 (defun abaplib--get-usage-snippets-template (objects-wId)
-  (dolist (ref-object objects-wId)
-    (cl-assert (= (length (xml-get-children ref-object 'objectIdentifier)) 1))
-    (let ((object-id (car (xml-get-children ref-object 'objectIdentifier))))
-      (message "-- object-id %s" (nth 2 object-id))))
-  );
+  (let ((post-body
+         (concat
+          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+          "<usagereferences:usageSnippetRequest xmlns:usagereferences=\"http://www.sap.com/adt/ris/usageReferences\">"
+          "<usagereferences:objectIdentifiers>")))
+    (dolist (ref-object objects-wId)
+      (cl-assert (= (length (xml-get-children ref-object 'objectIdentifier)) 1))
+      (let ((object-id (car (xml-get-children ref-object 'objectIdentifier))))
+        (setq post-body (concat post-body
+                                (format "<usagereferences:objectIdentifier optional=\"false\">%s</usagereferences:objectIdentifier>" (nth 2 object-id))))))
+        ;; (message "-- object-id %s" (nth 2 object-id))))
+    (setq post-body (concat post-body
+                            "</usagereferences:objectIdentifiers>"
+                            "<usagereferences:affectedObjects/>"
+                            "</usagereferences:usageSnippetRequest>"))
+    post-body));
 
 
 ;;========================================================================
