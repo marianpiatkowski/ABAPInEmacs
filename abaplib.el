@@ -1235,19 +1235,19 @@ Otherwise take the navigation uri as target source uri."
     (abaplib--where-used-post where-used)))
 
 (defun abaplib--where-used-post (where-used)
-  (let* ((objects-node (car (xml-get-children where-used 'usageReferences:referencedObjects)))
-         (ref-objects (xml-get-children objects-node 'usageReferences:referencedObject))
+  (let* ((objects-node (car (xml-get-children where-used 'referencedObjects)))
+         (ref-objects (xml-get-children objects-node 'referencedObject))
          (main-items  (-filter (lambda (elem)
-                                 (dolist (adt-object (xml-get-children elem 'usageReferences:adtObject))
-                                   (when (xml-get-attribute-or-nil adt-object 'adtcore:description)
+                                 (dolist (adt-object (xml-get-children elem 'adtObject))
+                                   (when (xml-get-attribute-or-nil adt-object 'description)
                                      (return t))))
                                ref-objects))
          (objects-wId (-filter (lambda (elem) (xml-get-children elem 'objectIdentifier)) ref-objects))
          (snippets (abaplib--get-usage-snippets objects-wId))
          (output-log (format "%s\n\n" (xml-get-attribute where-used 'resultDescription))))
     (dolist (elem main-items)
-      (cl-assert (= (length (xml-get-children elem 'usageReferences:adtObject)) 1))
-      (let* ((adt-object (car (xml-get-children elem 'usageReferences:adtObject)))
+      (cl-assert (= (length (xml-get-children elem 'adtObject)) 1))
+      (let* ((adt-object (car (xml-get-children elem 'adtObject)))
              (object-uri (xml-get-attribute elem 'uri))
              (sub-elems (-filter (lambda (elem)
                                    (string= (xml-get-attribute elem 'parentUri) object-uri))
@@ -1255,11 +1255,11 @@ Otherwise take the navigation uri as target source uri."
         ;; print main item
         (setq output-log (concat output-log "\n"
                                  (format "%s %s"
-                                         (xml-get-attribute adt-object 'adtcore:description)
-                                         (xml-get-attribute adt-object 'adtcore:name))))
+                                         (xml-get-attribute adt-object 'description)
+                                         (xml-get-attribute adt-object 'name))))
         (when sub-elems
           (dolist (sub-elem sub-elems)
-            (let* ((sub-adt-object (car (xml-get-children sub-elem 'usageReferences:adtObject)))
+            (let* ((sub-adt-object (car (xml-get-children sub-elem 'adtObject)))
                    (object-Id (car (xml-get-children sub-elem 'objectIdentifier)))
                    (snippet (-first (lambda (elem)
                                       (string= (nth 2 object-Id)
@@ -1269,7 +1269,7 @@ Otherwise take the navigation uri as target source uri."
                    (code-snippets (xml-get-children code-snippets-node 'codeSnippet)))
               ;; print subitems
               (setq output-log (concat output-log "\n"
-                                       (format "  %s" (xml-get-attribute sub-adt-object 'adtcore:name))))
+                                       (format "  %s" (xml-get-attribute sub-adt-object 'name))))
               ;; TODO Marian: rework processing and printing of results
               ;; (dolist (code-snippet code-snippets)
               ;;   ;; print code of where-used result
