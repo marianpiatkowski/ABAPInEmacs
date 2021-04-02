@@ -163,14 +163,6 @@
   (goto-line line)
   (move-to-column column))
 
-(defun abaplib-util-get-source-pos (uri)
-  (let ((source-pos (progn
-                      (string-match "#start=\\([0-9]+,[0-9]+\\)" uri)
-                      (match-string 1 uri))))
-    (unless source-pos
-      (error (format "Could not determine source position from uri \"%s\"" uri)))
-    (split-string source-pos ",")))
-
 (defun abaplib-util-get-xml-value (node key)
   (car (last (car (xml-get-children node key)))))
 
@@ -614,7 +606,9 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
                              ('E "error")
                              (t "success")))
                      (text (xml-get-attribute message 'shortText))
-                     (position (abaplib-util-get-source-pos uri))
+                     (position (split-string (progn
+                                 (string-match "#start=\\([0-9]+,[0-9]+\\)" uri)
+                                 (match-string 1 uri)) ","))
                      (pos-line (string-to-number (car position)))
                      (pos-column (string-to-number (cadr position))))
                 `((line . ,pos-line)
@@ -631,8 +625,9 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
 
 (defun abaplib--check-render-pos (position &optional target-buffer)
   (let* ((target-buffer (or target-buffer (current-buffer)))
-         (line (string-to-number (car position)))
-         (column (string-to-number (cadr position)))
+         (pos-list (split-string position ","))
+         (line (string-to-number (car pos-list)))
+         (column (string-to-number (cadr pos-list)))
          (map (make-sparse-keymap))
          (fn-follow-pos `(lambda ()
                            (interactive)
@@ -653,7 +648,9 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
       (let* ((uri (xml-get-attribute message 'uri))
              (type (xml-get-attribute message 'type))
              (text (xml-get-attribute message 'shortText))
-             (position (abaplib-util-get-source-pos uri)))
+             (position (progn
+                         (string-match "#start=\\([0-9]+,[0-9]+\\)" uri)
+                         (match-string 1 uri))))
         (if (or (and (string= type "W") (string= severity-level "I"))
                 (and (string= type "E") (or (string= severity-level "W")
                                             (string= severity-level "I"))))
@@ -813,7 +810,9 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
              (text (car (last (car (xml-get-children
                                     (car (xml-get-children message 'shortText))
                                     'txt)))))
-             (position (abaplib-util-get-source-pos uri)))
+             (position (progn
+                         (string-match "#start=\\([0-9]+,[0-9]+\\)" uri)
+                         (match-string 1 uri))))
         (if (or (and (string= type "W") (string= severity-level "I"))
                 (and (string= type "E") (or (string= severity-level "W")
                                             (string= severity-level "I"))))
@@ -1333,7 +1332,9 @@ Otherwise take the navigation uri as target source uri."
   (let* ((target-uri         (xml-get-attribute code-snippet 'uri))
          (target-source-uri  (abaplib-get-target-source-uri target-uri))
          (target-object-info (abaplib-get-object-info target-source-uri))
-         (target-source-pos  (abaplib-util-get-source-pos target-uri))
+         (target-source-pos  (split-string (progn
+                                             (string-match "#start=\\([0-9]+,[0-9]+\\)" target-uri)
+                                             (match-string 1 target-uri)) "," ))
          (object-path        (cdr (assoc 'path target-object-info)))
          (obj-fname-base     (cdr (assoc 'filename-base target-object-info)))
          (content            (car (xml-get-children code-snippet 'content)))
