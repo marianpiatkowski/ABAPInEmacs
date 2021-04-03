@@ -170,6 +170,14 @@
   "Compare two ETags based on the substring from 0 to 14."
   (string= (substring etag1 0 14) (substring etag2 0 14)))
 
+(defun abaplib-util-get-filename-base (full-source-uri)
+  "Get filename base from `full-source-uri', i.e. substring after /source/."
+  (let* ((split-on-source (-split-when (lambda (elem) (string= elem "source"))
+                                       (split-string full-source-uri "/")))
+         ;; gives main or implementations etc.
+         (object-filename-base (if (cadr split-on-source) (caadr split-on-source) "main")))
+    object-filename-base))
+
 (defun abaplib--get-local-properties ()
   "Load property file on current directory for current buffer."
   (let ((property-file (expand-file-name abaplib--property-file)))
@@ -1327,13 +1335,6 @@ Otherwise take the navigation uri as target source uri."
                             "</usagereferences:usageSnippetRequest>"))
     post-body))
 
-(defun abaplib-get-filename-base (full-source-uri)
-  (let* ((split-on-source (-split-when (lambda (elem) (string= elem "source"))
-                                       (split-string full-source-uri "/")))
-         ;; gives main or implementations etc.
-         (object-filename-base (if (cadr split-on-source) (caadr split-on-source) "main")))
-    object-filename-base))
-
 (defun abaplib--print-where-used (item code-snippet)
   (cl-assert (= (length (xml-get-children code-snippet 'content)) 1))
   (let* ((target-uri  (xml-get-attribute code-snippet 'uri))
@@ -1346,7 +1347,7 @@ Otherwise take the navigation uri as target source uri."
          (object-type (xml-get-attribute adt-object 'type))
          (object-name (xml-get-attribute adt-object 'name))
          (object-path (abaplib-get-path object-type object-name object-uri))
-         (obj-fname-base    (abaplib-get-filename-base source-uri))
+         (obj-fname-base    (abaplib-util-get-filename-base source-uri))
          (content           (car (xml-get-children code-snippet 'content)))
          (map (make-sparse-keymap))
          (fn-follow-pos `(lambda ()
