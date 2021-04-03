@@ -1274,7 +1274,7 @@ Otherwise take the navigation uri as target source uri."
               ;; (dolist (code-snippet code-snippets)
               ;;   ;; print code of where-used result
               ;;   (setq output-log (concat output-log "\n"
-              ;;                            (format "    %s" (abaplib--print-where-used-result code-snippet)))))
+              ;;                            (format "    %s" (abaplib--print-where-used elem code-snippet)))))
               )))
         (unless sub-elems
           (cl-assert (= (length (xml-get-children elem 'objectIdentifier)) 1))
@@ -1288,7 +1288,7 @@ Otherwise take the navigation uri as target source uri."
             (dolist (code-snippet code-snippets)
               ;; print code of where-used result
               (setq output-log (concat output-log "\n"
-                                       (format "  %s" (abaplib--print-where-used-result code-snippet)))))))
+                                       (format "  %s" (abaplib--print-where-used elem code-snippet)))))))
         ))
     (abaplib-util-where-used-buf-write output-log)
     (pop-to-buffer (get-buffer-create abaplib--where-used-buffer))))
@@ -1327,31 +1327,39 @@ Otherwise take the navigation uri as target source uri."
                             "</usagereferences:usageSnippetRequest>"))
     post-body))
 
-(defun abaplib--print-where-used-result (code-snippet)
+(defun abaplib-get-filename-base (full-source-uri)
+  (let* ((split-on-source (-split-when (lambda (elem) (string= elem "source"))
+                                       (split-string full-source-uri "/")))
+         ;; gives main or implementations etc.
+         (object-filename-base (if (cadr split-on-source) (caadr split-on-source) "main")))
+    object-filename-base))
+
+(defun abaplib--print-where-used (item code-snippet)
   (cl-assert (= (length (xml-get-children code-snippet 'content)) 1))
-  (let* ((target-uri         (xml-get-attribute code-snippet 'uri))
-         (target-source-uri  (abaplib-get-target-source-uri target-uri))
-         (target-object-info (abaplib-get-object-info target-source-uri))
-         (target-source-pos  (split-string (progn
-                                             (string-match "#start=\\([0-9]+,[0-9]+\\)" target-uri)
-                                             (match-string 1 target-uri)) "," ))
-         (object-path        (cdr (assoc 'path target-object-info)))
-         (obj-fname-base     (cdr (assoc 'filename-base target-object-info)))
-         (content            (car (xml-get-children code-snippet 'content)))
+  (let* ((target-uri  (xml-get-attribute code-snippet 'uri))
+         (source-uri  (abaplib-get-target-source-uri target-uri))
+         (source-pos  (split-string (progn
+                                      (string-match "#start=\\([0-9]+,[0-9]+\\)" target-uri)
+                                      (match-string 1 target-uri)) "," ))
+         (object-uri  (xml-get-attribute item 'uri))
+         (adt-object  (car (xml-get-children item 'adtObject)))
+         (object-type (xml-get-attribute adt-object 'type))
+         (object-name (xml-get-attribute adt-object 'name))
+         (object-path (abaplib-get-path object-type object-name object-uri))
+         (obj-fname-base    (abaplib-get-filename-base source-uri))
+         (content           (car (xml-get-children code-snippet 'content)))
          (map (make-sparse-keymap))
          (fn-follow-pos `(lambda ()
                           (interactive)
                           (let* ((path        ,object-path)
                                  (fname-base  ,obj-fname-base)
                                  (filename    (file-name-completion fname-base path))
-                                 (line   ,(string-to-number (car target-source-pos)))
-                                 (column ,(string-to-number (cadr target-source-pos)))
+                                 (line   ,(string-to-number (car source-pos)))
+                                 (column ,(string-to-number (cadr source-pos)))
                                  (filepath))
                             (unless filename
                               (message "Fetching source from server...")
-                              (abaplib-do-retrieve ,(cdr (assoc 'name target-object-info))
-                                                   ,(cdr (assoc 'type target-object-info))
-                                                   ,(cdr (assoc 'uri  target-object-info)))
+                              (abaplib-do-retrieve ,object-name ,object-type ,object-uri)
                               (while (not filename)
                                 (sit-for 1)
                                 (setq filename (file-name-completion fname-base path))))
@@ -1361,7 +1369,7 @@ Otherwise take the navigation uri as target source uri."
          )
     (define-key map (kbd "<down-mouse-1>") fn-follow-pos)
     (define-key map (kbd "<RET>") fn-follow-pos)
-    (propertize (nth 2 content)
+    (propertize (string-trim-left (nth 2 content))
                 'face 'underline
                 'mouse-face 'highlight
                 'keymap map)))
