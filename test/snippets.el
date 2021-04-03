@@ -1,9 +1,6 @@
 ;;========================================================================
-;; Snippet - function abap-where-used
+;; Snippet - examining ABAP Where-Used list
 ;;========================================================================
-
-(let* ((where-used (car (xml-parse-file "~/packages/ABAPInEmacs/test/where-used/template_where_used.xml"))))
-  (abaplib--where-used-post where-used));
 
 (defun abaplib--parse-usage-snippets (snippets)
   ;; (message "-- length: %s" (length (xml-get-children snippets 'codeSnippetObjects)))
