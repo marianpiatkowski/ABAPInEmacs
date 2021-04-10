@@ -10,8 +10,8 @@
     (set-buffer (get-buffer-create abaplib--outline-buffer))
     (setq buffer-read-only nil)
     (erase-buffer)
-    (goto-char (point-min))
     (insert (format "%s" log))
+    (goto-char (point-min))
     (setq buffer-read-only t)));
 
 (defun abap-outline ()
@@ -37,20 +37,39 @@
 
 (defun abaplib--outline-post (outline)
   "Build outline buffer."
-  (let ((object-name (xml-get-attribute outline 'name))
-        (object-type (xml-get-attribute outline 'type))
-        (main-links  (xml-get-children outline 'link))
-        (object-structure (xml-get-children outline 'objectStructureElement))
-        (output-log))
-    (setq output-log (format "Outline for %s\n\n" object-name))
+  (let* ((object-name (xml-get-attribute outline 'name))
+         (object-type (xml-get-attribute outline 'type))
+         (object-path (file-name-directory (buffer-file-name)))
+         (main-links  (xml-get-children outline 'link))
+         ;; TODO Marian: -drop-last very bad hardcode!!!
+         (object-structure (-drop-last 1 (xml-get-children outline 'objectStructureElement)))
+         (main-link (-first (lambda (elem)
+                              (cl-search "definitionIdentifier" (xml-get-attribute elem 'rel)))
+                            main-links))
+         ;; TODO Marian: the following two functions are hardcodes for pattern with #start=linno,colno
+         (source-pos (abaplib--outline-get-source-pos main-link))
+         (fname-base (abaplib--outline-get-filename-base main-link))
+         (source-filename (file-name-completion fname-base object-path))
+         (target-buffer (find-file-noselect source-filename))
+         (output-log (format "Outline for %s\n\n" object-name)))
+    (setq output-log (concat output-log "\n"
+                             (format "%s" (abaplib--outline-print-item source-pos target-buffer))))
     (dolist (elem object-structure)
-      (let ((sub-obj-structure (xml-get-children elem 'objectStructureElement))
-            (links (xml-get-children elem 'link)))
+      (let* ((sub-obj-structure (xml-get-children elem 'objectStructureElement))
+             (links (-filter (lambda (link)
+                               (or (cl-search "definitionIdentifier" (xml-get-attribute link 'rel))
+                                   (cl-search "implementationIdentifier" (xml-get-attribute link 'rel))))
+                             (xml-get-children elem 'link)))
+             (link (if sub-obj-structure (car links) (-last-item links)))
+             ;; TODO Marian: the following two functions are hardcodes for pattern with #start=linno,colno
+             (source-pos (abaplib--outline-get-source-pos link))
+             (fname-base (abaplib--outline-get-filename-base link))
+             (source-filename (file-name-completion fname-base object-path))
+             (target-buffer (find-file-noselect source-filename)))
         (setq output-log (concat output-log "\n"
-                                 (format "  %s %s" (xml-get-attribute elem 'name) (xml-get-attribute elem 'type))))
-        (dolist (link links)
-          ;; do something here
-          )
+                                 (format "  %s" (abaplib--outline-print-item source-pos target-buffer))))
+        ;; (setq output-log (concat output-log "\n"
+        ;;                          (format "  %s %s" (xml-get-attribute elem 'name) (xml-get-attribute elem 'type))))
         (dolist (sub-elem sub-obj-structure)
           (let ((sub-links (xml-get-children sub-elem 'link)))
             (setq output-log (concat output-log "\n"
@@ -62,6 +81,39 @@
         ))))
     (abaplib-util-outline-buf-write output-log)
     (pop-to-buffer (get-buffer-create abaplib--outline-buffer))));
+
+(defun abaplib--outline-get-source-pos (link)
+  (let* ((navi-uri (xml-get-attribute link 'href))
+         (source-pos (progn
+                       (string-match "#start=\\([0-9]+,[0-9]+\\)" navi-uri)
+                       (match-string 1 navi-uri))))
+    (unless source-pos
+      (error (format "Could not determine line and column number from \"%s\"." navi-uri)))
+    (split-string source-pos ",")));
+
+(defun abaplib--outline-get-filename-base (link)
+  (let* ((navi-uri (xml-get-attribute link 'href))
+         (src-uri  (car (split-string navi-uri "#start=\\([0-9]+,[0-9]+\\)"))))
+    (-last-item (split-string src-uri "/"))));
+
+
+(defun abaplib--outline-print-item (position target-buffer)
+  (set-buffer target-buffer)
+  (let* ((line (string-to-number (car position)))
+         (column (string-to-number (cadr position)))
+         (map (make-sparse-keymap))
+         (fn-follow-pos `(lambda ()
+                           (interactive)
+                           (pop-to-buffer ,target-buffer)
+                           (abaplib-util-goto-position ,line ,column))))
+    (define-key map (kbd "<down-mouse-1>") fn-follow-pos)
+    (define-key map (kbd "<RET>") fn-follow-pos)
+    (propertize (progn
+                  (goto-line line)
+                  (string-trim-left (thing-at-point 'line)))
+                'face 'underline
+                'mouse-face 'highlight
+                'keymap map)));
 
 ;;========================================================================
 ;; Snippet - examining ABAP Where-Used list
