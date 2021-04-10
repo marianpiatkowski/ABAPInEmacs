@@ -52,7 +52,7 @@
          (source-filename (file-name-completion fname-base object-path))
          (target-buffer (find-file-noselect source-filename))
          (output-log (format "Outline for %s\n\n" object-name)))
-    (setq output-log (concat output-log "\n"
+    (setq output-log (concat output-log
                              (format "%s" (abaplib--outline-print-item source-pos target-buffer))))
     (dolist (elem object-structure)
       (let* ((sub-obj-structure (xml-get-children elem 'objectStructureElement))
@@ -66,7 +66,7 @@
              (fname-base (abaplib--outline-get-filename-base link))
              (source-filename (file-name-completion fname-base object-path))
              (target-buffer (find-file-noselect source-filename)))
-        (setq output-log (concat output-log "\n"
+        (setq output-log (concat output-log
                                  (format "  %s" (abaplib--outline-print-item source-pos target-buffer))))
         (dolist (sub-elem sub-obj-structure)
           (let* ((sub-links (xml-get-children sub-elem 'link))
@@ -79,7 +79,7 @@
                  (fname-base (abaplib--outline-get-filename-base sub-link))
                  (source-filename (file-name-completion fname-base object-path))
                  (target-buffer (find-file-noselect source-filename)))
-            (setq output-log (concat output-log "\n"
+            (setq output-log (concat output-log
                                      (format "    %s" (abaplib--outline-print-item source-pos target-buffer))))
 
         ))))
