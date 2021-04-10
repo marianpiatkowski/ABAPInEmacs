@@ -1,5 +1,5 @@
 ;;========================================================================
-;; ABAP outline
+;; Snippet - ABAP outline
 ;;========================================================================
 
 (defconst abaplib--outline-buffer "*ABAP Outline*"
@@ -71,12 +71,20 @@
         ;; (setq output-log (concat output-log "\n"
         ;;                          (format "  %s %s" (xml-get-attribute elem 'name) (xml-get-attribute elem 'type))))
         (dolist (sub-elem sub-obj-structure)
-          (let ((sub-links (xml-get-children sub-elem 'link)))
+          (let* ((sub-links (xml-get-children sub-elem 'link))
+                 (sub-link (-last (lambda (sub-link)
+                                    (or (cl-search "definitionIdentifier" (xml-get-attribute sub-link 'rel))
+                                        (cl-search "implementationIdentifier" (xml-get-attribute sub-link 'rel))))
+                                  sub-links))
+                 ;; TODO Marian: the following two functions are hardcodes for pattern with #start=linno,colno
+                 (source-pos (abaplib--outline-get-source-pos sub-link))
+                 (fname-base (abaplib--outline-get-filename-base sub-link))
+                 (source-filename (file-name-completion fname-base object-path))
+                 (target-buffer (find-file-noselect source-filename)))
             (setq output-log (concat output-log "\n"
-                                     (format "    %s %s" (xml-get-attribute sub-elem 'name) (xml-get-attribute sub-elem 'type))))
-            (dolist (sub-link sub-links)
-              ;; do something here
-              )
+                                     (format "    %s" (abaplib--outline-print-item source-pos target-buffer))))
+            ;; (setq output-log (concat output-log "\n"
+            ;;                          (format "    %s %s" (xml-get-attribute sub-elem 'name) (xml-get-attribute sub-elem 'type))))
 
         ))))
     (abaplib-util-outline-buf-write output-log)
