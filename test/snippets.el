@@ -3,7 +3,7 @@
 ;;========================================================================
 
 (defconst abaplib--outline-buffer "*ABAP Outline*"
-  "ABAP Outline buffer");
+  "ABAP Outline buffer")
 
 (defun abaplib-util-outline-buf-write (log)
   (save-current-buffer
@@ -12,14 +12,14 @@
     (erase-buffer)
     (insert (format "%s" log))
     (goto-char (point-min))
-    (setq buffer-read-only t)));
+    (setq buffer-read-only t)))
 
 (defun abap-outline ()
   "Get object structure of ABAP development object."
   (interactive)
   (let ((object-uri     (abaplib-get-property 'uri))
         (object-version (abaplib-get-property 'version)))
-    (abaplib-outline object-uri object-version)));
+    (abaplib-outline object-uri object-version)))
 
 (defun abaplib-outline (object-uri object-version)
   (message "Getting outline...")
@@ -33,7 +33,7 @@
                                           :parser 'abaplib-util-xml-parser
                                           :headers headers
                                           :params params)))
-    (abaplib--outline-post outline)));
+    (abaplib--outline-post outline)))
 
 (defun abaplib--outline-post (outline)
   "Build outline buffer."
@@ -68,8 +68,6 @@
              (target-buffer (find-file-noselect source-filename)))
         (setq output-log (concat output-log "\n"
                                  (format "  %s" (abaplib--outline-print-item source-pos target-buffer))))
-        ;; (setq output-log (concat output-log "\n"
-        ;;                          (format "  %s %s" (xml-get-attribute elem 'name) (xml-get-attribute elem 'type))))
         (dolist (sub-elem sub-obj-structure)
           (let* ((sub-links (xml-get-children sub-elem 'link))
                  (sub-link (-last (lambda (sub-link)
@@ -83,12 +81,10 @@
                  (target-buffer (find-file-noselect source-filename)))
             (setq output-log (concat output-log "\n"
                                      (format "    %s" (abaplib--outline-print-item source-pos target-buffer))))
-            ;; (setq output-log (concat output-log "\n"
-            ;;                          (format "    %s %s" (xml-get-attribute sub-elem 'name) (xml-get-attribute sub-elem 'type))))
 
         ))))
     (abaplib-util-outline-buf-write output-log)
-    (pop-to-buffer (get-buffer-create abaplib--outline-buffer))));
+    (pop-to-buffer (get-buffer-create abaplib--outline-buffer))))
 
 (defun abaplib--outline-get-source-pos (link)
   (let* ((navi-uri (xml-get-attribute link 'href))
@@ -97,12 +93,12 @@
                        (match-string 1 navi-uri))))
     (unless source-pos
       (error (format "Could not determine line and column number from \"%s\"." navi-uri)))
-    (split-string source-pos ",")));
+    (split-string source-pos ",")))
 
 (defun abaplib--outline-get-filename-base (link)
   (let* ((navi-uri (xml-get-attribute link 'href))
          (src-uri  (car (split-string navi-uri "#start=\\([0-9]+,[0-9]+\\)"))))
-    (-last-item (split-string src-uri "/"))));
+    (-last-item (split-string src-uri "/"))))
 
 
 (defun abaplib--outline-print-item (position target-buffer)
@@ -121,7 +117,7 @@
                   (string-trim-left (thing-at-point 'line)))
                 'face 'underline
                 'mouse-face 'highlight
-                'keymap map)));
+                'keymap map)))
 
 ;;========================================================================
 ;; Snippet - examining ABAP Where-Used list
