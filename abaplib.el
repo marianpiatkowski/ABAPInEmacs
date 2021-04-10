@@ -136,8 +136,8 @@
     (set-buffer (get-buffer-create abaplib--where-used-buffer))
     (setq buffer-read-only nil)
     (erase-buffer)
-    (goto-char (point-min))
     (insert (format "%s" log))
+    (goto-char (point-min))
     (setq buffer-read-only t)))
 
 (defun abaplib-util-log-buf-pop ()
