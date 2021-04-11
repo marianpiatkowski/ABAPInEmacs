@@ -1486,7 +1486,7 @@ Otherwise take the navigation uri as target source uri."
                            (abaplib-util-goto-position ,line ,column))))
     (define-key map (kbd "<down-mouse-1>") fn-follow-pos)
     (define-key map (kbd "<RET>") fn-follow-pos)
-    (propertize (progn
+    (propertize (save-excursion
                   (goto-line line)
                   (string-trim-left (thing-at-point 'line)))
                 'face 'underline
