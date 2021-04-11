@@ -41,16 +41,16 @@
          (object-type (xml-get-attribute outline 'type))
          (object-path (file-name-directory (buffer-file-name)))
          (main-links  (xml-get-children outline 'link))
-         ;; TODO Marian: -drop-last very bad hardcode!!!
-         (object-structure (-drop-last 1 (xml-get-children outline 'objectStructureElement)))
+         (object-structure (xml-get-children outline 'objectStructureElement))
+         ;; drop last item of object-structure == text elements
+         (object-structure (-drop-last 1 object-structure))
          (main-link (-first (lambda (elem)
                               (cl-search "definitionIdentifier" (xml-get-attribute elem 'rel)))
                             main-links))
-         ;; TODO Marian: the following two functions are hardcodes for pattern with #start=linno,colno
-         (source-pos (abaplib--outline-get-source-pos main-link))
          (fname-base (abaplib--outline-get-filename-base main-link))
          (source-filename (file-name-completion fname-base object-path))
          (target-buffer (find-file-noselect source-filename))
+         (source-pos (abaplib--outline-get-source-pos main-link target-buffer))
          (output-log (format "Outline for %s\n\n" object-name)))
     (setq output-log (concat output-log
                              (format "%s" (abaplib--outline-print-item source-pos target-buffer))))
@@ -61,11 +61,10 @@
                                    (cl-search "implementationIdentifier" (xml-get-attribute link 'rel))))
                              (xml-get-children elem 'link)))
              (link (if sub-obj-structure (car links) (-last-item links)))
-             ;; TODO Marian: the following two functions are hardcodes for pattern with #start=linno,colno
-             (source-pos (abaplib--outline-get-source-pos link))
              (fname-base (abaplib--outline-get-filename-base link))
              (source-filename (file-name-completion fname-base object-path))
-             (target-buffer (find-file-noselect source-filename)))
+             (target-buffer (find-file-noselect source-filename))
+             (source-pos (abaplib--outline-get-source-pos link target-buffer)))
         (setq output-log (concat output-log
                                  (format "  %s" (abaplib--outline-print-item source-pos target-buffer))))
         (dolist (sub-elem sub-obj-structure)
@@ -74,11 +73,10 @@
                                     (or (cl-search "definitionIdentifier" (xml-get-attribute sub-link 'rel))
                                         (cl-search "implementationIdentifier" (xml-get-attribute sub-link 'rel))))
                                   sub-links))
-                 ;; TODO Marian: the following two functions are hardcodes for pattern with #start=linno,colno
-                 (source-pos (abaplib--outline-get-source-pos sub-link))
                  (fname-base (abaplib--outline-get-filename-base sub-link))
                  (source-filename (file-name-completion fname-base object-path))
-                 (target-buffer (find-file-noselect source-filename)))
+                 (target-buffer (find-file-noselect source-filename))
+                 (source-pos (abaplib--outline-get-source-pos sub-link target-buffer)))
             (setq output-log (concat output-log
                                      (format "    %s" (abaplib--outline-print-item source-pos target-buffer))))
 
@@ -86,25 +84,33 @@
     (abaplib-util-outline-buf-write output-log)
     (pop-to-buffer (get-buffer-create abaplib--outline-buffer))))
 
-(defun abaplib--outline-get-source-pos (link)
+(defun abaplib--outline-get-filename-base (link)
   (let* ((navi-uri (xml-get-attribute link 'href))
+         (navi-uri (url-unhex-string navi-uri))
+         (split1 (split-string navi-uri "#start=\\([0-9]+,[0-9]+\\)"))
+         (split2 (split-string navi-uri "#type=\\([A-Z]+/[A-Z]+\\)")))
+    (cond ((cdr split1)
+           (-last-item (split-string (car split1) "/")))
+          ((cdr split2)
+           (-last-item (split-string (car split2) "/")))
+          (t (error (format "Cannot determine outline filename base from \"%s\"." navi-uri))))))
+
+(defun abaplib--outline-get-source-pos (link target-buffer)
+  (let* ((navi-uri (xml-get-attribute link 'href))
+         (navi-uri (url-unhex-string navi-uri))
          (source-pos (progn
                        (string-match "#start=\\([0-9]+,[0-9]+\\)" navi-uri)
                        (match-string 1 navi-uri))))
     (unless source-pos
       (error (format "Could not determine line and column number from \"%s\"." navi-uri)))
-    (split-string source-pos ",")))
-
-(defun abaplib--outline-get-filename-base (link)
-  (let* ((navi-uri (xml-get-attribute link 'href))
-         (src-uri  (car (split-string navi-uri "#start=\\([0-9]+,[0-9]+\\)"))))
-    (-last-item (split-string src-uri "/"))))
+    (mapcar 'string-to-number
+            (split-string source-pos ","))))
 
 
 (defun abaplib--outline-print-item (position target-buffer)
   (set-buffer target-buffer)
-  (let* ((line (string-to-number (car position)))
-         (column (string-to-number (cadr position)))
+  (let* ((line (car position))
+         (column (cadr position))
          (map (make-sparse-keymap))
          (fn-follow-pos `(lambda ()
                            (interactive)
