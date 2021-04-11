@@ -93,18 +93,126 @@
            (-last-item (split-string (car split1) "/")))
           ((cdr split2)
            (-last-item (split-string (car split2) "/")))
+          ((string= navi-uri (abaplib-get-property 'uri))
+           "main")
           (t (error (format "Cannot determine outline filename base from \"%s\"." navi-uri))))))
 
 (defun abaplib--outline-get-source-pos (link target-buffer)
   (let* ((navi-uri (xml-get-attribute link 'href))
          (navi-uri (url-unhex-string navi-uri))
-         (source-pos (progn
-                       (string-match "#start=\\([0-9]+,[0-9]+\\)" navi-uri)
-                       (match-string 1 navi-uri))))
-    (unless source-pos
-      (error (format "Could not determine line and column number from \"%s\"." navi-uri)))
-    (mapcar 'string-to-number
-            (split-string source-pos ","))))
+         (pattern1 (progn
+                     (string-match "#start=\\([0-9]+,[0-9]+\\)" navi-uri)
+                     (match-string 1 navi-uri)))
+         (pattern2 (progn
+                     (string-match ";name=\\([A-Za-z0-9_-]+\\(\s+[A-Za-z0-9_-]+\\)?\\)" navi-uri)
+                     (match-string 1 navi-uri))))
+    (cond (pattern1
+           (let ((source-pos (split-string pattern1 ",")))
+             (mapcar 'string-to-number source-pos)))
+          (pattern2
+           (let* ((search-patterns (split-string pattern2))
+                  (type (progn
+                          (string-match "#type=\\([A-Z]+/[A-Z]+\\)" navi-uri)
+                          (match-string 1 navi-uri)))
+                  (type-list  (split-string type "/"))
+                  (major-type (car type-list))
+                  (minor-type (cadr type-list))
+                  (impl-func  (intern (concat "abaplib--outline-search-" (downcase minor-type)))))
+             (funcall impl-func search-patterns target-buffer)))
+          ((string= navi-uri (abaplib-get-property 'uri))
+           (let* ((search-patterns (list (abaplib-get-property 'name)))
+                  (type (abaplib-get-property 'type))
+                  (type-list  (split-string type "/"))
+                  (major-type (car type-list))
+                  (minor-type (cadr type-list))
+                  (impl-func  (intern (concat "abaplib--outline-search-" (downcase minor-type)))))
+             (funcall impl-func search-patterns target-buffer)))
+          (t (error (format "Cannot determine line and column number from \"%s\"." navi-uri))))))
+
+(defun abaplib--outline-search-p (pattern target-buffer)
+  "Search for beginning of program specified by `pattern'."
+  (set-buffer target-buffer)
+  (save-excursion
+    (goto-char (point-min))
+    (re-search-forward (concat "\\(REPORT\\|PROGRAM\\)" "\s+" (car pattern) "."))
+    (backward-word)
+    (list (line-number-at-pos) (current-column))))
+
+(defun abaplib--outline-search-pn (pattern target-buffer)
+  "Search for local interface in program specified by `pattern'."
+  (set-buffer target-buffer)
+  (save-excursion
+    (goto-char (point-min))
+    (re-search-forward (concat "INTERFACE" "\s+" (car pattern)))
+    (backward-word)
+    (list (line-number-at-pos) (current-column))))
+
+(defun abaplib--outline-search-pnm (pattern target-buffer)
+  "Search for local interface method in program specified by `pattern'."
+  (set-buffer target-buffer)
+  (save-excursion
+    (goto-char (point-min))
+    (re-search-forward (concat "INTERFACE" "\s+" (car pattern)))
+    (re-search-forward (concat "METHODS" "\s+" (cadr pattern)))
+    (backward-word)
+    (list (line-number-at-pos) (current-column))))
+
+(defun abaplib--outline-search-pl (pattern target-buffer)
+  "Search for local class in program specified by `pattern'."
+  (set-buffer target-buffer)
+  (save-excursion
+    (goto-char (point-min))
+    (re-search-forward (concat "CLASS" "\s+" (car pattern) "\s+" "DEFINITION"))
+    (backward-word)
+    (backward-word)
+    (list (line-number-at-pos) (current-column))))
+
+(defun abaplib--outline-search-plm (pattern target-buffer)
+  "Search for local class method in program specified by `pattern'."
+  (set-buffer target-buffer)
+  (save-excursion
+    (goto-char (point-min))
+    (re-search-forward (concat "CLASS" "\s+" (car pattern) "\s+" "IMPLEMENTATION"))
+    (re-search-forward (concat "METHOD" "\s+" (cadr pattern)))
+    (backward-word)
+    (list (line-number-at-pos) (current-column))))
+
+(defun abaplib--outline-search-pla (pattern target-buffer)
+  "Search for local class attribute in program specified by `pattern'."
+  (set-buffer target-buffer)
+  (save-excursion
+    (goto-char (point-min))
+    (re-search-forward (concat "CLASS" "\s+" (car pattern) "\s+" "DEFINITION"))
+    (re-search-forward (concat "DATA" "\s+" (cadr pattern)))
+    (backward-word)
+    (list (line-number-at-pos) (current-column))))
+
+(defun abaplib--outline-search-py (pattern target-buffer)
+  "Search for global type in program specified by `pattern'."
+  (set-buffer target-buffer)
+  (save-excursion
+    (goto-char (point-min))
+    (re-search-forward (car pattern))
+    (backward-word)
+    (list (line-number-at-pos) (current-column))))
+
+(defun abaplib--outline-search-pd (pattern target-buffer)
+  "Search for global variable in program specified by `pattern'."
+  (set-buffer target-buffer)
+  (save-excursion
+    (goto-char (point-min))
+    (re-search-forward (concat "DATA(" (car pattern) ")\\|DATA" "\s+" (car pattern)))
+    (backward-word)
+    (list (line-number-at-pos) (current-column))))
+
+(defun abaplib--outline-search-pe (pattern target-buffer)
+  "Search for events in program specified by `pattern'."
+  (set-buffer target-buffer)
+  (save-excursion
+    (goto-char (point-min))
+    (re-search-forward (car pattern))
+    (backward-word)
+    (list (line-number-at-pos) (current-column))))
 
 (defun abaplib--outline-print-item (position target-buffer)
   (set-buffer target-buffer)
