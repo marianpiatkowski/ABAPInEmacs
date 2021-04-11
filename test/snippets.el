@@ -137,6 +137,7 @@
 
 (defun abaplib--outline-search-p (pattern target-buffer)
   "Search for beginning of program specified by `pattern'."
+  (cl-assert (>= (length pattern) 1))
   (set-buffer target-buffer)
   (save-excursion
     (goto-char (point-min))
@@ -146,6 +147,7 @@
 
 (defun abaplib--outline-search-pn (pattern target-buffer)
   "Search for local interface in program specified by `pattern'."
+  (cl-assert (>= (length pattern) 1))
   (set-buffer target-buffer)
   (save-excursion
     (goto-char (point-min))
@@ -155,6 +157,7 @@
 
 (defun abaplib--outline-search-pnm (pattern target-buffer)
   "Search for local interface method in program specified by `pattern'."
+  (cl-assert (>= (length pattern) 2))
   (set-buffer target-buffer)
   (save-excursion
     (goto-char (point-min))
@@ -165,6 +168,7 @@
 
 (defun abaplib--outline-search-pl (pattern target-buffer)
   "Search for local class in program specified by `pattern'."
+  (cl-assert (>= (length pattern) 1))
   (set-buffer target-buffer)
   (save-excursion
     (goto-char (point-min))
@@ -175,6 +179,7 @@
 
 (defun abaplib--outline-search-plm (pattern target-buffer)
   "Search for local class method in program specified by `pattern'."
+  (cl-assert (>= (length pattern) 2))
   (set-buffer target-buffer)
   (save-excursion
     (goto-char (point-min))
@@ -185,6 +190,7 @@
 
 (defun abaplib--outline-search-pla (pattern target-buffer)
   "Search for local class attribute in program specified by `pattern'."
+  (cl-assert (>= (length pattern) 2))
   (set-buffer target-buffer)
   (save-excursion
     (goto-char (point-min))
@@ -195,6 +201,7 @@
 
 (defun abaplib--outline-search-py (pattern target-buffer)
   "Search for global type in program specified by `pattern'."
+  (cl-assert (>= (length pattern) 1))
   (set-buffer target-buffer)
   (save-excursion
     (goto-char (point-min))
@@ -204,6 +211,7 @@
 
 (defun abaplib--outline-search-pd (pattern target-buffer)
   "Search for global variable in program specified by `pattern'."
+  (cl-assert (>= (length pattern) 1))
   (set-buffer target-buffer)
   (save-excursion
     (goto-char (point-min))
@@ -213,6 +221,7 @@
 
 (defun abaplib--outline-search-pe (pattern target-buffer)
   "Search for events in program specified by `pattern'."
+  (cl-assert (>= (length pattern) 1))
   (set-buffer target-buffer)
   (save-excursion
     (goto-char (point-min))
