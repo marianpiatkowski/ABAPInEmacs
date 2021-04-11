@@ -300,5 +300,12 @@
          (full-source-uri (concat object-uri "/" source-uri)))
     (abaplib-where-used full-source-uri (line-number-at-pos) (current-column))))
 
+(defun abap-outline ()
+  "Get object structure of ABAP development object."
+  (interactive)
+  (let ((object-uri     (abaplib-get-property 'uri))
+        (object-version (abaplib-get-property 'version)))
+    (abaplib-outline object-uri object-version)))
+
 (provide 'abap)
 ;;; abap.el ends here

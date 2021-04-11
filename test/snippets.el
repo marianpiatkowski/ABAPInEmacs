@@ -106,7 +106,6 @@
     (mapcar 'string-to-number
             (split-string source-pos ","))))
 
-
 (defun abaplib--outline-print-item (position target-buffer)
   (set-buffer target-buffer)
   (let* ((line (car position))
