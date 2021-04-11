@@ -87,12 +87,17 @@
 (defun abaplib--outline-get-filename-base (link)
   (let* ((navi-uri (xml-get-attribute link 'href))
          (navi-uri (url-unhex-string navi-uri))
+         ;; assume if exactly one of the two patterns in navi-uri occur that
+         ;; sth. follows before and after first occurrence this pattern
+         ;; => split1 or split2 has at least two elements
+         ;; => check on (cdr split1) or (cdr split2) being nil, respectively, possible
          (split1 (split-string navi-uri "#start=\\([0-9]+,[0-9]+\\)"))
          (split2 (split-string navi-uri "#type=\\([A-Z]+/[A-Z]+\\)")))
     (cond ((cdr split1)
            (-last-item (split-string (car split1) "/")))
           ((cdr split2)
            (-last-item (split-string (car split2) "/")))
+          ;; treatment for main link representing dev object
           ((string= navi-uri (abaplib-get-property 'uri))
            "main")
           (t (error (format "Cannot determine outline filename base from \"%s\"." navi-uri))))))
@@ -119,6 +124,7 @@
                   (minor-type (cadr type-list))
                   (impl-func  (intern (concat "abaplib--outline-search-" (downcase minor-type)))))
              (funcall impl-func search-patterns target-buffer)))
+          ;; treatment for main link representing dev object
           ((string= navi-uri (abaplib-get-property 'uri))
            (let* ((search-patterns (list (abaplib-get-property 'name)))
                   (type (abaplib-get-property 'type))
