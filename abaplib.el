@@ -92,6 +92,9 @@
 (defconst abaplib--outline-buffer "*ABAP Outline*"
   "ABAP Outline buffer")
 
+(defconst abaplib--console-buffer "*ABAP Console*"
+  "ABAP Console buffer")
+
 (defconst abaplib--uri-login "/sap/bc/adt/core/discovery")
 
 (defconst abaplib--property-file ".properties.json")
@@ -129,7 +132,6 @@
                     (format-time-string "%Y-%m-%dT%T")
                     ((lambda (x) (concat (substring x 0 3) ":" (substring x 3 5)))
                      (format-time-string "%z"))))
-    ;; (insert "\n")
     (insert (format "%s" log))
     (setq buffer-read-only t)
     ))
@@ -150,6 +152,20 @@
     (erase-buffer)
     (insert (format "%s" log))
     (goto-char (point-min))
+    (setq buffer-read-only t)))
+
+(defun abaplib-util-console-buf-write (log)
+  (save-current-buffer
+    (set-buffer (get-buffer-create abaplib--console-buffer))
+    (setq buffer-read-only nil)
+    (goto-char (point-max))
+    (insert "\n\n")
+    (insert (concat "Log at: "
+                    (format-time-string "%Y-%m-%dT%T")
+                    ((lambda (x) (concat (substring x 0 3) ":" (substring x 3 5)))
+                     (format-time-string "%z"))))
+    (insert "\n\n")
+    (insert (format "%s" log))
     (setq buffer-read-only t)))
 
 (defun abaplib-util-log-buf-pop ()
@@ -1243,7 +1259,8 @@ Otherwise take the navigation uri as target source uri."
                                               :parser 'abaplib-util-sourcecode-parser
                                               :type "POST"
                                               :headers headers)))
-    (message "%s" run-result)))
+    (abaplib-util-console-buf-write run-result)
+    (pop-to-buffer (get-buffer-create abaplib--console-buffer))))
 
 (defun abaplib-console-run-class (object-name)
   (let* ((request-uri (concat "/sap/bc/adt/oo/classrun/" object-name))
@@ -1254,7 +1271,8 @@ Otherwise take the navigation uri as target source uri."
                                               :parser 'abaplib-util-sourcecode-parser
                                               :type "POST"
                                               :headers headers)))
-    (message "%s" run-result)))
+    (abaplib-util-console-buf-write run-result)
+    (pop-to-buffer (get-buffer-create abaplib--console-buffer))))
 
 ;;========================================================================
 ;; Module - Core Services - Where-Used
