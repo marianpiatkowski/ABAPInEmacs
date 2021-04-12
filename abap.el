@@ -290,6 +290,13 @@
          (full-source-uri (concat object-uri "/" source-uri)))
     (abaplib-do-execute full-source-uri object-name)))
 
+(defun abap-console-run ()
+  "Launch program/application in console."
+  (interactive)
+  (let ((object-name (abaplib-get-property 'name))
+        (object-type (abaplib-get-property 'type)))
+    (abaplib-console-run object-name object-type)))
+
 (defun abap-where-used ()
   "Get Where-Used List of object under cursor."
   (interactive)

@@ -1227,6 +1227,35 @@ Otherwise take the navigation uri as target source uri."
           )
     (browse-url url)))
 
+(defun abaplib-console-run (object-name object-type)
+  (cond ((string= object-type "PROG/P")
+         (abaplib-console-run-program object-name))
+        ((string= object-type "CLAS/OC")
+         (abaplib-console-run-class object-name))
+        (t (error (format "Cannot launch application %s in console." object-name)))))
+
+(defun abaplib-console-run-program (object-name)
+  (let* ((request-uri (concat "/sap/bc/adt/programs/programrun/" object-name))
+         (headers    `(("x-csrf-token" . ,(abaplib-get-csrf-token))
+                       ("Accept"       . "text/plain")))
+         (run-result  (abaplib--rest-api-call request-uri
+                                              nil
+                                              :parser 'abaplib-util-sourcecode-parser
+                                              :type "POST"
+                                              :headers headers)))
+    (message "%s" run-result)))
+
+(defun abaplib-console-run-class (object-name)
+  (let* ((request-uri (concat "/sap/bc/adt/oo/classrun/" object-name))
+         (headers    `(("x-csrf-token" . ,(abaplib-get-csrf-token))
+                       ("Accept"       . "text/plain")))
+         (run-result  (abaplib--rest-api-call request-uri
+                                              nil
+                                              :parser 'abaplib-util-sourcecode-parser
+                                              :type "POST"
+                                              :headers headers)))
+    (message "%s" run-result)))
+
 ;;========================================================================
 ;; Module - Core Services - Where-Used
 ;;========================================================================
