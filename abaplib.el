@@ -1195,6 +1195,12 @@ Otherwise take the navigation uri as target source uri."
          (object-path     (cdr (assoc 'path target-object-info)))
          (obj-fname-base  (cdr (assoc 'filename-base target-object-info)))
          (object-filename (file-name-completion obj-fname-base object-path))
+         (pattern1 (progn
+                     (string-match "#start=\\([0-9]+,[0-9]+\\)" target-navi-uri)
+                     (match-string 1 target-navi-uri)))
+         (pattern2 (progn
+                     (string-match "#name=\\([A-Za-z0-9_-]+\\)" target-navi-uri)
+                     (match-string 1 target-navi-uri)))
          (object-filepath))
     (unless object-filename
       (message "Fetching source from server...")
@@ -1208,24 +1214,14 @@ Otherwise take the navigation uri as target source uri."
     (if other-window
         (switch-to-buffer (find-file-other-window object-filepath))
       (switch-to-buffer (current-buffer)))
-    (cond ((progn
-             (string-match "#start=\\([0-9]+,[0-9]+\\)" target-navi-uri)
-             (match-string 1 target-navi-uri))
-           (let ((target-source-pos (split-string (progn
-                                                    (string-match "#start=\\([0-9]+,[0-9]+\\)" target-navi-uri)
-                                                    (match-string 1 target-navi-uri)) "," ))
-                 )
+    (cond (pattern1
+           (let ((target-source-pos (split-string pattern1 ",")))
              (goto-line (string-to-number (car target-source-pos)))
              (move-to-column (string-to-number (cadr target-source-pos)))))
-          ((progn
-             (string-match "#name=\\([A-Za-z0-9_-]+\\)" target-navi-uri)
-             (match-string 1 target-navi-uri))
-           (let ((target-source-pos (progn
-                                      (string-match "#name=\\([A-Za-z0-9_-]+\\)" target-navi-uri)
-                                      (match-string 1 target-navi-uri)))
-                 )
+          (pattern2
+           (let ((search-name pattern2))
              (goto-char 1)
-             (search-forward target-source-pos)
+             (search-forward search-name)
              (skip-chars-backward "A-Za-z0-9_-")))
           (t (goto-char 1)))
     ))
