@@ -287,8 +287,7 @@
          (object-uri (abaplib-get-property 'uri))
          (object-name (abaplib-get-property 'name))
          (source-uri (abaplib-get-property 'source-uri source-name))
-         (full-source-uri (concat object-uri "/" source-uri))
-         )
+         (full-source-uri (concat object-uri "/" source-uri)))
     (abaplib-do-execute full-source-uri object-name)))
 
 (defun abap-where-used ()
@@ -303,8 +302,11 @@
 (defun abap-outline ()
   "Get object structure of ABAP development object."
   (interactive)
-  (let ((object-uri     (abaplib-get-property 'uri))
-        (object-version (abaplib-get-property 'version)))
+  (let* ((object-uri        (abaplib-get-property 'uri))
+         (source-properties (abaplib-get-property 'sources))
+         (object-etag       (abaplib-get-etag object-uri))
+         (object-version    (abaplib-get-property 'version)))
+    (abaplib-check-version object-etag source-properties)
     (abaplib-outline object-uri object-version)))
 
 (provide 'abap)
