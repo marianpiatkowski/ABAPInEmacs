@@ -180,7 +180,12 @@
          (source-code (abaplib-buffer-whole-string curr-buffer)))
     (abaplib-do-check object-info source-code dont-show-error?)))
 
-(defun abap-submit-source ()
+(defun abap-force-submit-source ()
+  "Submit source back to server."
+  (interactive)
+  (abap-submit-source t))
+
+(defun abap-submit-source (&optional force-submit?)
   "Submit source back to server."
   (interactive)
   (let* ((curr-buffer (current-buffer))
@@ -196,7 +201,8 @@
          (object-info `((path . ,object-path)
                         (file . ,source-name)
                         (full-source-uri . ,full-source-uri))))
-    (abaplib-check-version source-etag (abaplib-get-property 'sources) source-name)
+    (unless force-submit?
+        (abaplib-check-version source-etag (abaplib-get-property 'sources) source-name))
     (unless (string= package "$TMP")
       (let* ((requests (abaplib-retrieve-trans-request full-source-uri))
              (selected-req (completing-read "Change Request: " requests)))
