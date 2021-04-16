@@ -166,6 +166,46 @@
                         (uri  . ,(abaplib-get-property 'uri)))))
     (abaplib-do-compare-wserver object-info)))
 
+(defun abap-retrieve-object-etag ()
+  "Retrieve ETag of ABAP development object."
+  (interactive)
+  (let* ((object-uri  (abaplib-get-property 'uri))
+         (object-etag (abaplib-get-etag object-uri))
+         (timestamp   (substring object-etag 0 14)))
+    (message (format "Server timestamp of ABAP development object:\n %s"
+                     (abaplib--format-etag-timestamp timestamp)))))
+
+(defun abap-retrieve-source-etag ()
+  "Retrieve ETag of source."
+  (interactive)
+  (let* ((source-name (file-name-nondirectory (buffer-file-name)))
+         (object-uri (abaplib-get-property 'uri))
+         (source-uri (abaplib-get-property 'source-uri source-name))
+         (full-source-uri (concat object-uri "/" source-uri))
+         (source-etag (abaplib-get-etag full-source-uri))
+         (timestamp   (substring source-etag 0 14)))
+    (message (format "Server timestamp of source:\n %s"
+                     (abaplib--format-etag-timestamp timestamp)))))
+
+(defun abap-check-object-version ()
+  "Check version of ABAP development object with server."
+  (interactive)
+  (let* ((object-uri        (abaplib-get-property 'uri))
+         (source-properties (abaplib-get-property 'sources))
+         (object-etag       (abaplib-get-etag object-uri)))
+    (abaplib-check-version object-etag source-properties)))
+
+(defun abap-check-source-version ()
+  "Check version of source with server."
+  (interactive)
+  (let* ((source-name (file-name-nondirectory (buffer-file-name)))
+         (object-uri        (abaplib-get-property 'uri))
+         (source-properties (abaplib-get-property 'sources))
+         (source-uri        (abaplib-get-property 'source-uri source-name))
+         (full-source-uri (concat object-uri "/" source-uri))
+         (source-etag (abaplib-get-etag full-source-uri)))
+    (abaplib-check-version source-etag source-properties source-name)))
+
 (defun abap-syntax-check (&optional dont-show-error?)
   "Syntax check of source."
   (interactive)
