@@ -1575,6 +1575,16 @@ Otherwise take the navigation uri as target source uri."
     (backward-word)
     (list (line-number-at-pos) (current-column))))
 
+(defun abaplib--outline-search-pu (pattern target-buffer)
+  "Search for form routine in program specified by `pattern'."
+  (cl-assert (>= (length pattern) 1))
+  (set-buffer target-buffer)
+  (save-excursion
+    (goto-char (point-min))
+    (re-search-forward (concat "FORM" "\s+" (car pattern)))
+    (backward-word)
+    (list (line-number-at-pos) (current-column))))
+
 (defun abaplib--outline-search-pn (pattern target-buffer)
   "Search for local interface in program specified by `pattern'."
   (cl-assert (>= (length pattern) 1))
