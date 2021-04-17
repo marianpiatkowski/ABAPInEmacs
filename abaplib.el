@@ -1207,6 +1207,7 @@ Otherwise take the navigation uri as target source uri."
       (abaplib-do-retrieve (cdr (assoc 'name target-object-info))
                            (cdr (assoc 'type target-object-info))
                            (cdr (assoc 'uri  target-object-info)))
+      (setq abaplib--abap-object-properties nil)
       (while (not object-filename)
         (sit-for 1)
         (setq object-filename (file-name-completion obj-fname-base object-path))))
