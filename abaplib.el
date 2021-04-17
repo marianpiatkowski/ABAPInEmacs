@@ -1454,8 +1454,7 @@ Otherwise take the navigation uri as target source uri."
          (object-path (file-name-directory (buffer-file-name)))
          (main-links  (xml-get-children outline 'link))
          (object-structure (xml-get-children outline 'objectStructureElement))
-         ;; drop last item of object-structure == text elements
-         (object-structure (-drop-last 1 object-structure))
+         (object-structure (abaplib--outline-post-filter object-structure))
          (main-link (-first (lambda (elem)
                               (cl-search "definitionIdentifier" (xml-get-attribute elem 'rel)))
                             main-links))
@@ -1495,6 +1494,12 @@ Otherwise take the navigation uri as target source uri."
         ))))
     (abaplib-util-outline-buf-write output-log)
     (pop-to-buffer (get-buffer-create abaplib--outline-buffer))))
+
+(defun abaplib--outline-post-filter (object-structure)
+  (let ((text-elem-types (list "CLAS/OCX" "PROG/PX")))
+    (-remove (lambda (elem)
+               (--any? (string= (xml-get-attribute-or-nil elem 'type) it) text-elem-types))
+             object-structure)))
 
 (defun abaplib--outline-get-filename-base (link)
   (let* ((navi-uri (xml-get-attribute link 'href))
