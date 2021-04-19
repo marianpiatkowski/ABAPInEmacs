@@ -210,7 +210,7 @@
   "Load property file on current directory for current buffer."
   (let ((property-file (expand-file-name abaplib--property-file)))
     (unless (file-exists-p property-file)
-      (error "Missing property file, please use `search' to retrieve again!"))
+      (error "Missing property file, please use `abap-search-object' to retrieve again!"))
     (setq abaplib--abap-object-properties (json-read-file property-file))))
 
 (defun abaplib-get-property (name &optional source-name)
