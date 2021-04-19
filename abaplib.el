@@ -1645,6 +1645,17 @@ Otherwise take the navigation uri as target source uri."
     (backward-word)
     (list (line-number-at-pos) (current-column))))
 
+(defun abaplib--outline-search-ply (pattern target-buffer)
+  "Search for local class type (typedef) in program specified by `pattern'."
+  (cl-assert (>= (length pattern) 2))
+  (set-buffer target-buffer)
+  (save-excursion
+    (goto-char (point-min))
+    (re-search-forward (concat "CLASS" "\s+" (car pattern) "\s+" "DEFINITION"))
+    (re-search-forward (cadr pattern))
+    (backward-word)
+    (list (line-number-at-pos) (current-column))))
+
 (defun abaplib--outline-search-py (pattern target-buffer)
   "Search for global type in program specified by `pattern'."
   (cl-assert (>= (length pattern) 1))
