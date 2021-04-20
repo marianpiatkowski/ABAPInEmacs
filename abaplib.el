@@ -1540,8 +1540,9 @@ Otherwise take the navigation uri as target source uri."
                   (type-list  (split-string type "/"))
                   (major-type (car type-list))
                   (minor-type (cadr type-list))
+                  (def-identifier (cl-search "definitionIdentifier" (xml-get-attribute link 'rel)))
                   (impl-func  (intern (concat "abaplib--outline-search-" (downcase minor-type)))))
-             (funcall impl-func search-patterns target-buffer)))
+             (funcall impl-func search-patterns target-buffer def-identifier)))
           ;; treatment for main link representing dev object
           ((string= navi-uri (abaplib-get-property 'uri))
            (let* ((search-patterns (list (abaplib-get-property 'name)))
@@ -1549,8 +1550,9 @@ Otherwise take the navigation uri as target source uri."
                   (type-list  (split-string type "/"))
                   (major-type (car type-list))
                   (minor-type (cadr type-list))
+                  (def-identifier (cl-search "definitionIdentifier" (xml-get-attribute link 'rel)))
                   (impl-func  (intern (concat "abaplib--outline-search-" (downcase minor-type)))))
-             (funcall impl-func search-patterns target-buffer)))
+             (funcall impl-func search-patterns target-buffer def-identifier)))
           (t (error (format "Cannot determine line and column number from \"%s\"." navi-uri))))))
 
 (defun abaplib--outline-print-item (position target-buffer)
@@ -1571,7 +1573,7 @@ Otherwise take the navigation uri as target source uri."
                 'mouse-face 'highlight
                 'keymap map)))
 
-(defun abaplib--outline-search-p (pattern target-buffer)
+(defun abaplib--outline-search-p (pattern target-buffer def-identifier)
   "Search for beginning of program specified by `pattern'."
   (cl-assert (>= (length pattern) 1))
   (set-buffer target-buffer)
@@ -1581,7 +1583,7 @@ Otherwise take the navigation uri as target source uri."
     (backward-word)
     (list (line-number-at-pos) (current-column))))
 
-(defun abaplib--outline-search-pu (pattern target-buffer)
+(defun abaplib--outline-search-pu (pattern target-buffer def-identifier)
   "Search for form routine in program specified by `pattern'."
   (cl-assert (>= (length pattern) 1))
   (set-buffer target-buffer)
@@ -1591,7 +1593,7 @@ Otherwise take the navigation uri as target source uri."
     (backward-word)
     (list (line-number-at-pos) (current-column))))
 
-(defun abaplib--outline-search-pn (pattern target-buffer)
+(defun abaplib--outline-search-pn (pattern target-buffer def-identifier)
   "Search for local interface in program specified by `pattern'."
   (cl-assert (>= (length pattern) 1))
   (set-buffer target-buffer)
@@ -1601,7 +1603,7 @@ Otherwise take the navigation uri as target source uri."
     (backward-word)
     (list (line-number-at-pos) (current-column))))
 
-(defun abaplib--outline-search-pnm (pattern target-buffer)
+(defun abaplib--outline-search-pnm (pattern target-buffer def-identifier)
   "Search for local interface method in program specified by `pattern'."
   (cl-assert (>= (length pattern) 2))
   (set-buffer target-buffer)
@@ -1612,7 +1614,7 @@ Otherwise take the navigation uri as target source uri."
     (backward-word)
     (list (line-number-at-pos) (current-column))))
 
-(defun abaplib--outline-search-pl (pattern target-buffer)
+(defun abaplib--outline-search-pl (pattern target-buffer def-identifier)
   "Search for local class in program specified by `pattern'."
   (cl-assert (>= (length pattern) 1))
   (set-buffer target-buffer)
@@ -1623,18 +1625,23 @@ Otherwise take the navigation uri as target source uri."
     (backward-word)
     (list (line-number-at-pos) (current-column))))
 
-(defun abaplib--outline-search-plm (pattern target-buffer)
+(defun abaplib--outline-search-plm (pattern target-buffer def-identifier)
   "Search for local class method in program specified by `pattern'."
   (cl-assert (>= (length pattern) 2))
   (set-buffer target-buffer)
   (save-excursion
     (goto-char (point-min))
-    (re-search-forward (concat "CLASS" "\s+" (car pattern) "\s+" "IMPLEMENTATION"))
-    (re-search-forward (concat "METHOD" "\s+" (cadr pattern)))
+    (if def-identifier
+        (progn
+          (re-search-forward (concat "CLASS" "\s+" (car pattern) "\s+" "DEFINITION"))
+          (re-search-forward "METHODS")
+          (re-search-forward (cadr pattern)))
+      (re-search-forward (concat "CLASS" "\s+" (car pattern) "\s+" "IMPLEMENTATION"))
+      (re-search-forward (concat "METHOD" "\s+" (cadr pattern))))
     (backward-word)
     (list (line-number-at-pos) (current-column))))
 
-(defun abaplib--outline-search-pla (pattern target-buffer)
+(defun abaplib--outline-search-pla (pattern target-buffer def-identifier)
   "Search for local class attribute in program specified by `pattern'."
   (cl-assert (>= (length pattern) 2))
   (set-buffer target-buffer)
@@ -1645,18 +1652,19 @@ Otherwise take the navigation uri as target source uri."
     (backward-word)
     (list (line-number-at-pos) (current-column))))
 
-(defun abaplib--outline-search-ply (pattern target-buffer)
+(defun abaplib--outline-search-ply (pattern target-buffer def-identifier)
   "Search for local class type (typedef) in program specified by `pattern'."
   (cl-assert (>= (length pattern) 2))
   (set-buffer target-buffer)
   (save-excursion
     (goto-char (point-min))
     (re-search-forward (concat "CLASS" "\s+" (car pattern) "\s+" "DEFINITION"))
+    (re-search-forward "TYPES")
     (re-search-forward (cadr pattern))
     (backward-word)
     (list (line-number-at-pos) (current-column))))
 
-(defun abaplib--outline-search-py (pattern target-buffer)
+(defun abaplib--outline-search-py (pattern target-buffer def-identifier)
   "Search for global type in program specified by `pattern'."
   (cl-assert (>= (length pattern) 1))
   (set-buffer target-buffer)
@@ -1666,7 +1674,7 @@ Otherwise take the navigation uri as target source uri."
     (backward-word)
     (list (line-number-at-pos) (current-column))))
 
-(defun abaplib--outline-search-pd (pattern target-buffer)
+(defun abaplib--outline-search-pd (pattern target-buffer def-identifier)
   "Search for global variable in program specified by `pattern'."
   (cl-assert (>= (length pattern) 1))
   (set-buffer target-buffer)
@@ -1676,7 +1684,7 @@ Otherwise take the navigation uri as target source uri."
     (backward-word)
     (list (line-number-at-pos) (current-column))))
 
-(defun abaplib--outline-search-pe (pattern target-buffer)
+(defun abaplib--outline-search-pe (pattern target-buffer def-identifier)
   "Search for events in program specified by `pattern'."
   (cl-assert (>= (length pattern) 1))
   (set-buffer target-buffer)
