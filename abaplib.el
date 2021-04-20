@@ -1489,7 +1489,7 @@ Otherwise take the navigation uri as target source uri."
              (fname-base (abaplib--outline-get-filename-base link))
              (source-filename (file-name-completion fname-base object-path))
              (target-buffer (find-file-noselect source-filename))
-             (search-patterns (list elem-name)
+             (search-patterns (list elem-name))
              (source-pos (abaplib--outline-get-source-pos search-patterns link target-buffer)))
         (setq output-log (concat output-log
                                  (format "  %s" (abaplib--outline-print-item source-pos target-buffer))))
@@ -1513,7 +1513,7 @@ Otherwise take the navigation uri as target source uri."
     (pop-to-buffer (get-buffer-create abaplib--outline-buffer))))
 
 (defun abaplib--outline-post-filter (object-structure)
-  (let ((text-elem-types (list "CLAS/OCX" "PROG/PX")))
+  (let ((text-elem-types (list "CLAS/OCX" "PROG/PX" "PROG/PS")))
     (-remove (lambda (elem)
                (--any? (string= (xml-get-attribute-or-nil elem 'type) it) text-elem-types))
              object-structure)))
@@ -1694,7 +1694,9 @@ Otherwise take the navigation uri as target source uri."
   (set-buffer target-buffer)
   (save-excursion
     (goto-char (point-min))
-    (re-search-forward (concat "DATA(" (car pattern) ")\\|DATA" "\s+" (car pattern)))
+    (re-search-forward (concat "DATA(" (car pattern) ")\\|DATA" "\s+" (car pattern) "\\|"
+                               "PARAMETERS" "\s+" (car pattern) "\\|"
+                               "BEGIN\s+OF\s+BLOCK" "\s+" (car pattern)))
     (backward-word)
     (list (line-number-at-pos) (current-column))))
 
