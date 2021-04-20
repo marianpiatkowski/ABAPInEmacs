@@ -1473,12 +1473,14 @@ Otherwise take the navigation uri as target source uri."
          (fname-base (abaplib--outline-get-filename-base main-link))
          (source-filename (file-name-completion fname-base object-path))
          (target-buffer (find-file-noselect source-filename))
-         (source-pos (abaplib--outline-get-source-pos main-link target-buffer))
+         (search-patterns (list object-name))
+         (source-pos (abaplib--outline-get-source-pos search-patterns main-link target-buffer))
          (output-log (format "Outline for %s\n\n" object-name)))
     (setq output-log (concat output-log
                              (format "%s" (abaplib--outline-print-item source-pos target-buffer))))
     (dolist (elem object-structure)
-      (let* ((sub-obj-structure (xml-get-children elem 'objectStructureElement))
+      (let* ((elem-name (xml-get-attribute elem 'name))
+             (sub-obj-structure (xml-get-children elem 'objectStructureElement))
              (links (-filter (lambda (link)
                                (or (cl-search "definitionIdentifier" (xml-get-attribute link 'rel))
                                    (cl-search "implementationIdentifier" (xml-get-attribute link 'rel))))
@@ -1487,11 +1489,13 @@ Otherwise take the navigation uri as target source uri."
              (fname-base (abaplib--outline-get-filename-base link))
              (source-filename (file-name-completion fname-base object-path))
              (target-buffer (find-file-noselect source-filename))
-             (source-pos (abaplib--outline-get-source-pos link target-buffer)))
+             (search-patterns (list elem-name)
+             (source-pos (abaplib--outline-get-source-pos search-patterns link target-buffer)))
         (setq output-log (concat output-log
                                  (format "  %s" (abaplib--outline-print-item source-pos target-buffer))))
         (dolist (sub-elem sub-obj-structure)
-          (let* ((sub-links (xml-get-children sub-elem 'link))
+          (let* ((sub-elem-name (xml-get-attribute sub-elem 'name))
+                 (sub-links (xml-get-children sub-elem 'link))
                  (sub-link (-last (lambda (sub-link)
                                     (or (cl-search "definitionIdentifier" (xml-get-attribute sub-link 'rel))
                                         (cl-search "implementationIdentifier" (xml-get-attribute sub-link 'rel))))
@@ -1499,7 +1503,8 @@ Otherwise take the navigation uri as target source uri."
                  (fname-base (abaplib--outline-get-filename-base sub-link))
                  (source-filename (file-name-completion fname-base object-path))
                  (target-buffer (find-file-noselect source-filename))
-                 (source-pos (abaplib--outline-get-source-pos sub-link target-buffer)))
+                 (search-patterns (list elem-name sub-elem-name))
+                 (source-pos (abaplib--outline-get-source-pos search-patterns sub-link target-buffer)))
             (setq output-log (concat output-log
                                      (format "    %s" (abaplib--outline-print-item source-pos target-buffer))))
 
@@ -1531,7 +1536,7 @@ Otherwise take the navigation uri as target source uri."
            "main")
           (t (error (format "Cannot determine outline filename base from \"%s\"." navi-uri))))))
 
-(defun abaplib--outline-get-source-pos (link target-buffer)
+(defun abaplib--outline-get-source-pos (search-patterns link target-buffer)
   (let* ((navi-uri (xml-get-attribute link 'href))
          (navi-uri (url-unhex-string navi-uri))
          (pattern1 (progn
@@ -1544,8 +1549,7 @@ Otherwise take the navigation uri as target source uri."
            (let ((source-pos (split-string pattern1 ",")))
              (mapcar 'string-to-number source-pos)))
           (pattern2
-           (let* ((search-patterns (split-string pattern2))
-                  (type (progn
+           (let* ((type (progn
                           (string-match "#type=\\([A-Z]+/[A-Z]+\\)" navi-uri)
                           (match-string 1 navi-uri)))
                   (type-list  (split-string type "/"))
@@ -1556,8 +1560,7 @@ Otherwise take the navigation uri as target source uri."
              (funcall impl-func search-patterns target-buffer def-identifier)))
           ;; treatment for main link representing dev object
           ((string= navi-uri (abaplib-get-property 'uri))
-           (let* ((search-patterns (list (abaplib-get-property 'name)))
-                  (type (abaplib-get-property 'type))
+           (let* ((type (abaplib-get-property 'type))
                   (type-list  (split-string type "/"))
                   (major-type (car type-list))
                   (minor-type (cadr type-list))
