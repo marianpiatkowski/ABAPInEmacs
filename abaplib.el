@@ -206,6 +206,17 @@
          (object-filename-base (if (cadr split-on-source) (caadr split-on-source) "main")))
     object-filename-base))
 
+(defun abaplib-util-compare-source-code (list1 list2)
+  "Given line and column number encoded in `list1' and `list2', respectively,
+check whether position described by `list1' is before position `list2' in source code."
+  (catch 'res
+    (dolist (elem (cl-mapcar '- list2 list1))
+    (if (> elem 0)
+        (throw 'res t))
+    (if (< elem 0)
+        (throw 'res nil)))
+    (throw 'res t)))
+
 (defun abaplib--get-local-properties ()
   "Load property file on current directory for current buffer."
   (let ((property-file (expand-file-name abaplib--property-file)))
