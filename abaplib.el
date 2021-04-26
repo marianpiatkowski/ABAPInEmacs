@@ -296,13 +296,13 @@ check whether position described by `list1' is before position `list2' in source
       (widen)
       (buffer-substring-no-properties (point-min) (point-max)))))
 
-(defun abaplib--rest-api-call (uri success-callback &rest args)
+(defun abaplib--rest-api-call (uri success-callback complete-callback &rest args)
   "Call service API."
   (let* ((url (abaplib-get-project-api-url uri))
          (login-token (cons "Authorization" (abaplib-get-login-token)))
          (headers (cl-getf args :headers))
          (type    (or (cl-getf args :type) "GET"))
-         (sync    (or (cl-getf args :sync) (not success-callback)))
+         (sync    (or (cl-getf args :sync) (and (not success-callback) (not complete-callback))))
          (params  (cl-getf args :params)))
     ;; Verify whether need to login with token
     (unless (abaplib-is-logged)
@@ -343,7 +343,7 @@ check whether position described by `list1' is before position `list2' in source
                                                        error-thrown))
                                 (setq error-message "Unknown error occurred."))
                               (message "%s" error-message))
-                    ;; :complete (lambda (&rest -) (message "Complete" ))
+                    :complete complete-callback
                     args)))))
 
 
@@ -358,6 +358,7 @@ being part of this development object."
       (lambda (&rest rest)
         (let ((response (cl-getf rest :response)))
           (setq etag (request-response-header response "ETag"))))
+      nil
       :sync t)
     etag))
 
@@ -570,6 +571,7 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
                    (maxResults . ,abap-search-list-max-results)))
          (data (abaplib--rest-api-call search-uri
                                        nil
+                                       nil
                                        :params params
                                        :parser 'abaplib-util-xml-parser))
          (object-list (xml-get-children data 'objectReference)))
@@ -625,6 +627,7 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
               (message-list (xml-get-children (car check-report) 'checkMessageList))
               (messages (xml-get-children (car message-list) 'checkMessage)))
          (abaplib-check-show-message messages)))
+     nil
      :parser 'abaplib-util-xml-parser
      :type "POST"
      :data post-data
@@ -636,6 +639,7 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
          (post-data (abaplib--check-template adtcore-uri chkrun-uri version chkrun-content))
          (response-data (abaplib--rest-api-call
                          check-uri
+                         nil
                          nil
                          :parser 'abaplib-util-xml-parser
                          :type "POST"
@@ -727,6 +731,7 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
   (let* ((root-node (abaplib--rest-api-call
                      uri
                      nil
+                     nil
                      :parser 'abaplib-util-xml-parser
                      :params '((_action . LOCK)
                                (accessMode . MODIFY))
@@ -757,6 +762,7 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
      uri
      (lambda (&rest response)
        (message "Unlocked."))
+     nil
      :type "POST"
      :headers `(("X-sap-adt-sessiontype" . "stateless"))
      :params `(("lockHandle" . ,lock-handle)))))
@@ -797,6 +803,7 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
         (post-body (abaplib--activate-preaudit-template adtcore-name adtcore-uri)))
     (abaplib--rest-api-call activate-uri
                             nil
+                            nil
                             :parser 'abaplib-util-xml-parser
                             :type "POST"
                             :params '((method . activate)
@@ -819,6 +826,7 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
                             (lambda (&rest rest)
                               (let ((result (cl-getf rest :data)))
                                 (abaplib--activate-parse-result result)))
+                            nil
                             :parser 'abaplib-util-xml-parser
                             :type "POST"
                             :params '((method . activate)
@@ -893,6 +901,7 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
          (xml-root (abaplib--rest-api-call
                     transcheck-uri
                     nil
+                    nil
                     :type "POST"
                     :data post_data
                     :headers `(("Content-Type" . "application/vnd.sap.as+xml"))
@@ -938,6 +947,7 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
          (post_data (abaplib--solutionmanager-check-template tr-number full-source-uri))
          (xml-root (abaplib--rest-api-call
                     cm-checkrun-uri
+                    nil
                     nil
                     :type "POST"
                     :data post_data
@@ -1030,6 +1040,7 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
   (let* ((major-type (substring type 0 4))
          (metadata-raw (abaplib--rest-api-call uri
                                                nil
+                                               nil
                                                :parser 'abaplib-util-xml-parser))
          (impl-func (intern (concat "abaplib-"
                                     (downcase major-type)
@@ -1054,6 +1065,7 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
            (with-current-buffer (get-file-buffer file-path)
              (revert-buffer :ignore-auto :noconfirm))
            (message "Source retrieved from server and overwrite local.")))))
+   nil
    :parser 'abaplib-util-sourcecode-parser
    :headers (list `("If-None-Match" . ,etag)
                   '("Content-Type" . "plain/text"))))
@@ -1079,6 +1091,7 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
          (if etag
              (abaplib--metadata-post-submit etag object-info))
          (message "Submitting source to server succeeded!")))
+     nil
      :type "PUT"
      :data source-code
      :headers headers
@@ -1107,6 +1120,7 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
   (let* ((format-uri "/sap/bc/adt/abapsource/prettyprinter"))
     (abaplib--rest-api-call format-uri
                             nil
+                            nil
                             :type "POST"
                             :data source-code
                             :parser 'abaplib-util-sourcecode-parser)))
@@ -1122,6 +1136,7 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
                                    full-source-uri row-pos col-pos))
                    (signalCompleteness . true)))
          (completion-result (abaplib--rest-api-call request-uri
+                                                    nil
                                                     nil
                                                     :type "POST"
                                                     :data source-code
@@ -1140,6 +1155,7 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
                                    full-source-uri row-pos col-pos))
                    (patternKey . ,pattern-key))))
     (abaplib--rest-api-call request-uri
+                            nil
                             nil
                             :type "POST"
                             :data source-code
@@ -1162,6 +1178,7 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
                    (filter . "implementation")
                    (filter . "matchingStatement")))
          (navigation-result (abaplib--rest-api-call request-uri
+                                                    nil
                                                     nil
                                                     :parser 'abaplib-util-xml-parser
                                                     :type "POST"
@@ -1189,7 +1206,7 @@ Otherwise take the navigation uri as target source uri."
                                        (split-string full-source-uri "/")))
          (object-uri (mapconcat 'directory-file-name (car split-on-source) "/")) ;; everything before /source in uri
          (object-filename-base (if (cadr split-on-source) (caadr split-on-source) "main")) ;; gives main or implementations etc.
-         (object-info (abaplib--rest-api-call object-uri nil :parser 'abaplib-util-xml-parser))
+         (object-info (abaplib--rest-api-call object-uri nil nil :parser 'abaplib-util-xml-parser))
          (object-type (xml-get-attribute object-info 'type))
          (object-name (xml-get-attribute object-info 'name))
          (object-path (abaplib-get-path object-type object-name object-uri)))
@@ -1264,6 +1281,7 @@ Otherwise take the navigation uri as target source uri."
                        ("Accept"       . "text/plain")))
          (run-result  (abaplib--rest-api-call request-uri
                                               nil
+                                              nil
                                               :parser 'abaplib-util-sourcecode-parser
                                               :type "POST"
                                               :headers headers)))
@@ -1275,6 +1293,7 @@ Otherwise take the navigation uri as target source uri."
          (headers    `(("x-csrf-token" . ,(abaplib-get-csrf-token))
                        ("Accept"       . "text/plain")))
          (run-result  (abaplib--rest-api-call request-uri
+                                              nil
                                               nil
                                               :parser 'abaplib-util-sourcecode-parser
                                               :type "POST"
@@ -1301,6 +1320,7 @@ Otherwise take the navigation uri as target source uri."
          (params `((uri . ,(format "%s#start=%d,%d"
                                    full-source-uri row-pos col-pos))))
          (where-used (abaplib--rest-api-call request-uri
+                                             nil
                                              nil
                                              :parser 'abaplib-util-xml-parser
                                              :type "POST"
@@ -1376,6 +1396,7 @@ Otherwise take the navigation uri as target source uri."
                     ("Accept"       . "application/vnd.sap.adt.repository.usagesnippets.result.v1+xml")))
          (post-data (abaplib--get-usage-snippets-template objects-wId))
          (snippets (abaplib--rest-api-call request-uri
+                                           nil
                                            nil
                                            :sync t
                                            :parser 'abaplib-util-xml-parser
@@ -1453,6 +1474,7 @@ Otherwise take the navigation uri as target source uri."
          (params `((version . ,object-version)
                    (withShortDescriptions . "true")))
          (outline (abaplib--rest-api-call request-uri
+                                          nil
                                           nil
                                           :parser 'abaplib-util-xml-parser
                                           :headers headers
@@ -1750,6 +1772,7 @@ Otherwise take the navigation uri as target source uri."
 (defun abaplib-clas-get-changedby (uri source-name)
   (let* ((metadata-server (abaplib--rest-api-call uri
                                                   nil
+                                                  nil
                                                   :parser 'abaplib-util-xml-parser))
          (includes (xml-get-children metadata-server 'include))
          (include (-first (lambda (include) (cl-search (xml-get-attribute include 'includeType) source-name)) includes))
@@ -1790,6 +1813,7 @@ Otherwise take the navigation uri as target source uri."
 (defun abaplib-prog-get-changedby (uri source-name)
   (let* ((metadata-server (abaplib--rest-api-call uri
                                                   nil
+                                                  nil
                                                   :parser 'abaplib-util-xml-parser))
          (links (xml-get-children metadata-server 'link))
          (link (-first (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links))
@@ -1825,6 +1849,7 @@ Otherwise take the navigation uri as target source uri."
 (defun abaplib-fugr-get-changedby (uri source-name)
   (let* ((metadata-server (abaplib--rest-api-call uri
                                                   nil
+                                                  nil
                                                   :parser 'abaplib-util-xml-parser))
          (links (xml-get-children metadata-server 'link))
          (link (-first (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links))
@@ -1859,6 +1884,7 @@ Otherwise take the navigation uri as target source uri."
 
 (defun abaplib-intf-get-changedby (uri source-name)
   (let* ((metadata-server (abaplib--rest-api-call uri
+                                                  nil
                                                   nil
                                                   :parser 'abaplib-util-xml-parser))
          (links (xml-get-children metadata-server 'link))
@@ -1897,6 +1923,7 @@ Otherwise take the navigation uri as target source uri."
 (defun abaplib-tabl-get-changedby (uri source-name)
   (let* ((metadata-server (abaplib--rest-api-call uri
                                                   nil
+                                                  nil
                                                   :parser 'abaplib-util-xml-parser))
          (links (xml-get-children metadata-server 'link))
          (link (-first (lambda (link) (string= (xml-get-attribute link 'type) "text/plain")) links))
@@ -1931,6 +1958,7 @@ Otherwise take the navigation uri as target source uri."
 
 (defun abaplib-ddls-get-changedby (uri source-name)
   (let* ((metadata-server (abaplib--rest-api-call uri
+                                                  nil
                                                   nil
                                                   :parser 'abaplib-util-xml-parser))
          (links (xml-get-children metadata-server 'link))
@@ -1968,6 +1996,7 @@ Otherwise take the navigation uri as target source uri."
 
 (defun abaplib-bdef-get-changedby (uri source-name)
   (let* ((metadata-server (abaplib--rest-api-call uri
+                                                  nil
                                                   nil
                                                   :parser 'abaplib-util-xml-parser))
          (links (xml-get-children metadata-server 'link))
