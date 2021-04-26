@@ -1114,12 +1114,12 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
 ;;========================================================================
 ;; Module - Core Services - Code Completion
 ;;========================================================================
-(defun abaplib-do-codecompletion-proposal (full-source-uri pos_row pos_col source-code)
+(defun abaplib-do-codecompletion-proposal (full-source-uri row-pos col-pos source-code)
   "Request for code completion."
   (message "Requesting proposal completion from server...")
   (let* ((request-uri "/sap/bc/adt/abapsource/codecompletion/proposal")
          (params `((uri . ,(format "%s#start=%d,%d"
-                                   full-source-uri pos_row pos_col))
+                                   full-source-uri row-pos col-pos))
                    (signalCompleteness . true)))
          (completion-result (abaplib--rest-api-call request-uri
                                                     nil
@@ -1133,11 +1133,11 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
              (data-node   (car (xml-get-children values-node 'DATA))))
         (xml-get-children data-node 'SCC_COMPLETION)))))
 
-(defun abaplib-do-codecompletion-insert (full-source-uri pos_row pos_col pattern-key source-code)
+(defun abaplib-do-codecompletion-insert (full-source-uri row-pos col-pos pattern-key source-code)
   "Insert code completion to source."
   (let* ((request-uri "/sap/bc/adt/abapsource/codecompletion/insertion")
          (params `((uri . ,(format "%s#start=%d,%d"
-                                   full-source-uri pos_row pos_col))
+                                   full-source-uri row-pos col-pos))
                    (patternKey . ,pattern-key))))
     (abaplib--rest-api-call request-uri
                             nil
@@ -1149,7 +1149,7 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
 ;;========================================================================
 ;; Module - Core Services - Code Navigation
 ;;========================================================================
-(defun abaplib-get-navigation-target (full-source-uri pos_row pos_col source-code)
+(defun abaplib-get-navigation-target (full-source-uri row-pos col-pos source-code)
   "Navigate to matching statement."
   (message "Navigating...")
   (let* ((request-uri "/sap/bc/adt/navigation/target")
@@ -1158,7 +1158,7 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
                     ("Content-Type" . "text/plain")
                     ("Accept" . "application/xml")))
          (params `((uri . ,(format "%s#start=%d,%d"
-                                   full-source-uri pos_row pos_col))
+                                   full-source-uri row-pos col-pos))
                    (filter . "implementation")
                    (filter . "matchingStatement")))
          (navigation-result (abaplib--rest-api-call request-uri
