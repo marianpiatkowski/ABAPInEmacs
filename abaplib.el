@@ -1177,18 +1177,22 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
                                    full-source-uri row-pos col-pos))
                    (filter . "implementation")
                    (filter . "matchingStatement")))
-         (navigation-result (abaplib--rest-api-call request-uri
-                                                    nil
-                                                    nil
-                                                    :parser 'abaplib-util-xml-parser
-                                                    :type "POST"
-                                                    :headers headers
-                                                    :data source-code
-                                                    :params params)))
-    (when navigation-result
-      (let ((uri (xml-get-attribute navigation-result 'uri)))
-        uri))
-    ))
+         (http-status)
+         (navigation-result
+          (abaplib--rest-api-call request-uri
+                                  nil
+                                  (lambda (&rest rest)
+                                    (let ((response (cl-getf rest :response)))
+                                      (setq http-status (request-response-status-code response))))
+                                  :sync t
+                                  :parser 'abaplib-util-xml-parser
+                                  :type "POST"
+                                  :headers headers
+                                  :data source-code
+                                  :params params)))
+    (case http-status
+      (200 (xml-get-attribute navigation-result 'uri))
+      (422 (error "Undecidable navigation target!")))))
 
 (defun abaplib-get-target-source-uri (navigation-uri)
   "Get the target source uri from the navigation uri.
