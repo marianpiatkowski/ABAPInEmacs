@@ -1192,7 +1192,34 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
                                   :params params)))
     (case http-status
       (200 (xml-get-attribute navigation-result 'uri))
-      (422 (error "Undecidable navigation target!")))))
+      (422
+       (abaplib-select-navigation-target full-source-uri row-pos col-pos source-code)
+       (error "Undecidable navigation target!")))))
+
+(defun abaplib-select-navigation-target (full-source-uri row-pos col-pos source-code)
+  "Create select option if navigation target is undecidable."
+  (let* ((completing-list)
+         (index 1)
+         (type-hierarchy (abaplib-get-typehierarchy full-source-uri row-pos col-pos source-code)))
+    (message "-- Type hierarchy: %s" type-hierarchy)
+    nil))
+
+(defun abaplib-get-typehierarchy (full-source-uri row-pos col-pos source-code)
+  (let* ((request-uri "/sap/bc/adt/abapsource/typehierarchy")
+         (headers `(("x-csrf-token" . ,(abaplib-get-csrf-token))
+                    ("Content-Type" . "text/plain")
+                    ("Accept" . "application/xml;q=0.9, application/vnd.sap.adt.typehierachy.result.v1+xml")))
+         (params `((uri . ,(format "%s#start=%d,%d"
+                                   full-source-uri row-pos col-pos))
+                   (type . "subTypes"))))
+    (abaplib--rest-api-call request-uri
+                            nil
+                            nil
+                            :parser 'abaplib-util-xml-parser
+                            :type "POST"
+                            :headers headers
+                            :data source-code
+                            :params params)))
 
 (defun abaplib-get-target-source-uri (navigation-uri)
   "Get the target source uri from the navigation uri.
