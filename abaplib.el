@@ -1200,9 +1200,31 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
   "Create select option if navigation target is undecidable."
   (let* ((completing-list)
          (index 1)
-         (type-hierarchy (abaplib-get-typehierarchy full-source-uri row-pos col-pos source-code)))
-    (message "-- Type hierarchy: %s" type-hierarchy)
-    nil))
+         (type-hierarchy    (abaplib-get-typehierarchy full-source-uri row-pos col-pos source-code))
+         (origin-node  (car (xml-get-children type-hierarchy 'origin)))
+         (origin-method     (xml-get-attribute origin-node 'methodName))
+         (origin-type       (xml-get-attribute origin-node 'typeName))
+         (entries-node (car (xml-get-children type-hierarchy 'entries)))
+         (entries           (xml-get-children entries-node 'entry)))
+    (dolist (entry entries)
+      (let* ((entry-name (xml-get-attribute entry 'name))
+             (entry-type (xml-get-attribute entry 'type)))
+        (if (xml-get-attribute-or-nil entry 'parentUri)
+            ;; process subtypes, indent with depth 2 after index when formatting
+            (setq completing-list
+                  (append completing-list
+                          `((,(format "%-3s   %-30s %s" index entry-name entry-type)))))
+          ;; process super-types, no indent after index
+          (setq completing-list
+                (append completing-list
+                        `((,(format "%-3s %-30s %s" index entry-name entry-type))))))
+        (setq index (1+ index))))
+    (let* ((select-prompt   (format "Matches for %s->%s: " origin-type origin-method))
+           (selected-item   (completing-read select-prompt completing-list))
+           (selected-index  (string-to-number (car (split-string selected-item " " t))))
+           (selected-target (nth (- selected-index 1) entries)))
+      (message "Selected target: %s" selected-target) ;; TODO Marian: remove
+      (xml-get-attribute selected-target 'uri))))
 
 (defun abaplib-get-typehierarchy (full-source-uri row-pos col-pos source-code)
   (let* ((request-uri "/sap/bc/adt/abapsource/typehierarchy")
