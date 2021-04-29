@@ -99,10 +99,10 @@
 
 (defconst abaplib--property-file ".properties.json")
 
-(defvar etag-parse-months '(("01" . "January") ("02" . "February") ("03" . "March")
-                            ("04" . "April") ("05" . "May") ("06" . "June")
-                            ("07" . "July") ("08" . "August") ("09" . "September")
-                            ("10" . "October") ("11" . "November") ("12" . "December")))
+(defvar abaplib--etag-parse-months '(("01" . "January") ("02" . "February") ("03" . "March")
+                                     ("04" . "April") ("05" . "May") ("06" . "June")
+                                     ("07" . "July") ("08" . "August") ("09" . "September")
+                                     ("10" . "October") ("11" . "November") ("12" . "December")))
 
 
 ;;==============================================================================
@@ -1000,7 +1000,7 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
         (second (substring etag-string 12 14))
         )
     (format "%s %s %s %s:%s:%s"
-            (cdr (assoc-string month etag-parse-months))
+            (cdr (assoc-string month abaplib--etag-parse-months))
             day year hour minute second)))
 
 (defun abaplib-do-compare-wserver (object-info)
