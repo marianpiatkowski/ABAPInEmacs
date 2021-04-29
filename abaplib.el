@@ -1192,9 +1192,7 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
                                   :params params)))
     (case http-status
       (200 (xml-get-attribute navigation-result 'uri))
-      (422
-       (abaplib-select-navigation-target full-source-uri row-pos col-pos source-code)
-       (error "Undecidable navigation target!")))))
+      (422 (abaplib-select-navigation-target full-source-uri row-pos col-pos source-code)))))
 
 (defun abaplib-select-navigation-target (full-source-uri row-pos col-pos source-code)
   "Create select option if navigation target is undecidable."
@@ -1223,7 +1221,6 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
            (selected-item   (completing-read select-prompt completing-list))
            (selected-index  (string-to-number (car (split-string selected-item " " t))))
            (selected-target (nth (- selected-index 1) entries)))
-      (message "Selected target: %s" selected-target) ;; TODO Marian: remove
       (xml-get-attribute selected-target 'uri))))
 
 (defun abaplib-get-typehierarchy (full-source-uri row-pos col-pos source-code)
