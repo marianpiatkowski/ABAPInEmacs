@@ -434,11 +434,12 @@ The value 0 for `abaplib--location-stack-index' points to the top of the stack."
     (set-buffer (get-buffer-create abaplib--location-stack-buffer))
     (setq buffer-read-only nil)
     (erase-buffer)
+    (insert "\n")
     (let ((cur-index 0))
       (dolist (elem abaplib--location-stack)
         (if (= cur-index abaplib--location-stack-index)
-            (insert (format "%s  <---" (abaplib--print-location-stack-elem elem cur-index)))
-          (insert (format "%s" (abaplib--print-location-stack-elem elem cur-index))))
+            (insert (format "  %s  <---\n" (abaplib--print-location-stack-elem elem cur-index)))
+          (insert (format "  %s\n" (abaplib--print-location-stack-elem elem cur-index))))
         (setq cur-index (1+ cur-index))))
     (goto-char (point-min))
     (setq buffer-read-only t))
@@ -457,9 +458,9 @@ The value 0 for `abaplib--location-stack-index' points to the top of the stack."
                            (setq abaplib--location-stack-index ,stack-index))))
     (define-key map (kbd "<down-mouse-1>") fn-follow-pos)
     (define-key map (kbd "<RET>") fn-follow-pos)
-    (propertize stack-elem
-                'face
-                'mouse-face
+    (propertize (format "%s" stack-elem)
+                'face 'underline
+                'mouse-face 'highlight
                 'keymap map)))
 
 ;;==============================================================================
