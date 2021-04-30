@@ -104,6 +104,18 @@
                                      ("07" . "July") ("08" . "August") ("09" . "September")
                                      ("10" . "October") ("11" . "November") ("12" . "December")))
 
+(defvar abaplib--location-stack nil
+  "Stack of locations obtained by e.g. code navigation")
+
+(defvar abaplib--location-stack-index 0
+  "Index pointing to current element in location stack.
+Value 0 means top of stack.")
+
+(defcustom abaplib--location-stack-max-count 100
+  "How many elements to keep on the location stack"
+  :type 'integer
+  :safe 'integerp)
+
 
 ;;==============================================================================
 ;; Module - Tools & Utilities
@@ -372,6 +384,46 @@ Otherwise `etag' acts like a object-etag and every ETag as part of this developm
                               properties)))
     (unless etag-match
       (error "Local source/object seems not up to date. Cancelling request."))))
+
+(defun abaplib-util-location-stack-elem-equal (elem1 elem2)
+  "Compare two elements of location stack if they describe the same position."
+  (let* ((buffer1 (cdr (assoc 'target-buffer elem1)))
+         (pos1    (cdr (assoc 'position elem1)))
+         (buffer2 (cdr (assoc 'target-buffer elem2)))
+         (pos2    (cdr (assoc 'position elem2))))
+    (and (eq buffer1 buffer2) (every '= pos1 pos2))))
+
+(defun abaplib-location-stack-push (target-buffer row-pos col-pos)
+  "Push location given by `target-buffer', `row-pos', and `col-pos' into location stack.
+Format for the stack elements is the buffer and the position in the source file
+given by line number and column number."
+  (while (> abaplib--location-stack-index 0)
+    (cl-decf abaplib--location-stack-index)
+    (pop abaplib--location-stack))
+  (let* ((source-pos (list row-pos col-pos))
+         (stack-elem `((target-buffer . ,target-buffer)
+                       (position      . ,source-pos))))
+    (unless (abaplib-util-location-stack-elem-equal stack-elem (car abaplib--location-stack))
+      (push stack-elem abaplib--location-stack)
+      (when (> (length abaplib--location-stack) abaplib--location-stack-max-count)
+        (nbutlast abaplib--location-stack
+                  (- (length abaplib--location-stack) abaplib--location-stack-max-count))))))
+
+(defun abaplib-location-stack-jump (by)
+  "Move in location stack.
+If `by' < 0 then move up in the location stack.
+If `by' > 0 then move down in the location stack.
+The value 0 for `abaplib--location-stack-index' points to the top of the stack."
+  (let ((target-index (+ abaplilb--location-stack-index by)))
+    (when (and (>= target-index 0) (< target-index (length abaplib--location-stack)))
+      (setq abaplib--location-stack-index target-index)
+      (let* ((target-elem   (nth target-index abaplib--location-stack))
+             (target-buffer (cdr (assoc 'target-buffer target-elem)))
+             (source-pos    (cdr (assoc 'position target-elem)))
+             (line          (car position))
+             (column        (cadr position)))
+        (pop-to-buffer target-buffer)
+        (abaplib-util-goto-position line column)))))
 
 ;;==============================================================================
 ;; Module - Project

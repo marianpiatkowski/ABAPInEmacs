@@ -365,5 +365,27 @@
     (abaplib-check-version object-etag source-properties)
     (abaplib-outline object-uri object-version)))
 
+(defun abap-location-stack-reset ()
+  "Clear location stack."
+  (interactive)
+  (setq abaplib--location-stack nil)
+  (setq abaplib--location-stack-index 0))
+
+(defun abap-location-stack-push ()
+  "Push position under cursor to location stack."
+  (interactive)
+  (let ((curr-buffer (current-buffer)))
+    (abaplib-location-stack-push curr-buffer (line-number-at-pos) (current-column))))
+
+(defun abap-location-stack-forward ()
+  "Move up in location stack."
+  (interactive)
+  (abaplib-location-stack-jump -1))
+
+(defun abap-location-stack-back ()
+  "Move down in location stack."
+  (interactive)
+  (abaplib-location-stack-jump 1))
+
 (provide 'abap)
 ;;; abap.el ends here
