@@ -414,14 +414,14 @@ given by line number and column number."
 If `by' < 0 then move up in the location stack.
 If `by' > 0 then move down in the location stack.
 The value 0 for `abaplib--location-stack-index' points to the top of the stack."
-  (let ((target-index (+ abaplilb--location-stack-index by)))
+  (let ((target-index (+ abaplib--location-stack-index by)))
     (when (and (>= target-index 0) (< target-index (length abaplib--location-stack)))
       (setq abaplib--location-stack-index target-index)
       (let* ((target-elem   (nth target-index abaplib--location-stack))
              (target-buffer (cdr (assoc 'target-buffer target-elem)))
              (source-pos    (cdr (assoc 'position target-elem)))
-             (line          (car position))
-             (column        (cadr position)))
+             (line          (car source-pos))
+             (column        (cadr source-pos)))
         (pop-to-buffer target-buffer)
         (abaplib-util-goto-position line column)))))
 
