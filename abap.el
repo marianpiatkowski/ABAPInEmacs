@@ -377,6 +377,11 @@
   (let ((curr-buffer (current-buffer)))
     (abaplib-location-stack-push curr-buffer (line-number-at-pos) (current-column))))
 
+(defun abap-location-stack-pop ()
+  "Pop element from location stack."
+  (interactive)
+  (pop abaplib--location-stack))
+
 (defun abap-location-stack-forward ()
   "Move up in location stack."
   (interactive)
@@ -386,6 +391,11 @@
   "Move down in location stack."
   (interactive)
   (abaplib-location-stack-jump 1))
+
+(defun abap-location-stack-visualize ()
+  "Print current location stack."
+  (interactive)
+  (abaplib-location-stack-visualize))
 
 (provide 'abap)
 ;;; abap.el ends here

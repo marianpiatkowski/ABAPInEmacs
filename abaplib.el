@@ -95,6 +95,9 @@
 (defconst abaplib--console-buffer "*ABAP Console*"
   "ABAP Console buffer")
 
+(defconst abaplib--location-stack-buffer "*ABAP Location Stack*"
+  "ABAP Location Stack")
+
 (defconst abaplib--uri-login "/sap/bc/adt/core/discovery")
 
 (defconst abaplib--property-file ".properties.json")
@@ -424,6 +427,40 @@ The value 0 for `abaplib--location-stack-index' points to the top of the stack."
              (column        (cadr source-pos)))
         (pop-to-buffer target-buffer)
         (abaplib-util-goto-position line column)))))
+
+(defun abaplib-location-stack-visualize ()
+  "Print current location stack."
+  (save-current-buffer
+    (set-buffer (get-buffer-create abaplib--location-stack-buffer))
+    (setq buffer-read-only nil)
+    (erase-buffer)
+    (let ((cur-index 0))
+      (dolist (elem abaplib--location-stack)
+        (if (= cur-index abaplib--location-stack-index)
+            (insert (format "%s  <---" (abaplib--print-location-stack-elem elem cur-index)))
+          (insert (format "%s" (abaplib--print-location-stack-elem elem cur-index))))
+        (setq cur-index (1+ cur-index))))
+    (goto-char (point-min))
+    (setq buffer-read-only t))
+  (pop-to-buffer (get-buffer-create abaplib--location-stack-buffer)))
+
+(defun abaplib--print-location-stack-elem (stack-elem stack-index)
+  (let* ((target-buffer  (cdr (assoc 'target-buffer stack-elem)))
+         (source-pos     (cdr (assoc 'position stack-elem)))
+         (line           (car source-pos))
+         (column         (cadr source-pos))
+         (map            (make-sparse-keymap))
+         (fn-follow-pos `(lambda ()
+                           (interactive)
+                           (pop-to-buffer ,target-buffer)
+                           (abaplib-util-goto-position ,line ,column)
+                           (setq abaplib--location-stack-index ,stack-index))))
+    (define-key map (kbd "<down-mouse-1>") fn-follow-pos)
+    (define-key map (kbd "<RET>") fn-follow-pos)
+    (propertize stack-elem
+                'face
+                'mouse-face
+                'keymap map)))
 
 ;;==============================================================================
 ;; Module - Project
