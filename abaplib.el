@@ -1219,6 +1219,7 @@ The value 0 for `abaplib--location-stack-index' points to the top of the stack."
 ;;========================================================================
 (defun abaplib-get-navigation-target (full-source-uri row-pos col-pos source-code)
   "Navigate to matching statement."
+  (abaplib-location-stack-push (current-buffer) row-pos col-pos)
   (message "Navigating...")
   (let* ((request-uri "/sap/bc/adt/navigation/target")
          (headers `(("x-csrf-token" . ,(abaplib-get-csrf-token))
@@ -1355,7 +1356,7 @@ Otherwise take the navigation uri as target source uri."
              (search-forward search-name)
              (skip-chars-backward "A-Za-z0-9_-")))
           (t (goto-char 1)))
-    ))
+    (abaplib-location-stack-push (current-buffer) (line-number-at-pos) (current-column))))
 
 ;;========================================================================
 ;; Module - Core Services - Execute
