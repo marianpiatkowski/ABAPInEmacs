@@ -380,7 +380,7 @@
 (defun abap-location-stack-pop ()
   "Pop element from location stack."
   (interactive)
-  (pop abaplib--location-stack))
+  (abaplib-location-stack-pop))
 
 (defun abap-location-stack-forward ()
   "Move up in location stack."
@@ -395,7 +395,9 @@
 (defun abap-location-stack-visualize ()
   "Print current location stack."
   (interactive)
-  (abaplib-location-stack-visualize))
+  (if (< (length abaplib--location-stack) 1)
+      (message "ABAP: Location stack is empty")
+    (abaplib-location-stack-visualize)))
 
 (provide 'abap)
 ;;; abap.el ends here

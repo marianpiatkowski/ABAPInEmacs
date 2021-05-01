@@ -412,6 +412,11 @@ given by line number and column number."
         (nbutlast abaplib--location-stack
                   (- (length abaplib--location-stack) abaplib--location-stack-max-count))))))
 
+(defun abaplib-location-stack-pop ()
+  (if (> abaplib--location-stack-index 0)
+      (cl-decf abaplib--location-stack-index))
+  (pop abaplib--location-stack))
+
 (defun abaplib-location-stack-jump (by)
   "Move in location stack.
 If `by' < 0 then move up in the location stack.
