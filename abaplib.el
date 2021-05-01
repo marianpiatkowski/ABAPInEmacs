@@ -95,6 +95,15 @@
 (defconst abaplib--console-buffer "*ABAP Console*"
   "ABAP Console buffer")
 
+(defvar abaplib-base-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "q") 'quit-window)
+    map)
+  "Keymap for `abaplib-base-mode'.")
+
+(define-derived-mode abaplib-base-mode special-mode
+  "ABAP base")
+
 (defconst abaplib--location-stack-buffer "*ABAP Location Stack*"
   "ABAP Location Stack")
 
@@ -148,6 +157,7 @@ Value 0 means top of stack.")
                     ((lambda (x) (concat (substring x 0 3) ":" (substring x 3 5)))
                      (format-time-string "%z"))))
     (insert (format "%s" log))
+    (abaplib-base-mode)
     (setq buffer-read-only t)
     ))
 
@@ -157,6 +167,7 @@ Value 0 means top of stack.")
     (setq buffer-read-only nil)
     (erase-buffer)
     (insert (format "%s" log))
+    (abaplib-base-mode)
     (goto-char (point-min))
     (setq buffer-read-only t)))
 
@@ -166,6 +177,7 @@ Value 0 means top of stack.")
     (setq buffer-read-only nil)
     (erase-buffer)
     (insert (format "%s" log))
+    (abaplib-base-mode)
     (goto-char (point-min))
     (setq buffer-read-only t)))
 
@@ -181,6 +193,7 @@ Value 0 means top of stack.")
                      (format-time-string "%z"))))
     (insert "\n\n")
     (insert (format "%s" log))
+    (abaplib-base-mode)
     (setq buffer-read-only t)))
 
 (defun abaplib-util-log-buf-pop ()
@@ -435,7 +448,7 @@ The value 0 for `abaplib--location-stack-index' points to the top of the stack."
 
 (defvar abaplib-location-stack-visualize-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "q") (lambda () (interactive) (kill-buffer abaplib--location-stack-buffer)))
+    (define-key map (kbd "q") 'quit-window)
     (define-key map (kbd "g") 'abap-location-stack-visualize)
     map)
   "Keymap for `abaplib-location-stack-visualize-mode'.")
@@ -451,13 +464,15 @@ The value 0 for `abaplib--location-stack-index' points to the top of the stack."
     (set-buffer (get-buffer-create abaplib--location-stack-buffer))
     (setq buffer-read-only nil)
     (erase-buffer)
-    (insert "\n")
-    (let ((cur-index 0))
-      (dolist (elem abaplib--location-stack)
-        (if (= cur-index abaplib--location-stack-index)
-            (insert (format "  %s  <---\n" (abaplib--print-location-stack-elem elem cur-index)))
-          (insert (format "  %s\n" (abaplib--print-location-stack-elem elem cur-index))))
-        (setq cur-index (1+ cur-index))))
+    (if (< (length abaplib--location-stack) 1)
+        (message "ABAP: Location stack is empty")
+      (insert "\n")
+      (let ((cur-index 0))
+        (dolist (elem abaplib--location-stack)
+          (if (= cur-index abaplib--location-stack-index)
+              (insert (format "  %s  <---\n" (abaplib--print-location-stack-elem elem cur-index)))
+            (insert (format "  %s\n" (abaplib--print-location-stack-elem elem cur-index))))
+          (cl-incf cur-index))))
     (abaplib-location-stack-visualize-mode))
   (pop-to-buffer (get-buffer-create abaplib--location-stack-buffer)))
 

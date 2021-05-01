@@ -395,9 +395,7 @@
 (defun abap-location-stack-visualize ()
   "Print current location stack."
   (interactive)
-  (if (< (length abaplib--location-stack) 1)
-      (message "ABAP: Location stack is empty")
-    (abaplib-location-stack-visualize)))
+  (abaplib-location-stack-visualize))
 
 (provide 'abap)
 ;;; abap.el ends here
