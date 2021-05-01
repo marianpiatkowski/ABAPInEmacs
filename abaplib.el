@@ -433,6 +433,18 @@ The value 0 for `abaplib--location-stack-index' points to the top of the stack."
         (pop-to-buffer target-buffer)
         (abaplib-util-goto-position line column)))))
 
+(defvar abaplib-location-stack-visualize-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "q") (lambda () (interactive) (kill-buffer abaplib--location-stack-buffer)))
+    (define-key map (kbd "g") 'abap-location-stack-visualize)
+    map)
+  "Keymap for `abaplib-location-stack-visualize-mode'.")
+
+(define-derived-mode abaplib-location-stack-visualize-mode special-mode
+  "ABAP Location Stack"
+  (goto-char (point-min))
+  (setq buffer-read-only t))
+
 (defun abaplib-location-stack-visualize ()
   "Print current location stack."
   (save-current-buffer
@@ -446,8 +458,7 @@ The value 0 for `abaplib--location-stack-index' points to the top of the stack."
             (insert (format "  %s  <---\n" (abaplib--print-location-stack-elem elem cur-index)))
           (insert (format "  %s\n" (abaplib--print-location-stack-elem elem cur-index))))
         (setq cur-index (1+ cur-index))))
-    (goto-char (point-min))
-    (setq buffer-read-only t))
+    (abaplib-location-stack-visualize-mode))
   (pop-to-buffer (get-buffer-create abaplib--location-stack-buffer)))
 
 (defun abaplib--print-location-stack-elem (stack-elem stack-index)
