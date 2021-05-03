@@ -739,7 +739,7 @@ The value 0 for `abaplib--location-stack-index' points to the top of the stack."
          (text-search-objects (xml-get-children text-search-node 'textSearchObject))
          ;; filter objects that actually contain search matches
          (text-search-objects (-filter (lambda (elem)
-                                         (> (length (xml-get-children elem 'textLines)) 0))
+                                         (= (length (xml-get-children elem 'textLines)) 1))
                                        text-search-objects))
          (search-pattern      (cdr (assoc 'searchString abaplib--code-search-params)))
          (no-search-results   (xml-get-attribute search-result 'numberOfResults))
@@ -751,7 +751,6 @@ The value 0 for `abaplib--location-stack-index' points to the top of the stack."
                   (format "Number of matches: %s\n\n" no-search-results)))
     ;; loop over objects that contain matches
     (dolist (text-search-object text-search-objects)
-      (cl-assert (= (length (xml-get-children text-search-object 'textLines)) 1))
       (let* ((object-node (car (xml-get-children text-search-object 'adtMainObject)))
              (text-lines-node  (car (xml-get-children text-search-object 'textLines)))
              (object-type (xml-get-attribute object-node 'type))
@@ -792,7 +791,7 @@ The value 0 for `abaplib--location-stack-index' points to the top of the stack."
          (object-type     (cdr (assoc 'type object-info)))
          (target-uri      (cdr (assoc 'uri  object-info)))
          (object-path     (abaplib-get-path object-type object-name))
-         (object-filename (file-name-completion "main" object-path))
+         (object-filename (file-name-completion "main" object-path)) ;; may be nil, handled below
          (object-filepath (concat object-path "/" object-filename))
          (source-pos      (progn
                             (string-match "#start=\\([0-9]+,[0-9]+\\)" target-uri)

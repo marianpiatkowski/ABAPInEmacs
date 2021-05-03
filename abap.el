@@ -400,17 +400,15 @@
     (abaplib-location-stack-visualize)))
 
 (defun abap-code-search ()
-  "TODO: Marian add docu"
+  "Search code."
   (interactive)
-  ;; TODO Marian: enter filters and search string
-  (let* ((search-params
-          ;; `((searchString  . "p_trkorr")             ;; TODO Marian: hardcode
-          `((searchString  . "cl_sver_dbi_gen_dbtable") ;; TODO Marian: hardcode
-            (getAllResults . "X")
-            (packageName   . "SVER_DBI_TEST_BASE"))) ;; TODO Marian: hardcode for filters
+  (let* ((search-string (read-string "Search string: "))
+         (package-name  (upcase (read-string "Package: "))) ;; TODO Marian: read with completion
+         (search-params `((searchString  . ,search-string)
+                          (getAllResults . "X")
+                          (packageName   . ,package-name)))
          (search-result (abaplib-code-search search-params)))
-    (abaplib-display-code-search search-result)
-    ))
+    (abaplib-display-code-search search-result)))
 
 (provide 'abap)
 ;;; abap.el ends here
