@@ -399,5 +399,18 @@
       (message "ABAP: Location stack is empty")
     (abaplib-location-stack-visualize)))
 
+(defun abap-code-search ()
+  "TODO: Marian add docu"
+  (interactive)
+  ;; TODO Marian: enter filters and search string
+  (let* ((search-params
+          ;; `((searchString  . "p_trkorr")             ;; TODO Marian: hardcode
+          `((searchString  . "cl_sver_dbi_gen_dbtable") ;; TODO Marian: hardcode
+            (getAllResults . "X")
+            (packageName   . "SVER_DBI_TEST_BASE"))) ;; TODO Marian: hardcode for filters
+         (search-result (abaplib-code-search search-params)))
+    (abaplib-display-code-search search-result)
+    ))
+
 (provide 'abap)
 ;;; abap.el ends here

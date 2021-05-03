@@ -31,6 +31,7 @@
 (require 'request)
 (require 'xml)
 (require 'dash)
+(require 'dom)
 
 
 ;; (defgroup abap nil
@@ -95,11 +96,26 @@
 (defconst abaplib--console-buffer "*ABAP Console*"
   "ABAP Console buffer")
 
+(defconst abaplib--code-search-buffer "*ABAP Code Search*"
+  "ABAP Code Search buffer")
+
+(defvar abaplib--code-search-params nil
+  "Search parameters for ABAP Code Search")
+
 (defvar abaplib-base-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "q") 'quit-window)
     map)
   "Base keymap for *ABAP ...* buffers.")
+
+(defvar abaplib-code-search-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "q") 'quit-window)
+    (define-key map (kbd "g") '(lambda () (interactive)
+                                 (let ((search-result (abaplib-code-search abaplib--code-search-params)))
+                                   (abaplib-display-code-search search-result))))
+    map)
+  "Keymap for *ABAP Code Search* buffer")
 
 (defconst abaplib--location-stack-buffer "*ABAP Location Stack*"
   "ABAP Location Stack")
@@ -191,6 +207,21 @@ Value 0 means top of stack.")
     (insert "\n\n")
     (insert (format "%s" log))
     (use-local-map abaplib-base-mode-map)
+    (setq buffer-read-only t)))
+
+(defun abaplib-util-code-search-buf-write (log)
+  (save-current-buffer
+    (set-buffer (get-buffer-create abaplib--code-search-buffer))
+    (setq buffer-read-only nil)
+    (erase-buffer)
+    (insert (concat "Code search finished at: "
+                    (format-time-string "%Y-%m-%dT%T")
+                    ((lambda (x) (concat (substring x 0 3) ":" (substring x 3 5)))
+                     (format-time-string "%z"))))
+    (insert "\n\n")
+    (insert (format "%s" log))
+    (use-local-map abaplib-code-search-map)
+    (goto-char (point-min))
     (setq buffer-read-only t)))
 
 (defun abaplib-util-log-buf-pop ()
@@ -689,6 +720,65 @@ The value 0 for `abaplib--location-stack-index' points to the top of the stack."
                                        :parser 'abaplib-util-xml-parser))
          (object-list (xml-get-children data 'objectReference)))
     object-list))
+
+(defun abaplib-code-search (search-params)
+  (message "Searching in ABAP source code...")
+  (let* ((search-uri "/sap/bc/adt/repository/informationsystem/textsearch")
+         (headers `(("x-csrf-token" . ,(abaplib-get-csrf-token))
+                    ("Accept" . "application/xml"))))
+    (setq abaplib--code-search-params search-params)
+    (abaplib--rest-api-call search-uri
+                            nil
+                            nil
+                            :headers headers
+                            :params search-params
+                            :parser 'abaplib-util-xml-parser)))
+
+(defun abaplib-display-code-search (search-result)
+  (let* ((text-search-node    (car (xml-get-children search-result 'textSearchObjects)))
+         (text-search-objects (xml-get-children text-search-node 'textSearchObject))
+         ;; filter objects that actually contain search matches
+         (text-search-objects (-filter (lambda (elem)
+                                         (> (length (xml-get-children elem 'textLines)) 0))
+                                       text-search-objects))
+         (search-pattern      (cdr (assoc 'searchString abaplib--code-search-params)))
+         (no-search-results   (xml-get-attribute search-result 'numberOfResults))
+         (output-log (format "ABAP Source Search: '%s' in %s"
+                             search-pattern
+                             (assoc 'packageName abaplib--code-search-params))))
+    (setq output-log
+          (concat output-log "\n"
+                  (format "Number of matches: %s\n\n" no-search-results)))
+    ;; loop over objects that contain matches
+    (dolist (text-search-object text-search-objects)
+      (cl-assert (= (length (xml-get-children text-search-object 'textLines)) 1))
+      (let ((main-object-node (car (xml-get-children text-search-object 'adtMainObject)))
+            (text-lines-node  (car (xml-get-children text-search-object 'textLines))))
+        (setq output-log
+              (concat output-log "\n"
+                      (format "%s:" (propertize (xml-get-attribute main-object-node 'name)
+                                                'face '(:foreground "dark green")))))
+        (dolist (text-line (xml-get-children text-lines-node 'textLine))
+          (let ((target-uri (url-unhex-string (xml-get-attribute text-line 'uri)))
+                (content    (car (xml-get-children text-line 'content))))
+            (setq output-log
+                  (concat output-log "\n"
+                          (format "%s" (abaplib--code-search-print-item (nth 2 content) search-pattern target-uri))))
+            ))))
+    (abaplib-util-code-search-buf-write output-log)
+    (pop-to-buffer (get-buffer-create abaplib--code-search-buffer))))
+
+(defun abaplib--code-search-print-item (content-line search-pattern target-uri)
+  (let* ((text-elems (string-remove-suffix "..." content-line))
+         (text-elems (string-remove-prefix "..." text-elems))
+         (text-elems (with-temp-buffer
+                       (insert text-elems)
+                       (dom-strings (libxml-parse-html-region (point-min) (point))))))
+    (mapconcat (lambda (elem)
+                 (if (string= elem search-pattern)
+                     (format "%s" (propertize elem 'face '(bold (:foreground "red"))))
+                   elem))
+               text-elems "")))
 
 
 ;;==============================================================================
