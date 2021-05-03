@@ -752,33 +752,69 @@ The value 0 for `abaplib--location-stack-index' points to the top of the stack."
     ;; loop over objects that contain matches
     (dolist (text-search-object text-search-objects)
       (cl-assert (= (length (xml-get-children text-search-object 'textLines)) 1))
-      (let ((main-object-node (car (xml-get-children text-search-object 'adtMainObject)))
-            (text-lines-node  (car (xml-get-children text-search-object 'textLines))))
+      (let* ((object-node (car (xml-get-children text-search-object 'adtMainObject)))
+             (text-lines-node  (car (xml-get-children text-search-object 'textLines)))
+             (object-type (xml-get-attribute object-node 'type))
+             (object-name (xml-get-attribute object-node 'name)))
         (setq output-log
               (concat output-log "\n"
-                      (format "%s:" (propertize (xml-get-attribute main-object-node 'name)
+                      (format "%s:" (propertize (xml-get-attribute object-node 'name)
                                                 'face '(:foreground "dark green")))))
         (dolist (text-line (xml-get-children text-lines-node 'textLine))
-          (let ((target-uri (url-unhex-string (xml-get-attribute text-line 'uri)))
-                (content    (car (xml-get-children text-line 'content))))
+          (let* ((target-uri (url-unhex-string (xml-get-attribute text-line 'uri)))
+                 (content    (car (xml-get-children text-line 'content)))
+                 (content    (abaplib--code-search-format-match search-pattern (nth 2 content)))
+                 (target-object-info `((name . ,object-name)
+                                       (type . ,object-type)
+                                       (uri  . ,target-uri))))
             (setq output-log
                   (concat output-log "\n"
-                          (format "%s" (abaplib--code-search-print-item (nth 2 content) search-pattern target-uri))))
+                          (format "%s" (abaplib--code-search-print-item content target-object-info))))
             ))))
     (abaplib-util-code-search-buf-write output-log)
     (pop-to-buffer (get-buffer-create abaplib--code-search-buffer))))
 
-(defun abaplib--code-search-print-item (content-line search-pattern target-uri)
-  (let* ((text-elems (string-remove-suffix "..." content-line))
+(defun abaplib--code-search-format-match (pattern content)
+  "Reformat `content' line obtained by HTTP request highlighting search `pattern'."
+  (let* ((text-elems (string-remove-suffix "..." content))
          (text-elems (string-remove-prefix "..." text-elems))
          (text-elems (with-temp-buffer
                        (insert text-elems)
                        (dom-strings (libxml-parse-html-region (point-min) (point))))))
     (mapconcat (lambda (elem)
-                 (if (string= elem search-pattern)
+                 (if (string= elem pattern)
                      (format "%s" (propertize elem 'face '(bold (:foreground "red"))))
                    elem))
                text-elems "")))
+
+(defun abaplib--code-search-print-item (content object-info)
+  (let* ((object-name     (cdr (assoc 'name object-info)))
+         (object-type     (cdr (assoc 'type object-info)))
+         (target-uri      (cdr (assoc 'uri  object-info)))
+         (object-path     (abaplib-get-path object-type object-name))
+         (object-filename (file-name-completion "main" object-path))
+         (object-filepath (concat object-path "/" object-filename))
+         (source-pos      (progn
+                            (string-match "#start=\\([0-9]+,[0-9]+\\)" target-uri)
+                            (match-string 1 target-uri)))
+         (source-pos      (split-string source-pos ","))
+         (source-pos      (mapcar 'string-to-number source-pos))
+         (map             (make-sparse-keymap))
+         (fn-follow-pos  `(lambda ()
+                            (interactive)
+                            (let* ((path     ,object-path)
+                                   (filepath ,object-filepath)
+                                   (line     ,(car source-pos))
+                                   (column   ,(cadr source-pos)))
+                              (switch-to-buffer (find-file-other-window filepath))
+                              (abaplib-util-goto-position line column)))))
+    (define-key map (kbd "<down-mouse-1>") fn-follow-pos)
+    (define-key map (kbd "<RET>") fn-follow-pos)
+    (if object-filename ;; print item with link
+        (propertize content
+                    'mouse-face 'highlight
+                    'keymap map)
+      content)))
 
 
 ;;==============================================================================
