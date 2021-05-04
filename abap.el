@@ -385,12 +385,20 @@
 (defun abap-location-stack-forward ()
   "Move up in location stack."
   (interactive)
-  (abaplib-location-stack-jump -1))
+  (abaplib-location-stack-forward))
 
 (defun abap-location-stack-back ()
   "Move down in location stack."
   (interactive)
-  (abaplib-location-stack-jump 1))
+  (abaplib-location-stack-back))
+
+(defun abap-location-stack-jump ()
+  "Move up/down in location stack.
+If `by' < 0 then move up in the location stack.
+If `by' > 0 then move down in the location stack."
+  (interactive)
+  (let ((by (read-number "Jump by: " 0)))
+    (abaplib-location-stack-jump by)))
 
 (defun abap-location-stack-visualize ()
   "Print current location stack."

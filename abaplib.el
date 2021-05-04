@@ -458,6 +458,24 @@ given by line number and column number."
       (cl-decf abaplib--location-stack-index))
   (pop abaplib--location-stack))
 
+(defun abaplib-location-stack-forward ()
+  (let ((stack-elem (nth abaplib--location-stack-index abaplib--location-stack))
+        ;; bring position under cursor to format of location stack elements
+        (curr-pos `((target-buffer . ,(current-buffer))
+                    (position      . ,(list (line-number-at-pos) (current-column))))))
+    (if (abaplib-util-location-stack-elem-equal curr-pos stack-elem)
+        (abaplib-location-stack-jump -1)
+      (abaplib-location-stack-jump 0))))
+
+(defun abaplib-location-stack-back ()
+  (let ((stack-elem (nth abaplib--location-stack-index abaplib--location-stack))
+        ;; bring position under cursor to format of location stack elements
+        (curr-pos `((target-buffer . ,(current-buffer))
+                    (position      . ,(list (line-number-at-pos) (current-column))))))
+    (if (abaplib-util-location-stack-elem-equal curr-pos stack-elem)
+        (abaplib-location-stack-jump 1)
+      (abaplib-location-stack-jump 0))))
+
 (defun abaplib-location-stack-jump (by)
   "Move in location stack.
 If `by' < 0 then move up in the location stack.
