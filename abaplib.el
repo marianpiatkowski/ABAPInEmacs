@@ -721,6 +721,23 @@ The value 0 for `abaplib--location-stack-index' points to the top of the stack."
          (object-list (xml-get-children data 'objectReference)))
     object-list))
 
+(defun abaplib-complete-packages-from-string (s)
+  (let* ((search-uri "/sap/bc/adt/repository/informationsystem/search")
+         (params `((operation         . "quickSearch")
+                   (query             . ,(concat s "*"))
+                   (useSearchProvider . "X")
+                   (maxResults        . ,abap-search-list-max-results)
+                   (objectType       . "DEVC/K")))
+         (data (abaplib--rest-api-call search-uri
+                                       nil
+                                       nil
+                                       :params params
+                                       :parser 'abaplib-util-xml-parser))
+         (package-list))
+    (dolist (object-ref (xml-get-children data 'objectReference))
+      (setq package-list (-snoc package-list (xml-get-attribute object-ref 'name))))
+    package-list))
+
 (defun abaplib-code-search (search-params)
   (message "Searching in ABAP source code...")
   (let* ((search-uri "/sap/bc/adt/repository/informationsystem/textsearch")

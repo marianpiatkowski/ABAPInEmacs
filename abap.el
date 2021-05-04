@@ -403,7 +403,9 @@
   "Search code."
   (interactive)
   (let* ((search-string (read-string "Search string: "))
-         (package-name  (upcase (read-string "Package: "))) ;; TODO Marian: read with completion
+         (package-name
+          (upcase (completing-read "Package: "
+                                   (completion-table-dynamic (lambda (s) (abaplib-complete-packages-from-string s))))))
          (search-params `((searchString  . ,search-string)
                           (getAllResults . "X")
                           (packageName   . ,package-name)))
