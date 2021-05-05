@@ -777,6 +777,7 @@ The value 0 for `abaplib--location-stack-index' points to the top of the stack."
                                          (= (length (xml-get-children elem 'textLines)) 1))
                                        text-search-objects))
          (search-pattern      (cdr (assoc 'searchString abaplib--code-search-params)))
+         (search-pattern      (abaplib--code-search-unstrap-quotes search-pattern))
          (no-search-results   (xml-get-attribute search-result 'numberOfResults))
          (output-log (format "ABAP Source Search: '%s' in %s"
                              search-pattern
@@ -808,6 +809,9 @@ The value 0 for `abaplib--location-stack-index' points to the top of the stack."
     (abaplib-util-code-search-buf-write output-log)
     (pop-to-buffer (get-buffer-create abaplib--code-search-buffer))))
 
+(defun abaplib--code-search-unstrap-quotes (pattern)
+  (string-remove-prefix "\"" (string-remove-suffix "\"" pattern)))
+
 (defun abaplib--code-search-format-match (pattern content)
   "Reformat `content' line obtained by HTTP request highlighting search `pattern'."
   (let* ((text-elems (string-remove-suffix "..." content))
@@ -816,7 +820,7 @@ The value 0 for `abaplib--location-stack-index' points to the top of the stack."
                        (insert text-elems)
                        (dom-strings (libxml-parse-html-region (point-min) (point))))))
     (mapconcat (lambda (elem)
-                 (if (string= elem pattern)
+                 (if (string= (downcase elem) (downcase pattern))
                      (format "%s" (propertize elem 'face '(bold (:foreground "red"))))
                    elem))
                text-elems "")))
