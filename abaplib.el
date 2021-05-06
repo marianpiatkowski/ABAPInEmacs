@@ -1530,7 +1530,7 @@ Otherwise take the navigation uri as target source uri."
 
 (defun abaplib-get-object-info (full-source-uri)
   "Get object info of ABAP development object from `full-source-uri'."
-  (let* ((split-on-source (-split-when (lambda (elem) (string= elem "source"))
+  (let* ((split-on-source (-split-when (lambda (elem) (or (string= elem "source") (string= elem "includes")))
                                        (split-string full-source-uri "/")))
          (object-uri (mapconcat 'directory-file-name (car split-on-source) "/")) ;; everything before /source in uri
          (object-filename-base (if (cadr split-on-source) (caadr split-on-source) "main")) ;; gives main or implementations etc.
