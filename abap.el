@@ -420,5 +420,11 @@ If `by' > 0 then move down in the location stack."
          (search-result (abaplib-code-search search-params)))
     (abaplib-display-code-search search-result)))
 
+(defun abap-unit-execute-object ()
+  "Execute unit tests of object."
+  (interactive)
+  (let ((object-uri (abaplib-get-property 'uri)))
+    (abaplib-execute-unit-tests object-uri)))
+
 (provide 'abap)
 ;;; abap.el ends here

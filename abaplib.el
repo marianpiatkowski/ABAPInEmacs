@@ -2060,6 +2060,53 @@ Otherwise take the navigation uri as target source uri."
     (backward-word)
     (list (line-number-at-pos) (current-column))))
 
+;;==============================================================================
+;; Module - Testing frameworks - ABAP Unit
+;;==============================================================================
+(defun abaplib-execute-unit-tests (uri)
+  "Execute unit tests in ABAP development object given by `uri'."
+  (let* ((request-uri "/sap/bc/adt/abapunit/testruns")
+         (headers `(("x-csrf-token" . ,(abaplib-get-csrf-token))
+                    ("Content-Type" . "application/vnd.sap.adt.abapunit.testruns.config.v4+xml")
+                    ("Accept"       . "application/vnd.sap.adt.abapunit.testruns.result.v2+xml")))
+         (post-data (abaplib--unit-post-body uri))
+         (data (abaplib--rest-api-call request-uri
+                                       nil
+                                       nil
+                                       :type "POST"
+                                       :parser 'abaplib-util-xml-parser
+                                       :headers headers
+                                       :data post-data)))
+    (with-current-buffer (get-buffer-create "*json demo*")
+      (erase-buffer)
+      (insert (json-encode-list data))
+      (json-pretty-print (point-min) (point-max))
+      (pop-to-buffer (current-buffer)))
+    nil))
+
+(defun abaplib--unit-post-body (uri)
+  (concat
+   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+   "<aunit:runConfiguration xmlns:aunit=\"http://www.sap.com/adt/aunit\">"
+   "<external>"
+   "<coverage active=\"false\"/>"
+   "</external>"
+   "<options>"
+   "<uriType value=\"semantic\"/>"
+   "<testDeterminationStrategy appendAssignedTestsPreview=\"true\" assignedTests=\"false\" sameProgram=\"true\"/>"
+   "<testRiskLevels critical=\"true\" dangerous=\"true\" harmless=\"true\"/>"
+   "<testDurations long=\"true\" medium=\"true\" short=\"true\"/>"
+   "<withNavigationUri enabled=\"false\"/>"
+   "</options>"
+   "<adtcore:objectSets xmlns:adtcore=\"http://www.sap.com/adt/core\">"
+   "<objectSet kind=\"inclusive\">"
+   "<adtcore:objectReferences>"
+   (format "<adtcore:objectReference adtcore:uri=\"%s\"/>" uri)
+   "</adtcore:objectReferences>"
+   "</objectSet>"
+   "</adtcore:objectSets>"
+   "</aunit:runConfiguration>"))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Module - Object Type Specific - ABAP Class
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
