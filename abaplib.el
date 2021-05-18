@@ -99,6 +99,9 @@
 (defconst abaplib--code-search-buffer "*ABAP Code Search*"
   "ABAP Code Search buffer")
 
+(defconst abaplib--unit-buffer "*ABAP Unit*"
+  "ABAP Unit buffer")
+
 (defvar abaplib--code-search-params nil
   "Search parameters for ABAP Code Search")
 
@@ -222,6 +225,20 @@ Value 0 means top of stack.")
     (insert (format "%s" log))
     (use-local-map abaplib-code-search-map)
     (goto-char (point-min))
+    (setq buffer-read-only t)))
+
+(defun abaplib-util-unit-buf-write (log)
+  (save-current-buffer
+    (set-buffer (get-buffer-create abaplib--unit-buffer))
+    (setq buffer-read-only nil)
+    (erase-buffer)
+    (insert (concat "ABAP Unit run: "
+                    (format-time-string "%Y-%m-%dT%T")
+                    ((lambda (x) (concat (substring x 0 3) ":" (substring x 3 5)))
+                     (format-time-string "%z"))))
+    (insert "\n\n")
+    (insert (format "%s" log))
+    (use-local-map abaplib-base-mode-map)
     (setq buffer-read-only t)))
 
 (defun abaplib-util-log-buf-pop ()
@@ -2069,20 +2086,59 @@ Otherwise take the navigation uri as target source uri."
          (headers `(("x-csrf-token" . ,(abaplib-get-csrf-token))
                     ("Content-Type" . "application/vnd.sap.adt.abapunit.testruns.config.v4+xml")
                     ("Accept"       . "application/vnd.sap.adt.abapunit.testruns.result.v2+xml")))
-         (post-data (abaplib--unit-post-body uri))
-         (data (abaplib--rest-api-call request-uri
-                                       nil
-                                       nil
-                                       :type "POST"
-                                       :parser 'abaplib-util-xml-parser
-                                       :headers headers
-                                       :data post-data)))
-    (with-current-buffer (get-buffer-create "*json demo*")
-      (erase-buffer)
-      (insert (json-encode-list data))
-      (json-pretty-print (point-min) (point-max))
-      (pop-to-buffer (current-buffer)))
-    nil))
+         (post-data (abaplib--unit-post-body uri)))
+    (abaplib--rest-api-call request-uri
+                            nil
+                            nil
+                            :type "POST"
+                            :parser 'abaplib-util-xml-parser
+                            :headers headers
+                            :data post-data)))
+
+(defun abaplib-display-unit-tests (run-result)
+  (let ((output-log))
+    (dolist (program (xml-get-children run-result 'program))
+      (let* ((name (xml-get-attribute program 'name))
+             (test-classes-node (car (xml-get-children program 'testClasses)))
+             (test-classes (xml-get-children test-classes-node 'testClass)))
+        (setq output-log (concat output-log "Program name: " name "\n"))
+        (setq output-log (concat output-log (abaplib--process-unit-test-classes test-classes)))))
+    (abaplib-util-unit-buf-write output-log)
+    (pop-to-buffer (get-buffer-create abaplib--unit-buffer))))
+
+(defun abaplib--process-unit-test-classes (test-classes)
+  (let ((output-log))
+    (dolist (test-class test-classes)
+      (let* ((class-name (xml-get-attribute test-class 'name))
+             (test-methods-node (car (xml-get-children test-class 'testMethods)))
+             (test-methods (xml-get-children test-methods-node 'testMethod)))
+        (setq output-log (concat output-log "  Test class: " class-name "\n"))
+        (setq output-log (concat output-log (abaplib--process-unit-test-methods test-methods)))))
+    output-log))
+
+(defun abaplib--process-unit-test-methods (test-methods)
+  (let ((output-log))
+    (dolist (test-method test-methods)
+      (if (xml-get-children test-method 'alerts)
+          (setq output-log (concat output-log (abaplib--process-unit-walert test-method)))
+        (setq output-log (concat output-log (abaplib--process-unit-no-alert test-method)))))
+    output-log))
+
+(defun abaplib--process-unit-no-alert (test-method)
+  (let ((output-log)
+        (method-name (xml-get-attribute test-method 'name))
+        (exec-time   (xml-get-attribute test-method 'executionTime))
+        (time-unit   (xml-get-attribute test-method 'unit)))
+    (setq output-log (concat output-log (format "    %s  %s%s\n" method-name exec-time time-unit)))
+    output-log))
+
+(defun abaplib--process-unit-walert (test-method)
+  (let ((output-log)
+        (method-name (xml-get-attribute test-method 'name))
+        (exec-time   (xml-get-attribute test-method 'executionTime))
+        (time-unit   (xml-get-attribute test-method 'unit)))
+    (setq output-log (concat output-log (format "    %s  %s%s ALERTS\n" method-name exec-time time-unit)))
+    output-log))
 
 (defun abaplib--unit-post-body (uri)
   (concat
