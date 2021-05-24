@@ -2168,10 +2168,14 @@ Otherwise take the navigation uri as target source uri."
          (method-name    (xml-get-attribute test-method 'name))
          (exec-time      (xml-get-attribute test-method 'executionTime))
          (time-unit      (xml-get-attribute test-method 'unit))
+         (source-pos     (abaplib--unit-get-source-pos target-uri test-class-buf))
+         (line           (car source-pos))
+         (column         (cadr source-pos))
          (map            (make-sparse-keymap))
          (fn-follow-pow `(lambda ()
                            (interactive)
-                           )))
+                           (pop-to-buffer ,test-class-buf)
+                           (abaplib-util-goto-position ,line ,column))))
     (define-key map (kbd "<down-mouse-1>") fn-follow-pos)
     (define-key map (kbd "<RET>") fn-follow-pos)
     (propertize (format "%s  %s%s" method-name exec-time time-unit)
@@ -2186,6 +2190,19 @@ Otherwise take the navigation uri as target source uri."
         (time-unit   (xml-get-attribute test-method 'unit)))
     (setq output-log (concat output-log (format "%s  %s%s" method-name exec-time time-unit)))
     output-log))
+
+(defun abaplib--unit-get-source-pos (target-uri target-buffer)
+  (set-buffer target-buffer)
+  (let* ((testclass   (progn
+                        (string-match "#testclass=\\([A-Za-z0-9_-]+\\);testmethod=\\([A-Za-z0-9_-]+\\)" target-uri)
+                        (match-string 1 target-uri)))
+         (method-name (match-string 2 target-uri)))
+    (save-excursion
+      (goto-char (point-min))
+      (re-search-forward (concat "CLASS" "\s+" testclass "\s+" "IMPLEMENTATION"))
+      (re-search-forward (concat "METHOD" "\s+" method-name))
+      (backward-word)
+      (list (line-number-at-pos) (current-column)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Module - Object Type Specific - ABAP Class
