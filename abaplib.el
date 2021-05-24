@@ -2095,51 +2095,6 @@ Otherwise take the navigation uri as target source uri."
                             :headers headers
                             :data post-data)))
 
-(defun abaplib-display-unit-tests (run-result)
-  (let ((output-log))
-    (dolist (program (xml-get-children run-result 'program))
-      (let* ((name (xml-get-attribute program 'name))
-             (test-classes-node (car (xml-get-children program 'testClasses)))
-             (test-classes (xml-get-children test-classes-node 'testClass)))
-        (setq output-log (concat output-log "Program name: " name "\n"))
-        (setq output-log (concat output-log (abaplib--process-unit-test-classes test-classes)))))
-    (abaplib-util-unit-buf-write output-log)
-    (pop-to-buffer (get-buffer-create abaplib--unit-buffer))))
-
-(defun abaplib--process-unit-test-classes (test-classes)
-  (let ((output-log))
-    (dolist (test-class test-classes)
-      (let* ((class-name (xml-get-attribute test-class 'name))
-             (test-methods-node (car (xml-get-children test-class 'testMethods)))
-             (test-methods (xml-get-children test-methods-node 'testMethod)))
-        (setq output-log (concat output-log "  Test class: " class-name "\n"))
-        (setq output-log (concat output-log (abaplib--process-unit-test-methods test-methods)))))
-    output-log))
-
-(defun abaplib--process-unit-test-methods (test-methods)
-  (let ((output-log))
-    (dolist (test-method test-methods)
-      (if (xml-get-children test-method 'alerts)
-          (setq output-log (concat output-log (abaplib--process-unit-walert test-method)))
-        (setq output-log (concat output-log (abaplib--process-unit-no-alert test-method)))))
-    output-log))
-
-(defun abaplib--process-unit-no-alert (test-method)
-  (let ((output-log)
-        (method-name (xml-get-attribute test-method 'name))
-        (exec-time   (xml-get-attribute test-method 'executionTime))
-        (time-unit   (xml-get-attribute test-method 'unit)))
-    (setq output-log (concat output-log (format "    %s  %s%s\n" method-name exec-time time-unit)))
-    output-log))
-
-(defun abaplib--process-unit-walert (test-method)
-  (let ((output-log)
-        (method-name (xml-get-attribute test-method 'name))
-        (exec-time   (xml-get-attribute test-method 'executionTime))
-        (time-unit   (xml-get-attribute test-method 'unit)))
-    (setq output-log (concat output-log (format "    %s  %s%s ALERTS\n" method-name exec-time time-unit)))
-    output-log))
-
 (defun abaplib--unit-post-body (uri)
   (concat
    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
@@ -2162,6 +2117,75 @@ Otherwise take the navigation uri as target source uri."
    "</objectSet>"
    "</adtcore:objectSets>"
    "</aunit:runConfiguration>"))
+
+(defun abaplib-display-unit-tests (run-result)
+  (let ((output-log))
+    (dolist (program (xml-get-children run-result 'program))
+      (let* ((name (xml-get-attribute program 'name))
+             (type (xml-get-attribute program 'type))
+             (uri  (xml-get-attribute program 'uri))
+             (path (abaplib-get-path type name uri))
+             (test-classes-node (car (xml-get-children program 'testClasses)))
+             (test-classes (xml-get-children test-classes-node 'testClass))
+             (object-info `((path . ,path)
+                            (name . ,name)
+                            (type . ,type)
+                            (uri  . ,uri))))
+        (setq output-log (concat output-log "Program name: " name "\n"))
+        (setq output-log (concat output-log (abaplib--unit-process test-classes object-info)))))
+    (abaplib-util-unit-buf-write output-log)
+    (pop-to-buffer (get-buffer-create abaplib--unit-buffer))))
+
+(defun abaplib--unit-process (test-classes object-info)
+  (let ((output-log))
+    (dolist (test-class test-classes)
+      (let* ((class-name       (xml-get-attribute test-class 'name))
+             (object-path      (cdr (assoc 'path object-info)))
+             (fname-base       "testclass")
+             (source-filename  (file-name-completion fname-base object-path))
+             (test-class-buf   (find-file-noselect source-filename))
+             (methods-node     (car (xml-get-children test-class 'testMethods)))
+             (test-methods     (xml-get-children methods-node 'testMethod)))
+        (setq output-log (concat output-log "  Test class: " class-name "\n"))
+        (setq output-log (concat output-log
+                                 (abaplib--unit-process-test-class test-methods test-class-buf)))))
+    output-log))
+
+(defun abaplib--unit-process-test-class (test-methods test-class-buf)
+  (let ((output-log))
+    (dolist (test-method test-methods)
+      (if (xml-get-children test-method 'alerts)
+          (setq output-log (concat output-log
+                                   "    FAILED"
+                                   (abaplib--unit-process-method-walert test-method test-class-buf) "\n"))
+        (setq output-log (concat output-log
+                                 "    SUCCESS"
+                                 (abaplib--unit-process-method-no-alert test-method test-class-buf) "\n"))))
+    output-log))
+
+(defun abaplib--unit-process-method-no-alert (test-method test-class-buf)
+  (let* ((target-uri     (xml-get-attribute test-method 'uri))
+         (method-name    (xml-get-attribute test-method 'name))
+         (exec-time      (xml-get-attribute test-method 'executionTime))
+         (time-unit      (xml-get-attribute test-method 'unit))
+         (map            (make-sparse-keymap))
+         (fn-follow-pow `(lambda ()
+                           (interactive)
+                           )))
+    (define-key map (kbd "<down-mouse-1>") fn-follow-pos)
+    (define-key map (kbd "<RET>") fn-follow-pos)
+    (propertize (format "%s  %s%s" method-name exec-time time-unit)
+                'face 'underline
+                'mouse-face 'highlight
+                'keymap map)))
+
+(defun abaplib--unit-process-method-walert (test-method test-class-buf)
+  (let ((output-log)
+        (method-name (xml-get-attribute test-method 'name))
+        (exec-time   (xml-get-attribute test-method 'executionTime))
+        (time-unit   (xml-get-attribute test-method 'unit)))
+    (setq output-log (concat output-log (format "%s  %s%s" method-name exec-time time-unit)))
+    output-log))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Module - Object Type Specific - ABAP Class
