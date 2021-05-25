@@ -2141,7 +2141,7 @@ Otherwise take the navigation uri as target source uri."
     (dolist (test-class test-classes)
       (let* ((class-name       (xml-get-attribute test-class 'name))
              (object-path      (cdr (assoc 'path object-info)))
-             (fname-base       "testclass")
+             (fname-base       "testclasses")
              (source-filename  (file-name-completion fname-base object-path))
              (test-class-buf   (find-file-noselect source-filename))
              (methods-node     (car (xml-get-children test-class 'testMethods)))
@@ -2156,10 +2156,10 @@ Otherwise take the navigation uri as target source uri."
     (dolist (test-method test-methods)
       (if (xml-get-children test-method 'alerts)
           (setq output-log (concat output-log
-                                   "    FAILED"
+                                   "    FAILED  "
                                    (abaplib--unit-process-method-walert test-method test-class-buf) "\n"))
         (setq output-log (concat output-log
-                                 "    SUCCESS"
+                                 "    SUCCESS  "
                                  (abaplib--unit-process-method-no-alert test-method test-class-buf) "\n"))))
     output-log))
 
@@ -2172,7 +2172,7 @@ Otherwise take the navigation uri as target source uri."
          (line           (car source-pos))
          (column         (cadr source-pos))
          (map            (make-sparse-keymap))
-         (fn-follow-pow `(lambda ()
+         (fn-follow-pos `(lambda ()
                            (interactive)
                            (pop-to-buffer ,test-class-buf)
                            (abaplib-util-goto-position ,line ,column))))
