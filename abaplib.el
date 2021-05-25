@@ -2184,11 +2184,16 @@ Otherwise take the navigation uri as target source uri."
                 'keymap map)))
 
 (defun abaplib--unit-process-method-walert (test-method test-class-buf)
-  (let ((output-log)
-        (method-name (xml-get-attribute test-method 'name))
-        (exec-time   (xml-get-attribute test-method 'executionTime))
-        (time-unit   (xml-get-attribute test-method 'unit)))
-    (setq output-log (concat output-log (format "%s  %s%s" method-name exec-time time-unit)))
+  (let* ((output-log)
+         (alerts-node (car (xml-get-children test-method 'alerts)))
+         (alerts      (xml-get-children alerts-node 'alert)))
+    (setq output-log (abaplib--unit-process-method-no-alert test-method test-class-buf))
+    (dolist (alert alerts)
+      (let ((kind     (xml-get-attribute alert 'kind))
+            (severity (xml-get-attribute alert 'severity))
+            (title    (xml-get-children  alert 'title)))
+        (setq output-log (concat output-log
+                                 "      " title "\n"))))
     output-log))
 
 (defun abaplib--unit-get-source-pos (target-uri target-buffer)
