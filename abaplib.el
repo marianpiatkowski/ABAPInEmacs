@@ -2156,7 +2156,7 @@ Otherwise take the navigation uri as target source uri."
     (dolist (test-method test-methods)
       (if (xml-get-children test-method 'alerts)
           (setq output-log (concat output-log
-                                   "    FAILED  "
+                                   "    FAILED   "
                                    (abaplib--unit-process-method-walert test-method test-class-buf) "\n"))
         (setq output-log (concat output-log
                                  "    SUCCESS  "
@@ -2191,9 +2191,9 @@ Otherwise take the navigation uri as target source uri."
     (dolist (alert alerts)
       (let ((kind     (xml-get-attribute alert 'kind))
             (severity (xml-get-attribute alert 'severity))
-            (title    (xml-get-children  alert 'title)))
+            (title    (car (xml-get-children alert 'title))))
         (setq output-log (concat output-log
-                                 "      " title "\n"))))
+                                 "      " (nth 2 title) "\n"))))
     output-log))
 
 (defun abaplib--unit-get-source-pos (target-uri target-buffer)
