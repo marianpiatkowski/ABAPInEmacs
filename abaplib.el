@@ -279,6 +279,15 @@ Value 0 means top of stack.")
          (object-filename-base (if (cadr split-on-source) (caadr split-on-source) "main")))
     object-filename-base))
 
+(defun abaplib-util-split-uri-filename-base (full-source-uri)
+  "Split `full-source-uri' into object-uri and filename base."
+  (let* ((split-on-source (-split-when (lambda (elem) (or (string= elem "source") (string= elem "includes")))
+                                       (split-string full-source-uri "/")))
+         (object-uri (mapconcat 'directory-file-name (car split-on-source) "/"))
+         (object-filename-base (if (cadr split-on-source) (caadr split-on-source) "main")))
+    `((uri        . ,object-uri)
+      (fname-base . ,object-filename-base))))
+
 (defun abaplib-util-compare-source-code (list1 list2)
   "Given line and column number encoded in `list1' and `list2', respectively,
 check whether position described by `list1' is before position `list2' in source code."
@@ -1799,8 +1808,7 @@ Otherwise take the navigation uri as target source uri."
                                 (setq filename (file-name-completion fname-base path))))
                             (setq filepath (concat path "/" filename))
                             (switch-to-buffer (find-file-other-window filepath))
-                            (abaplib-util-goto-position line column))))
-         )
+                            (abaplib-util-goto-position line column)))))
     (define-key map (kbd "<down-mouse-1>") fn-follow-pos)
     (define-key map (kbd "<RET>") fn-follow-pos)
     (propertize (string-trim-left (nth 2 content))
