@@ -2187,13 +2187,16 @@ Otherwise take the navigation uri as target source uri."
   (let* ((output-log)
          (alerts-node (car (xml-get-children test-method 'alerts)))
          (alerts      (xml-get-children alerts-node 'alert)))
-    (setq output-log (abaplib--unit-process-method-no-alert test-method test-class-buf))
+    (setq output-log
+          (concat (abaplib--unit-process-method-no-alert test-method test-class-buf) "\n"))
     (dolist (alert alerts)
       (let ((kind     (xml-get-attribute alert 'kind))
             (severity (xml-get-attribute alert 'severity))
             (title    (car (xml-get-children alert 'title))))
-        (setq output-log (concat output-log
-                                 "      " (nth 2 title) "\n"))))
+        (setq output-log
+              (concat output-log "      " (nth 2 title) "\n"))
+        (setq output-log
+              (concat output-log (abaplib--unit-process-alert-details alert)))))
     output-log))
 
 (defun abaplib--unit-get-source-pos (target-uri target-buffer)
@@ -2208,6 +2211,25 @@ Otherwise take the navigation uri as target source uri."
       (re-search-forward (concat "METHOD" "\s+" method-name))
       (backward-word)
       (list (line-number-at-pos) (current-column)))))
+
+(defun abaplib--unit-process-alert-details (alert)
+  (let* ((output-log)
+         (details-node  (car (xml-get-children alert 'details)))
+         (details       (xml-get-children details-node 'detail))
+         (details       (-filter (lambda (elem) (xml-get-children elem 'details)) details))
+         (stack-node    (car (xml-get-children alert 'stack)))
+         (stack-entries (xml-get-children stack-node 'stackEntry)))
+    (dolist (elem (-zip-lists details stack-entries))
+      (let* ((detail           (car elem))
+             (stack-entry      (cadr elem))
+             (sub-details-node (car (xml-get-children detail 'details)))
+             (sub-details      (xml-get-children sub-details-node 'detail)))
+        (dolist (sub-detail sub-details)
+          (setq output-log
+                (concat output-log "        " (xml-get-attribute sub-detail 'text) "\n")))
+        (setq output-log
+              (concat output-log "        " (xml-get-attribute stack-entry 'uri) "\n"))))
+    output-log))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Module - Object Type Specific - ABAP Class
