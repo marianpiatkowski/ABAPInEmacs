@@ -2234,10 +2234,50 @@ Otherwise take the navigation uri as target source uri."
              (sub-details      (xml-get-children sub-details-node 'detail)))
         (dolist (sub-detail sub-details)
           (setq output-log
-                (concat output-log "        " (xml-get-attribute sub-detail 'text) "\n")))
+                (concat
+                 output-log
+                 "        "
+                 (propertize (xml-get-attribute sub-detail 'text) 'face 'bold) "\n")))
         (setq output-log
-              (concat output-log "        " (xml-get-attribute stack-entry 'uri) "\n"))))
+              (concat
+               output-log
+               "        "
+               (abaplib--unit-print-stack-entry stack-entry) "\n"))))
     output-log))
+
+(defun abaplib--unit-print-stack-entry (stack-entry)
+  (let* ((target-uri (xml-get-attribute stack-entry 'uri))
+         (source-uri (abaplib-get-target-source-uri target-uri))
+         (source-pos (split-string (progn
+                                     (string-match "#start=\\([0-9]+,[0-9]+\\)" target-uri)
+                                     (match-string 1 target-uri)) "," ))
+         (source-pos  (mapcar 'string-to-number source-pos))
+         (object-info (abaplib-util-split-uri-filename-base source-uri))
+         (object-name (xml-get-attribute stack-entry 'name))
+         (type        (xml-get-attribute stack-entry 'type))
+         (object-uri  (cdr (assoc 'uri object-info)))
+         (object-path (abaplib-get-path type object-name object-uri))
+         (fname-base  (cdr (assoc 'fname-base object-info)))
+         (map         (make-sparse-keymap))
+         (fn-follow-pos `(lambda ()
+                           (interactive)
+                           (let* ((path       ,object-path)
+                                  (fname-base ,fname-base)
+                                  (filename   (file-name-completion fname-base path))
+                                  (line       ,(car source-pos))
+                                  (column     ,(cadr source-pos))
+                                  (filepath))
+                             (unless filename
+                               (error (format "Cannot navigate to \"%s\". Please fetch from server first.")))
+                             (setq filepath (concat path "/" filename))
+                             (switch-to-buffer (find-file-other-window filepath))
+                             (abaplib-util-goto-position line column)))))
+    (define-key map (kbd "<down-mouse-1>") fn-follow-pos)
+    (define-key map (kbd "<RET>") fn-follow-pos)
+    (propertize (xml-get-attribute stack-entry 'description)
+                'face 'underline
+                'mouse-face 'highlight
+                'keymap map)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Module - Object Type Specific - ABAP Class
