@@ -273,9 +273,8 @@ Value 0 means top of stack.")
 
 (defun abaplib-util-get-filename-base (full-source-uri)
   "Get filename base from `full-source-uri', i.e. substring after /source/."
-  (let* ((split-on-source (-split-when (lambda (elem) (string= elem "source"))
+  (let* ((split-on-source (-split-when (lambda (elem) (or (string= elem "source") (string= elem "includes")))
                                        (split-string full-source-uri "/")))
-         ;; gives main or implementations etc.
          (object-filename-base (if (cadr split-on-source) (caadr split-on-source) "main")))
     object-filename-base))
 
@@ -2221,13 +2220,8 @@ Otherwise take the navigation uri as target source uri."
       (list (line-number-at-pos) (current-column)))))
 
 (defun abaplib--unit-process-alert-details (alert)
-  (let* ((output-log)
-         (details-node  (car (xml-get-children alert 'details)))
-         (details       (xml-get-children details-node 'detail))
-         (details       (-filter (lambda (elem) (xml-get-children elem 'details)) details))
-         (stack-node    (car (xml-get-children alert 'stack)))
-         (stack-entries (xml-get-children stack-node 'stackEntry)))
-    (dolist (elem (-zip-lists details stack-entries))
+  (let ((output-log))
+    (dolist (elem (abaplib--unit-gather-alert-details alert))
       (let* ((detail           (car elem))
              (stack-entry      (cadr elem))
              (sub-details-node (car (xml-get-children detail 'details)))
@@ -2244,6 +2238,14 @@ Otherwise take the navigation uri as target source uri."
                "        "
                (abaplib--unit-print-stack-entry stack-entry) "\n"))))
     output-log))
+
+(defun abaplib--unit-gather-alert-details (alert)
+  (let* ((details-node  (car (xml-get-children alert 'details)))
+         (details       (xml-get-children details-node 'detail))
+         (details       (-filter (lambda (elem) (xml-get-children elem 'details)) details))
+         (stack-node    (car (xml-get-children alert 'stack)))
+         (stack-entries (xml-get-children stack-node 'stackEntry)))
+    (-zip-lists details stack-entries)))
 
 (defun abaplib--unit-print-stack-entry (stack-entry)
   (let* ((target-uri (xml-get-attribute stack-entry 'uri))
