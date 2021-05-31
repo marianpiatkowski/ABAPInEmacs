@@ -2161,16 +2161,18 @@ Otherwise take the navigation uri as target source uri."
 (defun abaplib--unit-process-test-class (test-methods test-class-buf)
   (let ((output-log))
     (dolist (test-method test-methods)
-      (if (xml-get-children test-method 'alerts)
+      (if (not (xml-get-children test-method 'alerts))
           (setq output-log (concat output-log
-                                   "    FAILED   "
-                                   (abaplib--unit-process-method-walert test-method test-class-buf) "\n"))
+                                   "    SUCCESS  "
+                                   (abaplib--unit-process-method test-method test-class-buf) "\n"))
         (setq output-log (concat output-log
-                                 "    SUCCESS  "
-                                 (abaplib--unit-process-method-no-alert test-method test-class-buf) "\n"))))
+                                 "    FAILED   "
+                                 (abaplib--unit-process-method test-method test-class-buf) "\n"))
+        (setq output-log (concat output-log
+                                 (abaplib--unit-process-alerts test-method test-class-buf) "\n"))))
     output-log))
 
-(defun abaplib--unit-process-method-no-alert (test-method test-class-buf)
+(defun abaplib--unit-process-method (test-method test-class-buf)
   (let* ((target-uri     (xml-get-attribute test-method 'uri))
          (method-name    (xml-get-attribute test-method 'name))
          (exec-time      (xml-get-attribute test-method 'executionTime))
@@ -2190,13 +2192,10 @@ Otherwise take the navigation uri as target source uri."
                 'mouse-face 'highlight
                 'keymap map)))
 
-(defun abaplib--unit-process-method-walert (test-method test-class-buf)
-  (let* ((output-log)
-         (alerts-node (car (xml-get-children test-method 'alerts)))
-         (alerts      (xml-get-children alerts-node 'alert)))
-    (setq output-log
-          (concat (abaplib--unit-process-method-no-alert test-method test-class-buf) "\n"))
-    (dolist (alert alerts)
+(defun abaplib--unit-process-alerts (test-method test-class-buf)
+  (let ((output-log)
+        (alerts-node (car (xml-get-children test-method 'alerts))))
+    (dolist (alert (xml-get-children alerts-node 'alert))
       (let ((kind     (xml-get-attribute alert 'kind))
             (severity (xml-get-attribute alert 'severity))
             (title    (car (xml-get-children alert 'title))))
