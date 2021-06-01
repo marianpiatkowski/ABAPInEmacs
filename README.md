@@ -32,9 +32,12 @@ Add `ABAPInEmacs` directory to your `load-path`
 ;; ABAP CDS Mode
 (require 'abap-cds-mode)
 (add-to-list 'auto-mode-alist '("\\.cds\\'" . abap-cds-mode))
+(require 'abap-ddic-mode)
+(add-to-list 'auto-mode-alist '("\\.tabl\\'" . abap-ddic-mode))
 ;; ADT files as well
 (add-to-list 'auto-mode-alist '("\\.\\(asprog\\|asinc\\|aclass\\)\\'" . abap-mode))
 (add-to-list 'auto-mode-alist '("\\.asddls\\'" . abap-cds-mode))
+(add-to-list 'auto-mode-alist '("\\.astabldt\\'" . abap-ddic-mode))
 ;; ABAPInEmacs includes
 (require 'abap)
 (require 'abap-flycheck)
@@ -47,7 +50,8 @@ Specify your workspace directory by setting the variable `abap-workspace-dir`.
 With the configuration above
 
 - `ABAP Mode` will be loaded automatically once a file with suffix `.abap` has been opened
-- `ABAP CDS Mode` will be loaded automatically once a file with suffix `.cds` has been opened.
+- `ABAP CDS Mode` will be loaded automatically once a file with suffix `.cds` has been opened
+- `ABAP DDIC Mode` will be loaded automatically once a file with suffix `.tabl` has been opened.
 
 ## Usage
 
@@ -91,3 +95,42 @@ done when working on `.abap`-files:
 11. `M-x abap-execute-object` - Execute source code in current buffer
 
 You can also create a Git repository with the retrieved source code and collaborate with other colleagues.
+
+### Functions
+
+  | Function                         | Description                                             |
+  |----------------------------------|---------------------------------------------------------|
+  | M-x abap-create-project          | Create new ABAP project                                 |
+  | M-x abap-add-project             | Add ABAP project to workspace                           |
+  | M-x abap-remove-project          | Remove ABAP project from workspace                      |
+  | M-x abap-open-project            | Open ABAP project                                       |
+  | M-x abap-add-server              | Add server to current project                           |
+  | M-x abap-login                   | Logon to ABAP server                                    |
+  | M-x abap-search-object           | Search and retrieve ABAP development object             |
+  | M-x abap-retrieve-source         | Retrieve source of ABAP development object              |
+  | M-x abap-check-source-uptodate   | Check whether local source is up to date                |
+  | M-x abap-retrieve-object-etag    | Retrieve ETag of ABAP development object                |
+  | M-x abap-retrieve-source-etag    | Retrieve ETag of source                                 |
+  | M-x abap-check-object-version    | Compare local version of development object with server |
+  | M-x abap-check-source-version    | Compare local version of source with server             |
+  | M-x abap-syntax-check            | Syntax check of source                                  |
+  | M-x abap-force-submit-source     | Submit local source to server                           |
+  | M-x abap-submit-source           | Submit local source to server                           |
+  | M-x abap-activate-source         | Activate ABAP development object                        |
+  | M-x abap-format-source           | Format source - pretty print                            |
+  | M-x abap-code-completion         | Request code completion proposals                       |
+  | M-x abap-navigate-code           | Navigate to object under cursor                         |
+  | M-x abap-execute-object          | Launch program/application in GUI                       |
+  | M-x abap-console-run             | Launch program/application in console                   |
+  | M-x abap-where-used              | Get Where-Used list of object under cursor              |
+  | M-x abap-outline                 | Get object structure of ABAP development object         |
+  | M-x abap-location-stack-reset    | Clear location stack                                    |
+  | M-x abap-location-stack-push     | Push position under cursor to location stack            |
+  | M-x abap-location-stack-pop      | Pop element from location stack                         |
+  | M-x abap-location-stack-forward  | Move up in location stack                               |
+  | M-x abap-location-stack-back     | Move down in location stack                             |
+  | M-x abap-location-stack-jump     | Move up/down in location stack                          |
+  | M-x abap-location-stack-visulize | Print current location stack                            |
+  | M-x abap-code-search             | Perform code search                                     |
+  | M-x abap-unit-execute-object     | Execute unit tests of ABAP development object           |
+  | M-x flycheck-abap-setup          | Set up flycheck ABAP                                    |
