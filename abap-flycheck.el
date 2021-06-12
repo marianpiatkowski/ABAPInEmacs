@@ -22,9 +22,12 @@
 
 ;;; Commentary:
 
-;;
+;; See https://www.flycheck.org/en/latest/
+;; and https://www.flycheck.org/en/latest/developer/developing.html
+;; and https://www.flycheck.org/en/28/_downloads/flycheck.html
 
 ;;; Code:
+(require 'flycheck)
 (require 'abap)
 
 (defun flycheck-abap--parse-error (alist checker)
@@ -39,9 +42,8 @@
       (let ((errors (delq nil
                           (mapcar
                            (lambda (alist)
-                             (message "%s" alist)
-                             (flycheck-abap--parse-error alist
-                                                         checker))
+                             ;; (message "%s" alist)
+                             (flycheck-abap--parse-error alist checker))
                            (abap-syntax-check t)))))
         (funcall callback 'finished errors))
     (error (funcall callback 'errored (error-message-string err)))))
@@ -50,14 +52,14 @@
   (list
    (flycheck-verification-result-new
     :label "ABAP Mode"
-    :message (if (and abap-mode (abaplib-is-logged))
+    :message (if (and (derived-mode-p 'abap-mode) (abaplib-is-logged))
                  "enabled"
                "disabled")
-    :face (if abap-mode 'success '(bold warning)))))
+    :face (if (derived-mode-p 'abap-mode) 'success '(bold warning)))))
 
 
 
-(defun flycheck-abap-setup()
+(defun flycheck-abap-setup ()
   "Set up flycheck ABAP."
   (interactive)
   (flycheck-define-generic-checker 'abap
@@ -66,8 +68,7 @@
     :verify #'flycheck-abap--verify
     :modes 'abap-mode
     ;; :error-filter flycheck-abap-error-filter
-    :predicate #'(lambda()
-                   abap-mode))
+    :predicate #'(lambda () (buffer-file-name)))
   (add-to-list 'flycheck-checkers 'abap)
   (setq flycheck-check-syntax-automatically '(mode-enabled save)))
 

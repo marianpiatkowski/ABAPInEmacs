@@ -80,10 +80,16 @@ The following steps are an essential part of the workflow:
 Once a ABAP development object has been successfully fetched by Step 2, the following steps can be
 done when working on `.abap`-files:
 
-3. `M-x abap-retrieve-source` - Get content of ABAP development object in current buffer from server
+3. `M-x abap-retrieve-source` - Get content of ABAP development object associated to current buffer
+    from server
 4. `M-x abap-check-source-uptodate` - Check whether source in current buffer is up to date with server
 5. `M-x abap-syntax-check` - Perform syntax check of object in current buffer\
     If errors and/or warnings occur, they are displayed in the \***ABAP Log**\* buffer.
+
+    Furthermore, on-the-fly syntax checking of the source code can be enabled with the
+    Flycheck extension for ABAP. Call `M-x flycheck-abap-setup` for setting this up.
+    Documentation of the Flycheck extension can be found at the following
+    [link](https://www.flycheck.org/en/latest/).
 6. `M-x abap-format-source` - Do source code formatting of object (pretty print)
 7. `M-x abap-submit-source` - Submit local content in current buffer to ABAP server\
     Unless the object is local on the server side, a transport request has to be chosen for the
@@ -92,7 +98,9 @@ done when working on `.abap`-files:
 9. `M-x abap-code-completion` - Request proposals for code completion from ABAP server
 10. `M-x abap-navigate-code` - Navigate to object under cursor in current buffer, i.e. find
    definition/implementation of the object
-11. `M-x abap-execute-object` - Execute source code in current buffer
+11. `M-x abap-execute-object` - Execute source code of current buffer and display in external window.
+    `M-x abap-console-run` - Execute source code of current buffer and display in
+    \***ABAP Console**\* buffer.
 
 You can also create a Git repository with the retrieved source code and collaborate with other colleagues.
 

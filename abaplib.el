@@ -967,8 +967,8 @@ The value 0 for `abaplib--location-stack-index' points to the top of the stack."
                 `((line . ,pos-line)
                   (column . ,pos-column)
                   (level . ,level)
-                  (message . ,text))
-                )) messages)))
+                  (message . ,text))))
+            messages)))
 
 (defun abaplib--check-render-type-text (type)
   (cond ((string= type "E") (propertize "Error"       'face '(bold (:foreground "red"))))
