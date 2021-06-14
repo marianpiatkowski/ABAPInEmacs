@@ -52,10 +52,10 @@
   (list
    (flycheck-verification-result-new
     :label "ABAP Mode"
-    :message (if (and (derived-mode-p 'abap-mode) (abaplib-is-logged))
+    :message (if (and (derived-mode-p 'abap-mode 'abap-cds-mode 'abap-ddic-mode) (abaplib-is-logged))
                  "enabled"
                "disabled")
-    :face (if (derived-mode-p 'abap-mode) 'success '(bold warning)))))
+    :face (if (derived-mode-p 'abap-mode 'abap-cds-mode 'abap-ddic-mode) 'success '(bold warning)))))
 
 
 
@@ -66,7 +66,7 @@
     "A syntax checker for ABAP using abap-mode"
     :start #'flycheck-abap--start
     :verify #'flycheck-abap--verify
-    :modes 'abap-mode
+    :modes '(abap-mode abap-cds-mode abap-ddic-mode)
     ;; :error-filter flycheck-abap-error-filter
     :predicate #'(lambda () (buffer-file-name)))
   (add-to-list 'flycheck-checkers 'abap)
