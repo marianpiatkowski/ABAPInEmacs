@@ -27,7 +27,6 @@
 ;; and https://www.flycheck.org/en/28/_downloads/flycheck.html
 
 ;;; Code:
-(require 'flycheck)
 (require 'abap)
 
 (defun flycheck-abap--parse-error (alist checker)
@@ -58,19 +57,19 @@
     :face (if (derived-mode-p 'abap-mode 'abap-cds-mode 'abap-ddic-mode) 'success '(bold warning)))))
 
 
-
-(defun flycheck-abap-setup ()
-  "Set up flycheck ABAP."
-  (interactive)
-  (flycheck-define-generic-checker 'abap
-    "A syntax checker for ABAP using abap-mode"
-    :start #'flycheck-abap--start
-    :verify #'flycheck-abap--verify
-    :modes '(abap-mode abap-cds-mode abap-ddic-mode)
-    ;; :error-filter flycheck-abap-error-filter
-    :predicate #'(lambda () (buffer-file-name)))
-  (add-to-list 'flycheck-checkers 'abap)
-  (setq flycheck-check-syntax-automatically '(mode-enabled save)))
+(if (require 'flycheck nil 'noerror)
+    (defun flycheck-abap-setup ()
+      "Set up flycheck ABAP."
+      (interactive)
+      (flycheck-define-generic-checker 'abap
+        "A syntax checker for ABAP using abap-mode"
+        :start #'flycheck-abap--start
+        :verify #'flycheck-abap--verify
+        :modes '(abap-mode abap-cds-mode abap-ddic-mode)
+        ;; :error-filter flycheck-abap-error-filter
+        :predicate #'(lambda () (buffer-file-name)))
+      (add-to-list 'flycheck-checkers 'abap)
+      (setq flycheck-check-syntax-automatically '(mode-enabled save))))
 
 (provide 'abap-flycheck)
 ;;; abap-flycheck.el ends here
